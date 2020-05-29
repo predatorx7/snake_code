@@ -1,0 +1,17 @@
+# Enable all rules by default
+include: all_imp_lint_rules.yaml
+analyzer:
+  strong-mode:
+    implicit-casts: true
+    implicit-dynamic: false
+  errors:
+    # Otherwise cause the import of all_lint_rules to warn because of some rules conflicts.
+    # The conflicts are fixed in this file instead, so we can safely ignore the warning.
+    included_file_warning: ignore
+# Explicitly disable only the rules we do not want.
+linter:
+  rules:
+    # Some explanation why we don't want this lint
+    always_put_required_named_parameters_first: false
+    argument_type_not_assignable: false
+    avoid_void_async: ignore
