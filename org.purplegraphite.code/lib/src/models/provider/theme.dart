@@ -28,6 +28,8 @@ class ThemeProvider with ChangeNotifier {
     Colors.grey
   ];
 
+  List<MaterialColor> get themeColors => _primaryThemeMaterialColors;
+
   /// The navigator state key which will be used by this theme provider to
   /// obtain current context
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;

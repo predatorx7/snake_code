@@ -380,7 +380,7 @@ class _EditorScreenState extends State<EditorScreen> {
                 color: whiteOnDark,
               ),
           textTheme: Theme.of(context).textTheme.copyWith(
-                body2: TextStyle(color: whiteOnDark),
+                bodyText1: TextStyle(color: whiteOnDark),
               ),
         ),
         child: Drawer(
@@ -422,7 +422,7 @@ class _EditorScreenState extends State<EditorScreen> {
                 _isDarkMode,
                 Colors.grey,
                 () {
-                  Navigator.of(context).popAndPushNamed(StartScreenRoute);
+                  Navigator.of(context).popAndPushNamed(SettingsScreenRoute);
                 },
                 const Text("Settings"),
                 Icon(
