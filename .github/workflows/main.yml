@@ -34,22 +34,22 @@ jobs:
 
       - name: Flutter doctor
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter doctor -v;
 
       - name: Refreshing dependencies
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter pub get;
 
       - name: Flutter code formatting check
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter format --set-exit-if-changed .;
 
       - name: analyze issues
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter analyze .;
 
   tests:
@@ -72,5 +72,5 @@ jobs:
           channel: stable # optional, default is stable
       - name: run tests
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter test;

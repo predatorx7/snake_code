@@ -34,13 +34,13 @@ jobs:
 
       - name: Building debug apk
         run: |
-          cd $GITHUB_WORKSPACE/org.purplegrahite.code;
+          cd $GITHUB_WORKSPACE/org.purplegraphite.code;
           flutter build apk --debug --target-platform=android-arm64 --split-debug-info=output/symbols;
 
       - name: Uploading artifacts to zip
         uses: actions/upload-artifact@v1.0.0
         with:
           # Artifact name
-          name: org.purplegrahite.code-debug-android_apks.zip
+          name: org.purplegraphite.code-debug-android_apks.zip
           # Directory containing files to upload
-          path: org.purplegrahite.code/build/app/outputs/apk/debug/
+          path: org.purplegraphite.code/build/app/outputs/apk/debug/
