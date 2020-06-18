@@ -26,7 +26,9 @@ class App extends StatelessWidget {
         // Provides instance of class initiated at the create parameter
         ChangeNotifierProvider<ThemeProvider>(
           // Provides theme to the descendant widgets. Use Provider.of<ThemeProvider>(context) to get it's instance.
-          create: (_) => ThemeProvider(_navigatorKey),
+          create: (_) => ThemeProvider(
+            _navigatorKey,
+          ),
         ),
         ChangeNotifierProvider<EditorController>(
           // This provider is used to control the Editor Screen.

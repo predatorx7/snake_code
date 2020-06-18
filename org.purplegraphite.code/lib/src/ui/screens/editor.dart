@@ -32,10 +32,6 @@ class _EditorScreenState extends State<EditorScreen> {
   Color primaryColorD;
   FocusNode _focusNode;
 
-  bool isDarkTheme() {
-    return Theme.of(context).brightness == Brightness.dark;
-  }
-
   @override
   void initState() {
     _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -106,7 +102,7 @@ class _EditorScreenState extends State<EditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool _isDarkMode = isDarkTheme();
+    final bool _isDarkMode = _themeProvider.isDarkThemeEnabled;
     final popupIconButtonColor = Color.lerp(Theme.of(context).accentColor,
         _isDarkMode ? Colors.white : Colors.black, _isDarkMode ? 0.10 : 0.25);
     final darkOnDark = _isDarkMode ? Colors.black : Colors.white;
