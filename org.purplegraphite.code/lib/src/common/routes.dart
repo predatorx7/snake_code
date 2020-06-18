@@ -1,3 +1,4 @@
+import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +47,13 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
     case SettingsScreenRoute:
       return wrapPageRoute<SettingsScreen>(SettingsScreen());
+    case WorkspaceExplorerScreenRoute:
+      return wrapPageRoute<WorkspaceExplorerScreen>(
+        ChangeNotifierProvider(
+          create: (context) => BrowserController(),
+          child: WorkspaceExplorerScreen(),
+        ),
+      );
     case TerminalScreenRoute:
       return wrapPageRoute<TerminalScreen>(
         ChangeNotifierProvider(

@@ -287,8 +287,9 @@ class _CodeEditingFieldState extends State<CodeEditingField>
   TextEditingController get _effectiveController =>
       widget.controller ?? _controller;
   ScrollController _lineIndicatorController;
-  static const Duration _caretAnimationDuration = Duration(milliseconds: 100);
-  static const Curve _caretAnimationCurve = Curves.fastOutSlowIn;
+  // TODO: Make caret follow ThemeStyle
+  // static const Duration _caretAnimationDuration = Duration(milliseconds: 100);
+  // static const Curve _caretAnimationCurve = Curves.fastOutSlowIn;
 
   FocusNode _focusNode;
   FocusNode get _effectiveFocusNode =>
@@ -466,7 +467,7 @@ class _CodeEditingFieldState extends State<CodeEditingField>
     );
     final double _widthConstraints = (14 * lineCount.toString().length) + 2.0;
     final ThemeData themeData = Theme.of(context);
-    final TextStyle style = themeData.textTheme.subhead.merge(widget.style);
+    final TextStyle style = themeData.textTheme.subtitle1.merge(widget.style);
     final Brightness keyboardAppearance = themeData.primaryColorBrightness;
     final TextEditingController controller = _effectiveController;
     final FocusNode focusNode = _effectiveFocusNode;

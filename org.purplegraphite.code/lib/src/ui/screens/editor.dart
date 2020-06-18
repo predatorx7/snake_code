@@ -28,7 +28,6 @@ class _EditorScreenState extends State<EditorScreen> {
   final key6 = GlobalKey();
   EditorController _mainScreenController;
   ThemeProvider _themeProvider;
-  String _selection;
   Color primaryColorD;
   FocusNode _focusNode;
 
@@ -165,11 +164,6 @@ class _EditorScreenState extends State<EditorScreen> {
         ),
       ),
       child: CustomPopupMenuButton<String>(
-        onSelected: (String value) {
-          setState(() {
-            _selection = value;
-          });
-        },
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(12),
@@ -397,6 +391,9 @@ class _EditorScreenState extends State<EditorScreen> {
                 child: ListTile(
                   title: const Text("Explorer"),
                   leading: Icon(EvaIcons.compassOutline),
+                  onTap: () {
+                    Navigator.pushNamed(context, WorkspaceExplorerScreenRoute);
+                  },
                 ),
               ),
               ListTile(

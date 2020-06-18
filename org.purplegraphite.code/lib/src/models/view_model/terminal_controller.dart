@@ -34,7 +34,7 @@ class ConsoleOutput {
 
 class TerminalController extends ChangeNotifier {
   Map<String, String> environment = {};
-  List<ConsoleOutput> _cache = [];
+  // List<ConsoleOutput> _cache = [];
   List<ConsoleOutput> _outList = [];
   ConsoleOutput get lastConsoleLog => _outList[_outList.length - 1];
   List<ConsoleOutput> get outputs => _outList;
@@ -71,7 +71,7 @@ class TerminalController extends ChangeNotifier {
 
   void execute(String command) {
     if (command.contains('clear')) {
-      _cache = _outList;
+      // _cache = _outList;
       _outList = [];
       notifyListeners();
       return;

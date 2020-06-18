@@ -25,7 +25,7 @@ class BrowserController extends ChangeNotifier {
       BuildContext context, String recentlyCreatedFolderBasename) async {
     var recentlyCreatedFolderPath =
         path.join(current.path, recentlyCreatedFolderBasename);
-    var newFolder = await Directory.fromUri(
+    await Directory.fromUri(
       Uri(
         path: recentlyCreatedFolderPath,
       ),

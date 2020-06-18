@@ -5,7 +5,6 @@ import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/models/view_model/browser_controller.dart';
 import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/components/newfolder_dialog.dart';
-import 'package:code/src/utils/fileutils.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -29,9 +28,8 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
     super.initState();
     dir = Provider.of<EditorController>(context, listen: false)
             .currentWorkspace ??
-        FileUtils.primaryRoot;
-    var initView = Provider.of<BrowserController>(context, listen: false);
-    initView.setCurrent(dir);
+        Directory.systemTemp;
+    Provider.of<BrowserController>(context, listen: false).setCurrent(dir);
   }
 
   @override
@@ -70,52 +68,11 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _selectFolderButton = Tooltip(
-      message: 'Select this folder',
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 150,
-            ),
-            child: OutlineButton(
-              onPressed: dir == null
-                  ? null
-                  : () {
-                      print('select this directory');
-                      // Provider.of<EditorController>(context, listen: false)
-                      //     .setCurrentWorkspace(_view.current);
-                      // Navigator.of(context).pushNamedAndRemoveUntil(
-                      //     EditorScreenRoute, (Route<dynamic> route) => false);
-                    },
-              borderSide: BorderSide(
-                width: 1.6,
-                color: Color.lerp(
-                    Theme.of(context).accentColor, Colors.white, 0.3),
-              ),
-              highlightedBorderColor:
-                  Color.lerp(Theme.of(context).accentColor, Colors.white, 0.5),
-              disabledTextColor:
-                  Color.lerp(Theme.of(context).accentColor, Colors.white, 0.3),
-              textColor: Colors.white,
-              // child: Text('Select'),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(EvaIcons.checkmarkOutline),
-                  Text(' OK '),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
     return Scaffold(
       appBar: AppBar(
-        title: Text(path.basename(dir?.path ?? '')),
-        actions: <Widget>[_selectFolderButton],
+        title: Text(
+          path.basename(dir?.path ?? ''),
+        ),
       ),
       body: Visibility(
         visible: _view.currentEntities?.isNotEmpty ?? false,

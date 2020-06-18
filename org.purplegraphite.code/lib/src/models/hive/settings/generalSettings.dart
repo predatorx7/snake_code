@@ -1,4 +1,3 @@
-import 'package:code/src/models/hive/repository.dart';
 import 'package:hive/hive.dart';
 
 part 'generalSettings.g.dart';

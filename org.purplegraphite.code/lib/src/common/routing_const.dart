@@ -2,8 +2,10 @@ import 'package:flutter/material.dart' show ValueKey;
 
 const String StartScreenRoute = '/start';
 const String EditorScreenRoute = '/editor';
+const String WorkspaceExplorerScreenRoute =
+    '$EditorScreenRoute/workspace_explorer';
 const String BrowserScreenRoute = '/browser';
-const String TerminalScreenRoute = '/terminal';
+const String TerminalScreenRoute = '$EditorScreenRoute/terminal';
 const String SettingsScreenRoute = '/settings';
 const String RootRoute = '/';
 

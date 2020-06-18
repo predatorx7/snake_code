@@ -1,10 +1,14 @@
+import 'package:code/src/models/plain_model/ThemeColors.dart';
 import 'package:code/src/models/provider/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
-  final List<Widget> _settingsChildren = <Widget>[];
+  String _toUppercaseFirstChar(String from) {
+    return '${from[0].toUpperCase()}${from.substring(1)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     // theme settings
@@ -22,64 +26,110 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
-        // Adding theme settings
-        final Iterable<Widget> themeSettingsListTiles = ListTile.divideTiles(
-          context: context,
-          tiles: [
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Text(
-                'Theme preferences',
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontWeight: FontWeight.w900,
+      body: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return ListView(
+            controller: _scrollController,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Text(
+                  'Theme preferences',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.grey[800],
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: DropdownButton<ThemeMode>(
-                value: themeProvider.themeMode,
-                items: ThemeMode.values.map((ThemeMode value) {
-                  return new DropdownMenuItem<ThemeMode>(
-                    value: value,
-                    child: new Text(
-                      value.toString().substring(10),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (_) {
-                  themeProvider.setThemeMode(_);
-                },
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.all(5),
+                child: Text(
+                  'Theme mode',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.grey[800],
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: DropdownButton<MaterialColor>(
-                value: themeProvider.themeColors[themeProvider.themeChoice],
-                items: themeProvider.themeColors.map((MaterialColor value) {
-                  return new DropdownMenuItem<MaterialColor>(
-                    value: value,
-                    child: new Text(
-                      value.toString(),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (_) {
-                  final selectedColor = themeProvider.themeColors.indexOf(_);
-                  themeProvider.setThemeChoice(selectedColor);
-                },
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: DropdownButton<ThemeMode>(
+                  value: themeProvider.themeMode,
+                  items: ThemeMode.values.map((ThemeMode value) {
+                    return new DropdownMenuItem<ThemeMode>(
+                      value: value,
+                      child: new Text(
+                        _toUppercaseFirstChar(value.toString().substring(10)),
+                        style: TextStyle(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (_) {
+                    themeProvider.setThemeMode(_);
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-        _settingsChildren.addAll(themeSettingsListTiles);
-        return ListView(
-          controller: _scrollController,
-          children: _settingsChildren,
-        );
-      }),
+              Divider(),
+              Padding(
+                padding: const EdgeInsets.all(5),
+                child: Text(
+                  'Color',
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.grey[800],
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: DropdownButton<ThemeStyle>(
+                  value: themeProvider.currentThemeStyle,
+                  items: themeProvider.themeStyles.map((ThemeStyle style) {
+                    return new DropdownMenuItem<ThemeStyle>(
+                      value: style,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          new Container(
+                            decoration: BoxDecoration(
+                              color: style.color,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            height: 30,
+                            width: 30,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Text(style.name),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (_) {
+                    final selectedStyle = themeProvider.themeStyles.indexOf(_);
+                    themeProvider.setThemeChoice(selectedStyle);
+                  },
+                ),
+              ),
+              Divider(),
+            ],
+          );
+        },
+      ),
     );
   }
 }

@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/utils/permissions.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class FileUtils {
   static const String _prb = '/storage/emulated/0';
@@ -23,6 +25,16 @@ class FileUtils {
       onDone: () => completer.complete(files),
     );
     return completer.future;
+  }
+
+  static Future<Directory> createTemporaryWorkspace() async {
+    var _docdir = await getApplicationDocumentsDirectory();
+    List<FileSystemEntity> _docdirls = _docdir.listSync();
+    String tempPath =
+        p.join(_docdir.path, 'workspace', 'workspace_${_docdirls.length}');
+    print('Creating temporary workspace with path $tempPath');
+    var _tempWDir = Directory(tempPath);
+    return await _tempWDir.create(recursive: true);
   }
 
   static Future<List<Entity>> listEntities(Directory path) async {

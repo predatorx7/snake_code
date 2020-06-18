@@ -24,7 +24,7 @@ class ThemeSettings extends HiveObject {
     themeModeS = themeMode.toString();
   }
 
-  /// TO BE USED WITH GENERATOR. Use [ThemeSettingsX.manual] instead.
+  /// TO BE USED WITH GENERATOR. Use [ThemeSettings.manual] instead.
   ThemeSettings(this.themeChoice, this.themeModeS);
 
   ThemeSettings.manual(this.themeChoice, ThemeMode mode) {
