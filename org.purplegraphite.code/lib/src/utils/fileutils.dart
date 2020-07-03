@@ -44,6 +44,6 @@ class FileUtils {
   }
 
   static void checkPerms() async {
-    await Pint().ask();
+    await Perms.ask();
   }
 }

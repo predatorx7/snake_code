@@ -1,4 +1,5 @@
 import 'package:code/src/common/routes.dart';
+import 'package:code/src/models/provider/code_controller.dart';
 import 'package:code/src/models/provider/theme.dart';
 import 'package:code/src/ui/screens/start.dart';
 import 'package:code/src/utils/permissions.dart';
@@ -27,12 +28,16 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<ThemeProvider>(
           // Provides theme to the descendant widgets. Use Provider.of<ThemeProvider>(context) to get it's instance.
           create: (_) => ThemeProvider(
-            _navigatorKey,
+            navigatorKey: _navigatorKey,
           ),
         ),
         ChangeNotifierProvider<EditorController>(
           // This provider is used to control the Editor Screen.
           create: (context) => EditorController(),
+        ),
+        ChangeNotifierProvider<CodeController>(
+          // This provider is controls the code in CodeEditingField.
+          create: (context) => CodeController(),
         ),
       ],
       child: Consumer<ThemeProvider>(
@@ -48,9 +53,6 @@ class App extends StatelessWidget {
             themeMode: th.themeMode,
             onGenerateRoute: generateRoute,
             // Don't need to explicitly specify home as [generateRoute] does it.
-            // home: Root(
-            //   key: _rootKey,
-            // ),
           );
         },
       ),
@@ -69,8 +71,9 @@ class _RootState extends State<Root> {
   bool perms = false;
 
   /// Ask permissions & then change [perms] to true
-  Future<void> doPerms() async {
-    await Pint().askOnce();
+  Future<void> requestPermissions() async {
+    // Show dialog here before requesting permissions.
+    await Perms.askOnce();
     setState(() {
       perms = true;
     });
@@ -78,7 +81,7 @@ class _RootState extends State<Root> {
 
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => doPerms());
+    WidgetsBinding.instance.addPostFrameCallback((_) => requestPermissions());
   }
 
   @override

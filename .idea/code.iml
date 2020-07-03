@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/example/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Dart SDK" level="project" />
+    <orderEntry type="library" name="Dart Packages" level="project" />
+  </component>
+</module>

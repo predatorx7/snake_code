@@ -27,7 +27,7 @@ class ThemeProvider with ChangeNotifier {
 
   List<ThemeStyle> get themeStyles => _themeStyles;
 
-  /// Choice of [ThemeStyle]
+  /// Current choice of [ThemeStyle]
   ThemeStyle get currentThemeStyle => themeStyles[themeChoice];
 
   /// The navigator state key which will be used by this theme provider to
@@ -75,11 +75,12 @@ class ThemeProvider with ChangeNotifier {
   /// Defaults to system.
   ThemeMode get themeMode => _themeMode ?? ThemeMode.system;
 
-  ThemeProvider(GlobalKey<NavigatorState> navigatorKey)
+  ThemeProvider({GlobalKey<NavigatorState> navigatorKey})
       : this._navigatorKey = navigatorKey {
     _setup();
   }
 
+  /// Sets up & Initializes preferences.
   Future _setup() async {
     _themeSettingsR = await Repository.create<ThemeSettings>(
         'themeSettings', ThemeSettingsAdapter());
@@ -91,9 +92,10 @@ class ThemeProvider with ChangeNotifier {
     _themeMode = _themeSettingsR.first.themeMode;
     print('ThemeChoice: $_themeChoice, ThemeMode: $_themeMode');
     notifyListeners();
-    _themeSettingsR.listenStream(_onThemeChange);
+    // _themeSettingsR.listenStream(_onThemeChange); // No current use
   }
 
+  /// Called when theme is changed.
   void _onThemeChange(BoxEvent onData) {
     print("d: ${onData.deleted} k: ${onData.key} v: ${onData.value}");
     // notifyListeners();

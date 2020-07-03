@@ -4,15 +4,15 @@ import 'package:flutter/material.dart' show WidgetsFlutterBinding;
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Pint {
-  Map<Permission, PermissionStatus> requestedResult;
-  var storageAccessPerm = Permission.storage;
+class Perms {
+  static Map<Permission, PermissionStatus> requestedResult;
+  static final Permission _storageAccessPerm = Permission.storage;
 
-// TODO: make a dialog to describe why we need permission
-  /// Asking permissions
-  Future<bool> askOnce() async {
+  // TODO: make a dialog to describe why we need permission
+  /// Requests permissions only once. Strictly requires user to accept, on denial will exit the app.
+  static Future<bool> askOnce() async {
     WidgetsFlutterBinding.ensureInitialized();
-    var status = await storageAccessPerm.status;
+    var status = await _storageAccessPerm.status;
     if (status.isUndetermined) {
       // We didn't ask for permission yet.
       await ask();
@@ -21,9 +21,9 @@ class Pint {
     return true;
   }
 
-  Future<void> ask() async {
+  static Future<void> ask() async {
     //Requesting multiple permissions at once.
-    requestedResult = await [storageAccessPerm].request();
+    requestedResult = await [_storageAccessPerm].request();
     // Iterating map to check permissions
     requestedResult.forEach((perm, permStatus) async {
       if (await perm.request().isGranted) {
@@ -36,7 +36,7 @@ class Pint {
     });
   }
 
-  Future<void> recheck(Permission perm) async {
+  static Future<void> recheck(Permission perm) async {
     // Re-checking & Re-requesting
     if (!(await perm.request().isGranted)) {
       // Exit App

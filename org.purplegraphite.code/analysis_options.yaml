@@ -11,7 +11,6 @@ analyzer:
 # Explicitly disable only the rules we do not want.
 linter:
   rules:
-    # Some explanation why we don't want this lint
-    always_put_required_named_parameters_first: false
+    always_put_required_named_parameters_first: true
     argument_type_not_assignable: false
     avoid_void_async: ignore
