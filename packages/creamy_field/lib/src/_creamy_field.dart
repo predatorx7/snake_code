@@ -129,175 +129,17 @@ class _PzCodeFieldSelectionGestureDetectorBuilder
   }
 }
 
-/// A rich text field.
+/// A text field with extended features like
+/// syntax highlighting & additional text
+/// description + manipulation.
 ///
-/// A text field lets the user enter text, either with hardware keyboard or with
-/// an onscreen keyboard.
-///
-/// The text field calls the [onChanged] callback whenever the user changes the
-/// text in the field. If the user indicates that they are done typing in the
-/// field (e.g., by pressing a button on the soft keyboard), the text field
-/// calls the [onSubmitted] callback.
-///
-/// To control the text that is displayed in the text field, use the
-/// [controller]. For example, to set the initial value of the text field, use
-/// a [controller] that already contains some text. The [controller] can also
-/// control the selection and composing region (and to observe changes to the
-/// text, selection, and composing region).
-///
-/// By default, a text field has a [decoration] that draws a divider below the
-/// text field. You can use the [decoration] property to control the decoration,
-/// for example by adding a label or an icon. If you set the [decoration]
-/// property to null, the decoration will be removed entirely, including the
-/// extra padding introduced by the decoration to save space for the labels.
-///
-/// If [decoration] is non-null (which is the default), the text field requires
-/// one of its ancestors to be a [Material] widget.
-///
-/// To integrate the [CreamyField] into a [Form] with other [FormField] widgets,
-/// consider using [TextFormField].
-///
-/// Remember to [dispose] of the [CreamyEditingController] when it is no longer needed.
-/// This will ensure we discard any resources used by the object.
-///
-/// {@tool sample}
-/// This example shows how to create a [CreamyField] that will obscure input. The
-/// [InputDecoration] surrounds the field in a border using [OutlineInputBorder]
-/// and adds a label.
-///
-/// ![](https://flutter.github.io/assets-for-api-docs/assets/material/text_field.png)
-///
-/// ```dart
-/// PzCodeField(
-///   obscureText: true,
-///   decoration: InputDecoration(
-///     border: OutlineInputBorder(),
-///     labelText: 'Password',
-///   ),
-/// )
-/// ```
-/// {@end-tool}
-///
-/// ## Reading values
-///
-/// A common way to read a value from a PzCodeField is to use the [onSubmitted]
-/// callback. This callback is applied to the text field's current value when
-/// the user finishes editing.
-///
-/// {@tool dartpad --template=stateful_widget_material}
-///
-/// This sample shows how to get a value from a PzCodeField via the [onSubmitted]
-/// callback.
-///
-/// ```dart
-/// RichCodeEditingController _controller;
-///
-/// void initState() {
-///   super.initState();
-///   _controller = RichCodeEditingController();
-/// }
-///
-/// void dispose() {
-///   _controller.dispose();
-///   super.dispose();
-/// }
-///
-/// Widget build(BuildContext context) {
-///   return Scaffold(
-///     body: Center(
-///       child: PzCodeField(
-///         controller: _controller,
-///         onSubmitted: (String value) async {
-///           await showDialog<void>(
-///             context: context,
-///             builder: (BuildContext context) {
-///               return AlertDialog(
-///                 title: const Text('Thanks!'),
-///                 content: Text ('You typed "$value".'),
-///                 actions: <Widget>[
-///                   FlatButton(
-///                     onPressed: () { Navigator.pop(context); },
-///                     child: const Text('OK'),
-///                   ),
-///                 ],
-///               );
-///             },
-///           );
-///         },
-///       ),
-///     ),
-///   );
-/// }
-/// ```
-/// {@end-tool}
-///
-/// For most applications the [onSubmitted] callback will be sufficient for
-/// reacting to user input.
-///
-/// The [onEditingComplete] callback also runs when the user finishes editing.
-/// It's different from [onSubmitted] because it has a default value which
-/// updates the text controller and yields the keyboard focus. Applications that
-/// require different behavior can override the default [onEditingComplete]
-/// callback.
-///
-/// Keep in mind you can also always read the current string from a PzCodeField's
-/// [CreamyEditingController] using [CreamyEditingController.text].
-///
-/// See also:
-///
-///  * <https://material.io/design/components/text-fields.html>
-///  * [TextFormField], which integrates with the [Form] widget.
-///  * [InputDecorator], which shows the labels and other visual elements that
-///    surround the actual text editing widget.
-///  * [RichEditableCode], which is the raw text editing control at the heart of a
-///    [PzCodeField]. The [SynEditableCode] widget is rarely used directly unless
-///    you are implementing an entirely different design language, such as
-///    Cupertino.
-///  * Learn how to use a [CreamyEditingController] in one of our
-///    [cookbook recipe](https://flutter.dev/docs/cookbook/forms/text-field-changes#2-use-a-RichCodeEditingController)s.
+/// Similar to Material [TextField].
 class CreamyField extends StatefulWidget {
-  /// Creates a Material Design text field.
+  /// Creates a text field.
   ///
-  /// If [decoration] is non-null (which is the default), the text field requires
-  /// one of its ancestors to be a [Material] widget.
+  /// Similar to [TextField]
   ///
-  /// To remove the decoration entirely (including the extra padding introduced
-  /// by the decoration to save space for the labels), set the [decoration] to
-  /// null.
-  ///
-  /// The [maxLines] property can be set to null to remove the restriction on
-  /// the number of lines. By default, it is one, meaning this is a single-line
-  /// text field. [maxLines] must not be zero.
-  ///
-  /// The [maxLength] property is set to null by default, which means the
-  /// number of characters allowed in the text field is not restricted. If
-  /// [maxLength] is set a character counter will be displayed below the
-  /// field showing how many characters have been entered. If the value is
-  /// set to a positive integer it will also display the maximum allowed
-  /// number of characters to be entered.  If the value is set to
-  /// [CreamyField.noMaxLength] then only the current length is displayed.
-  ///
-  /// After [maxLength] characters have been input, additional input
-  /// is ignored, unless [maxLengthEnforced] is set to false. The text field
-  /// enforces the length with a [LengthLimitingTextInputFormatter], which is
-  /// evaluated after the supplied [inputFormatters], if any. The [maxLength]
-  /// value must be either null or greater than zero.
-  ///
-  /// If [maxLengthEnforced] is set to false, then more than [maxLength]
-  /// characters may be entered, and the error counter and divider will
-  /// switch to the [decoration.errorStyle] when the limit is exceeded.
-  ///
-  /// The text cursor is not shown if [showCursor] is false or if [showCursor]
-  /// is null (the default) and [readOnly] is true.
-  ///
-  /// The [textAlign], [autofocus], [obscureText], [readOnly], [autocorrect],
-  /// [maxLengthEnforced], [scrollPadding], [maxLines], [maxLength], and
-  /// [enableSuggestions] arguments must not be null.
-  ///
-  /// See also:
-  ///
-  ///  * [maxLength], which discusses the precise meaning of "number of
-  ///    characters" and how it may differ from the intuitive meaning.
+  /// {@macro flutter.material.TextField}
   const CreamyField({
     Key key,
     this.controller,
@@ -399,12 +241,16 @@ class CreamyField extends StatefulWidget {
   /// If null, this widget will create its own [CreamyEditingController].
   final CreamyEditingController controller;
 
-  // Trigger when backspace was pressed with value before backspace was pressed
+  /// Triggered when backspace was pressed with value before backspace was pressed
   final ValueChanged<TextEditingValue> onBackSpacePress;
 
-  // Trigger when enter was pressed with value before enter was pressed
+  /// Triggered when enter was pressed with value before enter was pressed
   final ValueChanged<TextEditingValue> onEnterPress;
 
+  /// Syntax highlighter which will parse text from this text field and apply color highlights
+  /// to it based on custom logic.
+  ///
+  /// Overrides the syntax highlighter used by [CreamyEditingController]
   final SyntaxHighlighter syntaxHighlighter;
 
   /// Defines the keyboard focus for this widget.

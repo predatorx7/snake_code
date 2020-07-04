@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart' show TextStyle;
 import 'package:flutter_highlight/theme_map.dart';
 
+/// A theme which will be used
+/// in syntax highlighting
 enum HighlightedThemeType {
   a11yDarkTheme,
   a11yLightTheme,
@@ -94,6 +96,8 @@ enum HighlightedThemeType {
   zenburnTheme,
 }
 
+/// From a [HighlightedThemeType] enum object, this
+/// returns that theme's map with theme name as keys and it's respective [TextStyle] as values.
 Map<String, TextStyle> getHighlightedThemeStyle(
     HighlightedThemeType highlighterThemeType) {
   switch (highlighterThemeType) {

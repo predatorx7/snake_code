@@ -11,11 +11,12 @@ import 'syntax_highlighter.dart';
 /// properties to get several more details about a text like:
 /// 1. Total number of lines
 /// 1. Line number of caret
+/// 1. Shows column number of cursor
 ///
 /// Also supports syntax highlighting, and syntax highlight theme type.
 class CreamyEditingController extends ValueNotifier<TextEditingValue>
     implements TextEditingController {
-  /// Enable syntax highighting
+  /// Enable syntax highlighting
   final bool enableHighlighting;
 
   /// The syntax highlighter which will parse text from Text Field
@@ -26,7 +27,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
 
   /// Creates a controller for an editable text field.
   ///
-  /// This constructor treats a null [text] argument as if it were the empty
+  /// This constructor treats a null [text] argument as if it were an empty
   /// string.
   CreamyEditingController({
     String text,

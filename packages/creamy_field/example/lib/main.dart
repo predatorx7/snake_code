@@ -13,14 +13,13 @@ class DemoCodeEditor extends StatefulWidget {
 }
 
 class _DemoCodeEditorState extends State<DemoCodeEditor> {
-  CreamyEditingController _rec;
-  // SyntaxHighlighterBase _syntaxHighlighterBase;
+  TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
     // _syntaxHighlighterBase = DummySyntaxHighlighter();
-    _rec = CreamyEditingController(
+    controller = CreamyEditingController(
       syntaxHighlighter: CreamySyntaxHighlighter(
         language: LanguageType.dart,
         theme: HighlightedThemeType.githubTheme,
@@ -46,7 +45,7 @@ class _DemoCodeEditorState extends State<DemoCodeEditor> {
               new BoxDecoration(border: new Border.all(color: Colors.grey)),
           child: CreamyField(
             autofocus: true,
-            controller: _rec,
+            controller: controller,
             textCapitalization: TextCapitalization.none,
             decoration: InputDecoration.collapsed(hintText: 'Start writing'),
             maxLines: null,

@@ -33,7 +33,9 @@ import './highlighted_theme_type.dart';
 import './language_type.dart';
 import '../syntax_highlighter.dart';
 
-/// Highlights a source code's syntax based on language type & theme type
+/// Highlights a source code's syntax based on language type & theme type.
+///
+/// This highlighter internally uses `flutter_highlight` & `highlight`
 class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// The original code to be highlighted
   String _source;
@@ -41,6 +43,7 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// The original code to be highlighted
   String get source => _source;
 
+  /// The [tabSize] number of spaces which will be used instead of `\t`.
   final int tabSize;
 
   /// Highlight language
@@ -55,6 +58,15 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
   final Map<String, TextStyle> theme;
 
+  /// Creates a syntax highlighter.
+  ///
+  /// You can specify the language mode & theme type with [language], [theme] respectively.
+  ///
+  /// For the highlight language, it is recommended to give [language] a value for performance
+  /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
+  ///
+  /// The supported highlight themes are
+  /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
   CreamySyntaxHighlighter({
     LanguageType language,
     HighlightedThemeType theme = HighlightedThemeType.githubTheme,

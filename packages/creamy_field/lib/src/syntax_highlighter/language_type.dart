@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+/// Language type which the syntax highlighting parser will use.
 enum LanguageType {
   /// This is actually 1C prgamming language. [LanguageType.language_1c] is
   /// just an alias of 1C language in this package __only__.
@@ -195,6 +196,10 @@ enum LanguageType {
   zephir,
 }
 
+/// Describes the language name.
+///
+/// Strips off the enum class name from the `LanguageType.toString()` and
+/// returns a proper name for the syntax highlighter's parser.
 String toLanguageName(Object enumEntry) {
   final String language = describeEnum(enumEntry);
   // handle exceptionals

@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 
 /// This library provides rich text editing field, controllers, syntax highlighting classes, etc.
-library creamy_field;
+// library creamy_field;
 
 // -- text field ---
 export './src/_creamy_field.dart';
@@ -19,5 +19,5 @@ export './src/syntax_highlighter/highlighted_theme_type.dart';
 export './src/syntax_highlighter.dart';
 // -- syntax highlighter ---
 
-// Don't keep in stable releases, ONLY FOR TEST PURPOSES
+// Don't keep in releases, ONLY FOR TEST PURPOSES
 // export './src/syntax_highlighter/dummy_syntax_highlighter.dart';

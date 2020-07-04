@@ -1,5 +1,14 @@
 # Changelog
 
+## upcoming
+
+- line indicator in creamy text field
+- extended text selection widget
+
+## 0.2.1
+
+- Documentation improvements
+
 ## 0.2.0
 
 - Modified Text controller

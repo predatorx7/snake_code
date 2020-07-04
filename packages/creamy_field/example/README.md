@@ -1,16 +1,35 @@
 # example
 
-A new Flutter project.
+This example demonstrates a sample usage of `creamy_field` package.
 
-## Getting Started
+## Usage with TextEditingController & Syntax highlighter
 
-This project is a starting point for a Flutter application.
+The below example shows the [CreamyEditingController] as [TextEditingController]
+which uses CreamySyntaxHighlighter for highlighting syntax of text value from
+the text field which uses this controller.
 
-A few resources to get you started if this is your first Flutter project:
+```dart
+TextEditingController controller = CreamyEditingController(
+        syntaxHighlighter: CreamySyntaxHighlighter(
+        language: LanguageType.dart,
+        theme: HighlightedThemeType.githubTheme,
+    ),
+);
+```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+## CreamyField
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A CreamyField is a text field which supports CreamyEditingController & CreamySyntaxHighlighter.
+This text field is similar to Material TextField but will be tailored (expected in future) for
+writing rich text, especially for markup & programming languages.
+
+For now, use it like Material TextField as
+
+```dart
+CreamyField(
+    autofocus: true,
+    controller: controller,
+    textCapitalization: TextCapitalization.none,
+    decoration: InputDecoration.collapsed(hintText: 'Start writing'),
+);
+```
