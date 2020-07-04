@@ -31,11 +31,17 @@ import 'package:highlight/highlight.dart' show highlight, Node;
 
 import './highlighted_theme_type.dart';
 import './language_type.dart';
+import '../syntax_highlighter.dart';
 
-/// Highlights a source code's syntax
-class SyntaxHighlighter {
+/// Highlights a source code's syntax based on language type & theme type
+class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// The original code to be highlighted
-  final String source;
+  String _source;
+
+  /// The original code to be highlighted
+  String get source => _source;
+
+  final int tabSize;
 
   /// Highlight language
   ///
@@ -49,27 +55,19 @@ class SyntaxHighlighter {
   /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
   final Map<String, TextStyle> theme;
 
-  /// Text styles
-  ///
-  /// Specify text styles such as font family and font size
-  final TextStyle textStyle;
-
-  SyntaxHighlighter(
-    String input, {
+  CreamySyntaxHighlighter({
     LanguageType language,
     HighlightedThemeType theme = HighlightedThemeType.githubTheme,
-    this.textStyle,
-    int tabSize = 8, // TODO: https://github.com/flutter/flutter/issues/50087
+    this.tabSize = 8, // TODO: https://github.com/flutter/flutter/issues/50087
   })  : this.language = toLanguageName(language) ?? LanguageType.all,
-        this.theme = getHighlightedThemeStyle(theme) ?? const {},
-        source = input.replaceAll('\t', ' ' * tabSize);
+        this.theme = getHighlightedThemeStyle(theme) ?? const {};
 
   List<TextSpan> _convert(List<Node> nodes) {
     List<TextSpan> spans = [];
     var currentSpans = spans;
     List<List<TextSpan>> stack = [];
 
-    _traverse(Node node) {
+    void _traverse(Node node) {
       if (node.value != null) {
         currentSpans.add(node.className == null
             ? TextSpan(text: node.value)
@@ -96,30 +94,22 @@ class SyntaxHighlighter {
     return spans;
   }
 
-  static const _rootKey = 'root';
-  static const _defaultFontColor = Color(0xff000000);
-
-  // TODO: dart:io is not available at web platform currently
-  // See: https://github.com/flutter/flutter/issues/39998
-  // So we just use monospace here for now
-  static const _defaultFontFamily = 'monospace';
-
-  List<TextSpan> buildTextSpans() {
+  @override
+  List<TextSpan> parseTextEditingValue(TextEditingValue value) {
+    _source = value.text.replaceAll('\t', ' ' * tabSize);
     return _convert(highlight.parse(source, language: language).nodes);
   }
 
-  TextSpan buildTextSpan() {
-    var _textStyle = TextStyle(
-      fontFamily: _defaultFontFamily,
-      color: theme[_rootKey]?.color ?? _defaultFontColor,
-    );
-    if (textStyle != null) {
-      _textStyle = _textStyle.merge(textStyle);
-    }
+  @override
+  TextEditingValue onBackSpacePress(
+      TextEditingValue oldValue, TextSpan currentSpan) {
+    throw UnimplementedError(
+        'This syntax highlighter does not support [onBackSpacePress]');
+  }
 
-    return TextSpan(
-      style: _textStyle,
-      children: buildTextSpans(),
-    );
+  @override
+  TextEditingValue onEnterPress(TextEditingValue oldValue) {
+    throw UnimplementedError(
+        'This syntax highlighter does not support [onEnterPress]');
   }
 }

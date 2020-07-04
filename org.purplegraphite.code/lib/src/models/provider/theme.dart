@@ -3,7 +3,6 @@ import 'package:code/src/models/hive/settings/themeSettings.dart';
 import 'package:code/src/models/plain_model/ThemeColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:hive/hive.dart';
 
 class ThemeProvider with ChangeNotifier {
   final GlobalKey<NavigatorState> _navigatorKey;
@@ -96,10 +95,10 @@ class ThemeProvider with ChangeNotifier {
   }
 
   /// Called when theme is changed.
-  void _onThemeChange(BoxEvent onData) {
-    print("d: ${onData.deleted} k: ${onData.key} v: ${onData.value}");
-    // notifyListeners();
-  }
+  // void _onThemeChange(BoxEvent onData) {
+  //   print("d: ${onData.deleted} k: ${onData.key} v: ${onData.value}");
+  //   // notifyListeners();
+  // }
 
   /// Set App's ThemeMode to dark, light or system
   void setThemeMode(ThemeMode themeMode) async {

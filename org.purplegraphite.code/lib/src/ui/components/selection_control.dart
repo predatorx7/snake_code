@@ -258,9 +258,9 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
 // maintaining the width of the closed menu and aligning the child to the right.
 class _TextSelectionToolbarContainer extends SingleChildRenderObjectWidget {
   const _TextSelectionToolbarContainer({
-    Key key,
     @required Widget child,
     @required this.overflowOpen,
+    Key key,
   })  : assert(child != null),
         assert(overflowOpen != null),
         super(key: key, child: child);
@@ -377,10 +377,10 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
 // submenu based on calculating which item would first overflow.
 class _TextSelectionToolbarItems extends MultiChildRenderObjectWidget {
   _TextSelectionToolbarItems({
-    Key key,
     @required this.isAbove,
     @required this.overflowOpen,
     @required List<Widget> children,
+    Key key,
   })  : assert(children != null),
         assert(isAbove != null),
         assert(overflowOpen != null),

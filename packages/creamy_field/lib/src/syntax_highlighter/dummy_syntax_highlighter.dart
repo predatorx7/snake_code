@@ -5,12 +5,7 @@ import 'package:creamy_field/creamy_field.dart';
 
 /// This is a dummy implementation of Syntax highlighter for Testing purpose.
 /// Ideally, you would implement the `SyntaxHighlighterBase` interface as per your need of highlighting rules.
-class DummySyntaxHighlighter implements SyntaxHighlighterBase {
-  @override
-  TextEditingValue addTextRemotely(TextEditingValue oldValue, String newText) {
-    return null;
-  }
-
+class DummySyntaxHighlighter implements SyntaxHighlighter {
   @override
   TextEditingValue onBackSpacePress(
       TextEditingValue oldValue, TextSpan currentSpan) {
@@ -32,7 +27,7 @@ class DummySyntaxHighlighter implements SyntaxHighlighterBase {
   }
 
   @override
-  List<TextSpan> parseText(TextEditingValue tev) {
+  List<TextSpan> parseTextEditingValue(TextEditingValue tev) {
     var texts = tev.text.split(' ');
 
     var lsSpans = List<TextSpan>();

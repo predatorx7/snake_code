@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 
 import 'creamy_editing_controller.dart';
 import 'rich_editable_code.dart';
-import 'syntax_highlighter_base.dart';
+import 'syntax_highlighter.dart';
 
 export 'package:flutter/services.dart'
     show
@@ -405,7 +405,7 @@ class CreamyField extends StatefulWidget {
   // Trigger when enter was pressed with value before enter was pressed
   final ValueChanged<TextEditingValue> onEnterPress;
 
-  final SyntaxHighlighterBase syntaxHighlighter;
+  final SyntaxHighlighter syntaxHighlighter;
 
   /// Defines the keyboard focus for this widget.
   ///
@@ -799,7 +799,6 @@ class CreamyField extends StatefulWidget {
   }
 }
 
-// TODO: Check later
 abstract class CodeSelectionGestureDetectorBuilderDelegate {
   /// [GlobalKey] to the [EditableText] for which the
   /// [TextSelectionGestureDetectorBuilder] will build a [TextSelectionGestureDetector].
@@ -930,7 +929,7 @@ class _CreamyFieldState extends State<CreamyField>
     if (widget.controller == null) {
       if (widget.syntaxHighlighter != null) {
         _controller = CreamyEditingController()
-          ..useCustomSyntaxHighlighting(widget.syntaxHighlighter);
+          ..changeSyntaxHighlighting(widget.syntaxHighlighter);
       } else {
         _controller = CreamyEditingController();
       }
@@ -945,7 +944,7 @@ class _CreamyFieldState extends State<CreamyField>
       _controller =
           CreamyEditingController.fromValue(oldWidget.controller.value);
       if (widget.syntaxHighlighter != null) {
-        _controller.useCustomSyntaxHighlighting(widget.syntaxHighlighter);
+        _controller.changeSyntaxHighlighting(widget.syntaxHighlighter);
       }
     } else if (widget.controller != null && oldWidget.controller == null)
       _controller = null;

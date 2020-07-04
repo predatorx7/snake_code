@@ -1,14 +1,28 @@
+import 'package:creamy_field/src/syntax_highlighter/creamy_syntax_highlighter.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:creamy_field/creamy_field.dart';
 
-import 'syntax_highlighter_base.dart';
+import 'syntax_highlighter.dart';
 
+/// A controller for an editable text field.
+///
+/// Similar to [TextEditingController] but with
+/// properties to get several more details about a text like:
+/// 1. Total number of lines
+/// 1. Line number of caret
+///
+/// Also supports syntax highlighting, and syntax highlight theme type.
 class CreamyEditingController extends ValueNotifier<TextEditingValue>
     implements TextEditingController {
-  final LanguageType languageType;
-  final HighlightedThemeType highlightedThemeType;
+  /// Enable syntax highighting
   final bool enableHighlighting;
+
+  /// The syntax highlighter which will parse text from Text Field
+  final SyntaxHighlighter syntaxHighlighter;
+
+  /// The syntax highlighter which will parse text from Text Field
+  SyntaxHighlighter _syntaxHighlighter;
 
   /// Creates a controller for an editable text field.
   ///
@@ -16,10 +30,11 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// string.
   CreamyEditingController({
     String text,
-    this.languageType,
-    this.highlightedThemeType,
+    this.syntaxHighlighter,
     this.enableHighlighting = true,
-  }) : super(text == null
+  })  : this._syntaxHighlighter =
+            syntaxHighlighter ?? CreamySyntaxHighlighter(),
+        super(text == null
             ? TextEditingValue.empty
             : TextEditingValue(text: text));
 
@@ -29,22 +44,20 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// [TextEditingValue.empty].
   CreamyEditingController.fromValue(
     TextEditingValue value, {
-    this.languageType,
-    this.highlightedThemeType,
+    this.syntaxHighlighter,
     this.enableHighlighting = true,
-  }) : super(value ?? TextEditingValue.empty);
+  })  : this._syntaxHighlighter = syntaxHighlighter,
+        super(value ?? TextEditingValue.empty);
 
   /// The current string the user is editing.
   String get text => value.text;
 
-  SyntaxHighlighterBase syntaxHighlighter;
-
-  /// Use your own implementation of [SyntaxHighlighterBase].
+  /// Use your own implementation of [SyntaxHighlighter].
   ///
   /// Using this will override built-in syntax highlighting based on
   /// [languageType] & [highlightedThemeType]
-  void useCustomSyntaxHighlighting(SyntaxHighlighterBase syntaxHighlighter) {
-    this.syntaxHighlighter = syntaxHighlighter;
+  void changeSyntaxHighlighting(SyntaxHighlighter syntaxHighlighter) {
+    _syntaxHighlighter = syntaxHighlighter;
   }
 
   /// Setting this will notify all the listeners of this [TextEditingController]
@@ -64,42 +77,55 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
     );
   }
 
+  static const _defaultFontColor = Color(0xff000000);
+
+  // TODO: dart:io is not available at web platform currently
+  // See: https://github.com/flutter/flutter/issues/39998
+  // So we just use monospace here for now
+  static const _defaultFontFamily = 'monospace';
+
+  TextSpan _buildSyntaxHighlightedTextSpan(TextStyle textStyle) {
+    var _textStyle = TextStyle(
+      fontFamily: _defaultFontFamily,
+      color: _defaultFontColor,
+    );
+
+    if (textStyle != null) {
+      _textStyle = _textStyle.merge(textStyle);
+    }
+
+    return TextSpan(
+      style: _textStyle,
+      children: _syntaxHighlighter.parseTextEditingValue(value),
+    );
+  }
+
   /// Builds [TextSpan] from current editing value.
   ///
   /// By default makes text in composing range appear as underlined.
   /// Descendants can override this method to customize appearance of text.
   TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
-    if (!enableHighlighting) {
-      if (!value.composing.isValid || !withComposing) {
-        return TextSpan(style: style, text: text);
-      }
-      final TextStyle composingStyle = style.merge(
-        const TextStyle(decoration: TextDecoration.underline),
-      );
-      return TextSpan(style: style, children: <TextSpan>[
-        TextSpan(text: value.composing.textBefore(value.text)),
-        TextSpan(
-          style: composingStyle,
-          text: value.composing.textInside(value.text),
-        ),
-        TextSpan(text: value.composing.textAfter(value.text)),
-      ]);
+    // This is where the magic happens
+    if (_syntaxHighlighter != null && enableHighlighting) {
+      // custom syntax highlighter is used.
+      return _buildSyntaxHighlightedTextSpan(style);
     }
 
-    // This is where the magic happens
-    if (syntaxHighlighter != null) {
-      // custom syntax highlighter is used.
-      var lsSpans = syntaxHighlighter.parseText(value);
-      return TextSpan(style: style, children: lsSpans);
-    } else {
-      final SyntaxHighlighter syntaxHighlighter = SyntaxHighlighter(
-        value.text,
-        language: languageType,
-        theme: highlightedThemeType,
-        textStyle: style,
-      );
-      return syntaxHighlighter.buildTextSpan();
+    // No syntax highlighting is applied
+    if (!value.composing.isValid || !withComposing) {
+      return TextSpan(style: style, text: text);
     }
+    final TextStyle composingStyle = style.merge(
+      const TextStyle(decoration: TextDecoration.underline),
+    );
+    return TextSpan(style: style, children: <TextSpan>[
+      TextSpan(text: value.composing.textBefore(value.text)),
+      TextSpan(
+        style: composingStyle,
+        text: value.composing.textInside(value.text),
+      ),
+      TextSpan(text: value.composing.textAfter(value.text)),
+    ]);
   }
 
   /// The currently selected [text].
@@ -122,6 +148,38 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
       throw FlutterError('invalid text selection: $newSelection');
     value = value.copyWith(selection: newSelection, composing: TextRange.empty);
   }
+
+  /// The text currently under selection
+  String get selectedText => value.selection.textInside(text);
+
+  /// The text before the current text selection
+  String get beforeSelectedText => value.selection.textBefore(text);
+
+  /// The text after the current text selection
+  String get afterSelectedText => value.selection.textAfter(text);
+
+  /// Total number of lines in the [text]
+  int get totalLines => value.text?.split('\n')?.length ?? 0;
+
+  /// The line at which end cursor lies
+  int get atLine => beforeSelectedText?.split('\n')?.length ?? 1;
+
+  /// The column at which the end cursor is at.
+  int get atColumn {
+    int _extent = value?.selection?.extentOffset ?? 0;
+    String precursorText = text?.substring(0, _extent) ?? '';
+    return (_extent - precursorText?.lastIndexOf('\n') ?? 0) + 1;
+  }
+
+  Map<String, dynamic> get textDescriptionToMap => <String, dynamic>{
+        'text': text,
+        'totalLines': totalLines,
+        'atLine': atLine,
+        'atColumn': atColumn,
+        'selectedText': selectedText,
+        'beforeSelectedText': beforeSelectedText,
+        'afterSelectedText': afterSelectedText,
+      };
 
   /// Set the [value] to empty.
   ///

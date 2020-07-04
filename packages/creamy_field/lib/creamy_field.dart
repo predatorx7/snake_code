@@ -13,11 +13,11 @@ export './src/creamy_editing_controller.dart';
 // -- text field ---
 
 // -- syntax highlighter ---
-export './src/syntax_highlighter/syntax_highlighter.dart';
+export './src/syntax_highlighter/creamy_syntax_highlighter.dart';
 export './src/syntax_highlighter/language_type.dart';
 export './src/syntax_highlighter/highlighted_theme_type.dart';
+export './src/syntax_highlighter.dart';
 // -- syntax highlighter ---
 
 // Don't keep in stable releases, ONLY FOR TEST PURPOSES
-export './src/syntax_highlighter_base.dart';
-export './src/syntax_highlighter/dummy_syntax_highlighter.dart';
+// export './src/syntax_highlighter/dummy_syntax_highlighter.dart';

@@ -1,10 +1,10 @@
 name: creamy_field
-description: A Text Editing Field with rich text & syntax highlight support.
-version: 0.1.0
-homepage: https://github.com/predatorx7/snake_code/tree/master/packages/rich_code_editor
+description: A Text Editing Field with rich text & syntax highlight support. Useful in Rich text editors.
+version: 0.2.0
+homepage: https://github.com/predatorx7/snake_code/tree/master/packages/creamy_field
 
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
   flutter:

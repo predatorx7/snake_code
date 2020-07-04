@@ -14,8 +14,8 @@ class Acrylic extends StatelessWidget {
   /// Changes theme's canvas color
   final Widget Function(BuildContext, Widget) builder;
   const Acrylic({
-    Key key,
     @required this.child,
+    Key key,
     this.builder,
     this.enabled = true,
     this.isDark,

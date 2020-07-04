@@ -108,6 +108,7 @@ class _CodeEditingFieldSelectionGestureDetectorBuilder
 class CodeEditingField extends StatefulWidget {
   /// Creates a text field.
   const CodeEditingField({
+    @required this.verticalAxisScrollController,
     Key key,
     this.controller,
     this.focusNode,
@@ -122,7 +123,6 @@ class CodeEditingField extends StatefulWidget {
     this.cursorRadius,
     this.cursorColor,
     this.onTap,
-    @required this.verticalAxisScrollController,
     this.horizontalAxisScrollController,
     this.style,
   })  : assert(expands != null),

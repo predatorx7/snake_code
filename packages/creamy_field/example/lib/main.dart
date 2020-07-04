@@ -21,8 +21,10 @@ class _DemoCodeEditorState extends State<DemoCodeEditor> {
     super.initState();
     // _syntaxHighlighterBase = DummySyntaxHighlighter();
     _rec = CreamyEditingController(
-      languageType: LanguageType.dart,
-      highlightedThemeType: HighlightedThemeType.githubTheme,
+      syntaxHighlighter: CreamySyntaxHighlighter(
+        language: LanguageType.dart,
+        theme: HighlightedThemeType.githubTheme,
+      ),
     );
   }
 
@@ -48,15 +50,15 @@ class _DemoCodeEditorState extends State<DemoCodeEditor> {
             textCapitalization: TextCapitalization.none,
             decoration: InputDecoration.collapsed(hintText: 'Start writing'),
             maxLines: null,
-            onChanged: (String s) {},
-            onBackSpacePress: (TextEditingValue oldValue) {},
-            onEnterPress: (TextEditingValue oldValue) {
-              // var result = _syntaxHighlighterBase.onEnterPress(oldValue);
-              // if (result != null) {
-              //   _rec.value = result;
-              // }
-              setState(() {});
-            },
+            // onChanged: (String s) {},
+            // onBackSpacePress: (TextEditingValue oldValue) {},
+            // onEnterPress: (TextEditingValue oldValue) {
+            // var result = _syntaxHighlighterBase.onEnterPress(oldValue);
+            // if (result != null) {
+            //   _rec.value = result;
+            // }
+            // setState(() {});
+            // },
           )),
     );
   }
