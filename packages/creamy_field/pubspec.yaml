@@ -1,6 +1,7 @@
 name: creamy_field
 description: A Text Editing Field with rich text & syntax highlight support. Useful in Rich text editors.
 version: 0.2.1
+homepage: https://github.com/predatorx7/snake_code/tree/master/packages/creamy_field
 
 environment:
   sdk: ">=2.3.0 <3.0.0"

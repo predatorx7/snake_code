@@ -1,5 +1,8 @@
 # creamy_field
 
+![](https://img.shields.io/pub/v/creamy_field)
+![](https://img.shields.io/github/issues/predatorx7/snake_code)
+
 A Text Editing Field with rich text & syntax highlight support. Useful in Rich text editors.
 
 ## Getting Started
