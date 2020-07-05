@@ -160,7 +160,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   String get afterSelectedText => value.selection.textAfter(text);
 
   /// Total number of lines in the [text]
-  int get totalLines => value.text?.split('\n')?.length ?? 0;
+  int get totalLineCount => value.text?.split('\n')?.length ?? 0;
 
   /// The line at which end cursor lies
   int get atLine => beforeSelectedText?.split('\n')?.length ?? 1;
@@ -174,7 +174,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
 
   Map<String, dynamic> get textDescriptionToMap => <String, dynamic>{
         'text': text,
-        'totalLines': totalLines,
+        'totalLines': totalLineCount,
         'atLine': atLine,
         'atColumn': atColumn,
         'selectedText': selectedText,

@@ -21,10 +21,4 @@ You can also use a limited support for many programming languages & themes using
 Since the text field itself is independent of the syntax highlighting rules, the same text field can be used for any other programming or markup langugage.
 Only the syntax highlighter implementation needs to be created separately for each new programming language.
 
-<!-- ## Previews from example
-
-![markdown](./flutter_01.png)
-
-![dart](./flutter_02.png) -->
-
-Based on [rich_code_editor](https://github.com/psovit/rich_code_editor/)
+Check [screenshots folder](https://github.com/predatorx7/snake_code/tree/master/packages/creamy_field/screenshots) for some samples UI screenshots.

@@ -2,8 +2,13 @@
 
 ## upcoming
 
-- line indicator in creamy text field
 - extended text selection widget
+- fix delayed animation of line indicator column
+
+## 0.2.2
+
+- line indicator in creamy text field
+- text field horizontally scrollable
 
 ## 0.2.1
 

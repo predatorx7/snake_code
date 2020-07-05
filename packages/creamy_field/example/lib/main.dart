@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:creamy_field/creamy_field.dart';
+import 'package:creamy_field/creamy_field.dart'; // imported the package
 
 void main() {
   runApp(MaterialApp(
-    home: DemoCodeEditor(),
+    home: MyEditorApp(),
   ));
 }
 
-class DemoCodeEditor extends StatefulWidget {
+class MyEditorApp extends StatefulWidget {
   @override
-  _DemoCodeEditorState createState() => _DemoCodeEditorState();
+  _MyEditorAppState createState() => _MyEditorAppState();
 }
 
-class _DemoCodeEditorState extends State<DemoCodeEditor> {
+class _MyEditorAppState extends State<MyEditorApp> {
+  // Declared a regular syntax controller.
   TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    // _syntaxHighlighterBase = DummySyntaxHighlighter();
+
+    // The below example shows the [CreamyEditingController] as [TextEditingController]
+    // which uses CreamySyntaxHighlighter for highlighting syntax of text value from
+    // the text field which uses this controller.
     controller = CreamyEditingController(
+      // This is the CreamySyntaxHighlighter which will be used by the controller
+      // to generate list of RichText.
       syntaxHighlighter: CreamySyntaxHighlighter(
         language: LanguageType.dart,
         theme: HighlightedThemeType.githubTheme,
@@ -34,31 +40,32 @@ class _DemoCodeEditorState extends State<DemoCodeEditor> {
 
   @override
   Widget build(BuildContext context) {
+    print(controller.runtimeType);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Rich Code Editor"),
       ),
-      body: Container(
-          margin: EdgeInsets.all(8.0),
-          padding: EdgeInsets.all(2.0),
-          decoration:
-              new BoxDecoration(border: new Border.all(color: Colors.grey)),
-          child: CreamyField(
-            autofocus: true,
-            controller: controller,
-            textCapitalization: TextCapitalization.none,
-            decoration: InputDecoration.collapsed(hintText: 'Start writing'),
-            maxLines: null,
-            // onChanged: (String s) {},
-            // onBackSpacePress: (TextEditingValue oldValue) {},
-            // onEnterPress: (TextEditingValue oldValue) {
-            // var result = _syntaxHighlighterBase.onEnterPress(oldValue);
-            // if (result != null) {
-            //   _rec.value = result;
-            // }
-            // setState(() {});
-            // },
-          )),
+      // A CreamyField is a text field which supports CreamyEditingController
+      // & CreamySyntaxHighlighter.
+      //
+      // This text field is similar to Material TextField but will be
+      // tailored (expected in future) for writing rich text,
+      // especially for markup & programming languages.
+      //
+      // For now, using it like Material TextField as below
+      body: CreamyField(
+        autofocus: true,
+        // Our controller should be up casted as CreamyEditingController
+        // Note: Declare controller as CreamyEditingController if this fails.
+        controller: controller,
+        textCapitalization: TextCapitalization.none,
+        decoration: InputDecoration.collapsed(hintText: 'Start writing'),
+        maxLines: null,
+        // Shows line indicator column adjacent to this widget
+        showLineIndicator: true,
+        // Allow this Text field to be horizontally scrollable
+        keepHorizontallyScrollable: true,
+      ),
     );
   }
 }

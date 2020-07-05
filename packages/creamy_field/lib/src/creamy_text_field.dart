@@ -4,6 +4,8 @@
 
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
+import 'package:creamy_field/src/decoration/horizontal_scrollable.dart';
+import 'package:creamy_field/src/decoration/line_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -138,8 +140,6 @@ class CreamyField extends StatefulWidget {
   /// Creates a text field.
   ///
   /// Similar to [TextField]
-  ///
-  /// {@macro flutter.material.TextField}
   const CreamyField({
     Key key,
     this.controller,
@@ -188,6 +188,10 @@ class CreamyField extends StatefulWidget {
     this.syntaxHighlighter,
     this.onBackSpacePress,
     this.onEnterPress,
+    this.showLineIndicator,
+    this.keepHorizontallyScrollable,
+    this.horizontalScrollExtent,
+    this.lineCountIndicatorDecoration,
   })  : assert(textAlign != null),
         assert(readOnly != null),
         assert(autofocus != null),
@@ -246,6 +250,17 @@ class CreamyField extends StatefulWidget {
 
   /// Triggered when enter was pressed with value before enter was pressed
   final ValueChanged<TextEditingValue> onEnterPress;
+
+  /// When true, shows a line indicating column adjacent to the text field
+  final bool showLineIndicator;
+
+  final LineCountIndicatorDecoration lineCountIndicatorDecoration;
+
+  /// Keep this widget horizontally scrollable
+  final bool keepHorizontallyScrollable;
+
+  /// The horizontal scroll extent of this widget
+  final double horizontalScrollExtent;
 
   /// Syntax highlighter which will parse text from this text field and apply color highlights
   /// to it based on custom logic.
@@ -767,11 +782,15 @@ class _CreamyFieldState extends State<CreamyField>
     );
   }
 
+  ScrollController _effectiveScrollController;
+
+  ScrollController get effectiveScrollController => _effectiveScrollController;
   @override
   void initState() {
     super.initState();
     _selectionGestureDetectorBuilder =
         _PzCodeFieldSelectionGestureDetectorBuilder(state: this);
+    _effectiveScrollController = widget.scrollController ?? ScrollController();
     if (widget.controller == null) {
       if (widget.syntaxHighlighter != null) {
         _controller = CreamyEditingController()
@@ -926,7 +945,6 @@ class _CreamyFieldState extends State<CreamyField>
         cursorColor ??= themeData.cursorColor;
         break;
     }
-
     Widget child = RepaintBoundary(
       child: RichEditableCode(
         key: editableTextKey,
@@ -973,7 +991,7 @@ class _CreamyFieldState extends State<CreamyField>
         keyboardAppearance: keyboardAppearance,
         enableInteractiveSelection: widget.enableInteractiveSelection,
         dragStartBehavior: widget.dragStartBehavior,
-        scrollController: widget.scrollController,
+        scrollController: effectiveScrollController,
         scrollPhysics: widget.scrollPhysics,
         onBackSpacePress: widget.onBackSpacePress,
         onEnterPress: widget.onEnterPress,
@@ -999,6 +1017,7 @@ class _CreamyFieldState extends State<CreamyField>
         child: child,
       );
     }
+
     return IgnorePointer(
       ignoring: !_isEnabled,
       child: MouseRegion(
@@ -1020,12 +1039,26 @@ class _CreamyFieldState extends State<CreamyField>
                       offset: _effectiveController.text.length);
                 _requestKeyboard();
               },
-              child: child,
+              child: LineCountIndicator(
+                visible: widget.showLineIndicator,
+                // Required to keep it in sync with text field
+                scrollController: effectiveScrollController,
+                lineCount: _effectiveController.totalLineCount,
+                child: child,
+                decoration: LineCountIndicatorDecoration(
+                  textStyle: style,
+                ).merge(widget.lineCountIndicatorDecoration),
+              ),
             );
           },
-          child: _selectionGestureDetectorBuilder.buildGestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: child,
+          child: HorizontalScrollable(
+            beScrollable: widget.keepHorizontallyScrollable,
+            // TODO: Change this static value with the calculation horizontal scroll extent based on the pixel length of text of the longest line in textField.
+            horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
+            child: _selectionGestureDetectorBuilder.buildGestureDetector(
+              behavior: HitTestBehavior.translucent,
+              child: child,
+            ),
           ),
         ),
       ),

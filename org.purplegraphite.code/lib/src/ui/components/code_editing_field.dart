@@ -488,7 +488,6 @@ class _CodeEditingFieldState extends State<CodeEditingField>
     textSelectionControls = codeSelectionControls;
 
     Widget child = RepaintBoundary(
-      // TODO(predatorx7) make horizontally & vertically scrollable
       child: EditableText(
         key: editableTextKey,
         readOnly: false,

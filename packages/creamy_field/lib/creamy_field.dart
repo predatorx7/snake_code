@@ -7,7 +7,7 @@
 // library creamy_field;
 
 // -- text field ---
-export './src/_creamy_field.dart';
+export './src/creamy_text_field.dart';
 export './src/rich_editable_code.dart';
 export './src/creamy_editing_controller.dart';
 // -- text field ---
