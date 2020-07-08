@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../creamy_field.dart';
+
 class LineCountIndicatorDecoration {
   /// width of this widget
   final double width;
@@ -51,10 +53,6 @@ class LineCountIndicatorDecoration {
 
 /// A horizontal widget with lists of indexes to represent
 /// adjacent TextField's line number.
-///
-/// Note: This widget being StatefulWidget could've been avoided if we
-/// use it in rich editable code, but in that case it'd be dependant
-/// on parent state's provided logic
 class LineCountIndicator extends StatefulWidget {
   /// Keep Line indicator visible
   final bool visible;
@@ -72,22 +70,23 @@ class LineCountIndicator extends StatefulWidget {
   /// ```dart
   /// lineCount = '\n'.allMatches(yourTextController.text).length + 1;
   /// ```
-  final int lineCount;
+  // final int lineCount;
 
   final LineCountIndicatorDecoration decoration;
 
-  /// Creates a Line count indicator which can be kept
+  final CreamyEditingController controller;
+
+  /// Creates a Line count indicator Flex which can be kept
   /// adjacent (preferably left) of a Text Field.
   const LineCountIndicator({
-    @required this.scrollController,
-    @required this.lineCount,
+    // @required this.lineCount,
     @required this.decoration,
+    this.scrollController,
     this.visible = true,
     this.child,
     Key key,
+    this.controller,
   })  : assert(child != null),
-        assert(scrollController != null,
-            'Scroll controller of Text field is required to keep this widget\'s scroll in sync with the Text field'),
         super(key: key);
 
   @override
@@ -102,11 +101,8 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
   void _whenTextFieldScrollControllerChanges() {
     // Changes scroll offset of lineStrip with EditableText
     if (widget.scrollController?.offset != null) {
-      lineScrollController.animateTo(
+      lineScrollController.jumpTo(
         widget.scrollController.offset,
-        // A quick animation
-        curve: Curves.decelerate, // _caretAnimationCurve,
-        duration: Duration(milliseconds: 1), // _caretAnimationDuration,
       );
     }
   }
@@ -134,6 +130,12 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
     }
   }
 
+  static double calculateTopBottomPadding(int lineCount) {
+    if (lineCount == 1) return 14;
+    if (lineCount == 2) return 4;
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!widget.visible) return widget.child;
@@ -150,13 +152,18 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
       width: widget?.decoration?.rightBorderSide?.width ?? 2,
       style: widget?.decoration?.rightBorderSide?.style ?? BorderStyle.solid,
     );
-    final int digitsOfMaxLineCount = widget.lineCount.toString().length;
+    final int digitsOfMaxLineCount =
+        widget.controller.totalLineCount.toString().length;
     final double _widthConstraints =
         widget?.decoration?.width ?? (14 * digitsOfMaxLineCount) + 2.0;
+    final double topBottomPadding =
+        calculateTopBottomPadding(widget.controller.totalLineCount);
+    final Alignment _alignment =
+        widget.decoration.alignment ?? Alignment.centerRight;
     final Widget lineIndicator = IgnorePointer(
       ignoring: true,
       child: Container(
-        alignment: Alignment.centerRight,
+        alignment: _alignment,
         decoration: BoxDecoration(
           color: widget?.decoration?.backgroundColor ??
               Theme.of(context).accentColor.withAlpha(0x88),
@@ -171,26 +178,23 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
           minWidth: _widthConstraints,
         ),
         child: ListView.builder(
-          // shrinkWrap: true,
+          shrinkWrap: false,
           controller: lineScrollController,
-          itemCount: widget.lineCount,
+          itemCount: widget.controller.totalLineCount,
           padding: EdgeInsets.only(
-              bottom: latestBottomViewInset ??
-                  0), // Adjust bottom padding with view inset (keyboard)
+            top: topBottomPadding,
+            bottom: (latestBottomViewInset ?? 0) + topBottomPadding,
+          ), // Adjust bottom padding with view inset (keyboard)
           physics: widget?.decoration?.scrollPhysics ??
               const ClampingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             // A regular TextField in flutter 1.x has a top & bottom padding
             // when it has no text. This workaround keeps this line indicato
             // follow that behaviour.
-            final double topBottomPadding = (widget.lineCount == 1) ? 12 : 0;
+
             final String lineCountText = (index + 1).toString();
             return Container(
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(
-                top: topBottomPadding,
-                bottom: topBottomPadding,
-              ),
+              alignment: _alignment,
               child: Text(
                 lineCountText,
                 style: _style,
@@ -206,7 +210,7 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         lineIndicator,
-        widget.child,
+        Expanded(child: widget.child),
       ],
     );
   }

@@ -40,7 +40,6 @@ class _MyEditorAppState extends State<MyEditorApp> {
 
   @override
   Widget build(BuildContext context) {
-    print(controller.runtimeType);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Rich Code Editor"),
@@ -64,7 +63,7 @@ class _MyEditorAppState extends State<MyEditorApp> {
         // Shows line indicator column adjacent to this widget
         showLineIndicator: true,
         // Allow this Text field to be horizontally scrollable
-        keepHorizontallyScrollable: true,
+        horizontallyScrollable: true,
       ),
     );
   }

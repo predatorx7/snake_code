@@ -5,7 +5,6 @@
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
 import 'package:creamy_field/src/decoration/horizontal_scrollable.dart';
-import 'package:creamy_field/src/decoration/line_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -13,8 +12,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import 'creamy_editing_controller.dart';
+import 'decoration/line_indicator.dart';
 import 'rich_editable_code.dart';
 import 'syntax_highlighter.dart';
+import 'text_tools/input.dart';
+import 'text_tools/text_selection.dart';
+import 'text_tools/toolbar_options.dart';
 
 export 'package:flutter/services.dart'
     show
@@ -40,9 +43,9 @@ typedef InputCounterWidgetBuilder = Widget Function(
   @required bool isFocused,
 });
 
-class _PzCodeFieldSelectionGestureDetectorBuilder
-    extends TextSelectionGestureDetectorBuilder {
-  _PzCodeFieldSelectionGestureDetectorBuilder({
+class _TextFieldSelectionGestureDetectorBuilder
+    extends CreamyTextSelectionGestureDetectorBuilder {
+  _TextFieldSelectionGestureDetectorBuilder({
     @required _CreamyFieldState state,
   })  : _state = state,
         super(delegate: state);
@@ -154,7 +157,7 @@ class CreamyField extends StatefulWidget {
     this.textAlignVertical,
     this.textDirection,
     this.readOnly = false,
-    ToolbarOptions toolbarOptions,
+    CreamyToolbarOptions toolbarOptions,
     this.showCursor,
     this.autofocus = false,
     this.obscureText = false,
@@ -189,7 +192,7 @@ class CreamyField extends StatefulWidget {
     this.onBackSpacePress,
     this.onEnterPress,
     this.showLineIndicator,
-    this.keepHorizontallyScrollable,
+    this.horizontallyScrollable,
     this.horizontalScrollExtent,
     this.lineCountIndicatorDecoration,
   })  : assert(textAlign != null),
@@ -228,11 +231,11 @@ class CreamyField extends StatefulWidget {
             (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
         toolbarOptions = toolbarOptions ??
             (obscureText
-                ? const ToolbarOptions(
+                ? const CreamyToolbarOptions(
                     selectAll: true,
                     paste: true,
                   )
-                : const ToolbarOptions(
+                : const CreamyToolbarOptions(
                     copy: true,
                     cut: true,
                     selectAll: true,
@@ -257,7 +260,7 @@ class CreamyField extends StatefulWidget {
   final LineCountIndicatorDecoration lineCountIndicatorDecoration;
 
   /// Keep this widget horizontally scrollable
-  final bool keepHorizontallyScrollable;
+  final bool horizontallyScrollable;
 
   /// The horizontal scroll extent of this widget
   final double horizontalScrollExtent;
@@ -383,7 +386,7 @@ class CreamyField extends StatefulWidget {
   /// If not set, select all and paste will default to be enabled. Copy and cut
   /// will be disabled if [obscureText] is true. If [readOnly] is true,
   /// paste and cut will be disabled regardless.
-  final ToolbarOptions toolbarOptions;
+  final CreamyToolbarOptions toolbarOptions;
 
   /// {@macro flutter.widgets.editableText.showCursor}
   final bool showCursor;
@@ -660,20 +663,8 @@ class CreamyField extends StatefulWidget {
   }
 }
 
-abstract class CodeSelectionGestureDetectorBuilderDelegate {
-  /// [GlobalKey] to the [EditableText] for which the
-  /// [TextSelectionGestureDetectorBuilder] will build a [TextSelectionGestureDetector].
-  GlobalKey<RichEditableCodeState> get editableTextKey;
-
-  /// Whether the textfield should respond to force presses.
-  bool get forcePressEnabled;
-
-  /// Whether the user may select text in the textfield.
-  bool get selectionEnabled;
-}
-
 class _CreamyFieldState extends State<CreamyField>
-    implements TextSelectionGestureDetectorBuilderDelegate {
+    implements RichTextSelectionGestureDetectorBuilderDelegate {
   CreamyEditingController _controller;
   CreamyEditingController get _effectiveController =>
       widget.controller ?? _controller;
@@ -691,7 +682,7 @@ class _CreamyFieldState extends State<CreamyField>
 
   bool _showSelectionHandles = false;
 
-  _PzCodeFieldSelectionGestureDetectorBuilder _selectionGestureDetectorBuilder;
+  _TextFieldSelectionGestureDetectorBuilder _selectionGestureDetectorBuilder;
 
   // API for TextSelectionGestureDetectorBuilderDelegate.
   @override
@@ -789,7 +780,7 @@ class _CreamyFieldState extends State<CreamyField>
   void initState() {
     super.initState();
     _selectionGestureDetectorBuilder =
-        _PzCodeFieldSelectionGestureDetectorBuilder(state: this);
+        _TextFieldSelectionGestureDetectorBuilder(state: this);
     _effectiveScrollController = widget.scrollController ?? ScrollController();
     if (widget.controller == null) {
       if (widget.syntaxHighlighter != null) {
@@ -914,7 +905,7 @@ class _CreamyFieldState extends State<CreamyField>
     if (widget.maxLength != null && widget.maxLengthEnforced)
       formatters.add(LengthLimitingTextInputFormatter(widget.maxLength));
 
-    TextSelectionControls textSelectionControls;
+    CreamyTextSelectionControls textSelectionControls;
     bool paintCursorAboveText;
     bool cursorOpacityAnimates;
     Offset cursorOffset;
@@ -925,7 +916,7 @@ class _CreamyFieldState extends State<CreamyField>
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
         forcePressEnabled = true;
-        textSelectionControls = cupertinoTextSelectionControls;
+        // textSelectionControls = cupertinoTextSelectionControls;
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         cursorColor ??= CupertinoTheme.of(context).primaryColor;
@@ -939,12 +930,14 @@ class _CreamyFieldState extends State<CreamyField>
       case TargetPlatform.linux:
       case TargetPlatform.windows:
         forcePressEnabled = false;
-        textSelectionControls = materialTextSelectionControls;
+        // textSelectionControls = materialTextSelectionControls;
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         cursorColor ??= themeData.cursorColor;
         break;
     }
+
+    textSelectionControls = creamyTextSelectionControls;
     Widget child = RepaintBoundary(
       child: RichEditableCode(
         key: editableTextKey,
@@ -1043,7 +1036,7 @@ class _CreamyFieldState extends State<CreamyField>
                 visible: widget.showLineIndicator,
                 // Required to keep it in sync with text field
                 scrollController: effectiveScrollController,
-                lineCount: _effectiveController.totalLineCount,
+                controller: _effectiveController,
                 child: child,
                 decoration: LineCountIndicatorDecoration(
                   textStyle: style,
@@ -1052,9 +1045,11 @@ class _CreamyFieldState extends State<CreamyField>
             );
           },
           child: HorizontalScrollable(
-            beScrollable: widget.keepHorizontallyScrollable,
+            beScrollable: widget.horizontallyScrollable,
+            useExpanded: false,
             // TODO: Change this static value with the calculation horizontal scroll extent based on the pixel length of text of the longest line in textField.
             horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
+            physics: widget.scrollPhysics,
             child: _selectionGestureDetectorBuilder.buildGestureDetector(
               behavior: HitTestBehavior.translucent,
               child: child,

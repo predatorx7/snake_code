@@ -1,7 +1,7 @@
 # creamy_field
 
-![](https://img.shields.io/pub/v/creamy_field)
-![](https://img.shields.io/github/issues/predatorx7/snake_code)
+[![](https://img.shields.io/pub/v/creamy_field)](https://pub.dev/packages/creamy_field)
+[![](https://img.shields.io/github/issues/predatorx7/snake_code)](https://github.com/predatorx7/snake_code/issues)
 
 A Text Editing Field with rich text & syntax highlight support. Useful in Rich text editors.
 
@@ -21,4 +21,4 @@ You can also use a limited support for many programming languages & themes using
 Since the text field itself is independent of the syntax highlighting rules, the same text field can be used for any other programming or markup langugage.
 Only the syntax highlighter implementation needs to be created separately for each new programming language.
 
-Check [screenshots folder](https://github.com/predatorx7/snake_code/tree/master/packages/creamy_field/screenshots) for some samples UI screenshots.
+Check [screenshots folder](https://github.com/predatorx7/snake_code/tree/master/packages/creamy_field/screenshots) for some sample UI screenshots.

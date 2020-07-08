@@ -16,6 +16,9 @@ import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/widgets.dart';
 
 import 'creamy_editing_controller.dart';
+import 'text_tools/input.dart';
+import 'text_tools/text_selection.dart';
+import 'text_tools/toolbar_options.dart';
 
 export 'package:flutter/services.dart'
     show TextEditingValue, TextSelection, TextInputType;
@@ -104,7 +107,7 @@ const int _kObscureShowLatestCharCursorTicks = 3;
 ///
 ///  * [TextField], which is a full-featured, material-design text input field
 ///    with placeholder text, labels, and [Form] integration.
-class RichEditableCode extends EditableText {
+class RichEditableCode extends StatefulWidget {
   /// Creates a basic text input control.
   ///
   /// The [maxLines] property can be set to null to remove the restriction on
@@ -131,8 +134,6 @@ class RichEditableCode extends EditableText {
     this.readOnly = false,
     this.obscureText = false,
     this.autocorrect = true,
-    SmartDashesType smartDashesType,
-    SmartQuotesType smartQuotesType,
     this.enableSuggestions = true,
     @required this.style,
     StrutStyle strutStyle,
@@ -175,12 +176,16 @@ class RichEditableCode extends EditableText {
     this.enableInteractiveSelection = true,
     this.scrollController,
     this.scrollPhysics,
-    this.toolbarOptions = const ToolbarOptions(
+    this.toolbarOptions = const CreamyToolbarOptions(
       copy: true,
       cut: true,
       paste: true,
       selectAll: true,
     ),
+    SmartDashesType smartDashesType,
+    SmartQuotesType smartQuotesType,
+    this.selectionHeightStyle = ui.BoxHeightStyle.tight,
+    this.selectionWidthStyle = ui.BoxWidthStyle.tight,
   })  : assert(controller != null),
         assert(focusNode != null),
         assert(obscureText != null),
@@ -198,6 +203,10 @@ class RichEditableCode extends EditableText {
         assert(textAlign != null),
         assert(maxLines == null || maxLines > 0),
         assert(minLines == null || minLines > 0),
+        this.smartDashesType = smartDashesType ??
+            (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+        this.smartQuotesType = smartQuotesType ??
+            (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
         assert(
           (maxLines == null) || (minLines == null) || (maxLines >= minLines),
           'minLines can\'t be greater than maxLines',
@@ -225,15 +234,23 @@ class RichEditableCode extends EditableText {
               ]
             : inputFormatters,
         showCursor = showCursor ?? !readOnly,
-        super(
-            key: key,
-            controller: controller,
-            focusNode: focusNode,
-            style: style,
-            cursorColor: cursorColor,
-            autofocus: autofocus,
-            selectionColor: selectionColor,
-            backgroundCursorColor: backgroundCursorColor);
+        super(key: key);
+
+  /// {@macro flutter.services.textInput.smartDashesType}
+  final SmartDashesType smartDashesType;
+
+  /// {@macro flutter.services.textInput.smartQuotesType}
+  final SmartQuotesType smartQuotesType;
+
+  /// Controls how tall the selection highlight boxes are computed to be.
+  ///
+  /// See [ui.BoxHeightStyle] for details on available styles.
+  final ui.BoxHeightStyle selectionHeightStyle;
+
+  /// Controls how wide the selection highlight boxes are computed to be.
+  ///
+  /// See [ui.BoxWidthStyle] for details on available styles.
+  final ui.BoxWidthStyle selectionWidthStyle;
 
   // Trigger when backspace was pressed with value before backspace was pressed
   final ValueChanged<TextEditingValue> onBackSpacePress;
@@ -286,7 +303,7 @@ class RichEditableCode extends EditableText {
   ///
   /// By default, all options are enabled. If [readOnly] is true,
   /// paste and cut will be disabled regardless.
-  final ToolbarOptions toolbarOptions;
+  final CreamyToolbarOptions toolbarOptions;
 
   /// Whether to show selection handles.
   ///
@@ -545,7 +562,7 @@ class RichEditableCode extends EditableText {
   ///  * [TextField], a Material Design themed wrapper of [RichEditableCode], which
   ///    shows the selection toolbar upon appropriate user events based on the
   ///    user's platform set in [ThemeData.platform].
-  final TextSelectionControls selectionControls;
+  final CreamyTextSelectionControls selectionControls;
 
   /// {@template flutter.widgets.SynEditableCode.keyboardType}
   /// The type of keyboard to use for editing the text.
@@ -879,7 +896,12 @@ class RichEditableCode extends EditableText {
 }
 
 /// State for a [RichEditableCode].
-class RichEditableCodeState extends EditableTextState {
+class RichEditableCodeState extends State<RichEditableCode>
+    with
+        AutomaticKeepAliveClientMixin<RichEditableCode>,
+        WidgetsBindingObserver,
+        TickerProviderStateMixin<RichEditableCode>
+    implements TextInputClient, CreamyTextSelectionDelegate {
   Timer _cursorTimer;
   bool _targetCursorVisibility = false;
   final ValueNotifier<bool> _cursorVisibilityNotifier =
@@ -887,7 +909,7 @@ class RichEditableCodeState extends EditableTextState {
   final GlobalKey _editableKey = GlobalKey();
 
   TextInputConnection _textInputConnection;
-  TextSelectionOverlay _selectionOverlay;
+  CreamyTextSelectionOverlay _selectionOverlay;
 
   ScrollController _scrollController;
 
@@ -927,6 +949,9 @@ class RichEditableCodeState extends EditableTextState {
 
   @override
   bool get selectAllEnabled => widget.toolbarOptions.selectAll;
+
+  @override
+  List<CreamyToolbarItem> get actions => widget.toolbarOptions.actions;
 
   PressedKey _pressedKey;
 
@@ -1387,7 +1412,7 @@ class RichEditableCodeState extends EditableTextState {
     _selectionOverlay = null;
 
     if (widget.selectionControls != null) {
-      _selectionOverlay = TextSelectionOverlay(
+      _selectionOverlay = CreamyTextSelectionOverlay(
         context: context,
         value: _value,
         debugRequiredFor: widget,
@@ -1564,7 +1589,7 @@ class RichEditableCodeState extends EditableTextState {
 
   /// The current status of the text selection handles.
   @visibleForTesting
-  TextSelectionOverlay get selectionOverlay => _selectionOverlay;
+  CreamyTextSelectionOverlay get selectionOverlay => _selectionOverlay;
 
   int _obscureShowCharTicksPending = 0;
   int _obscureLatestCharIndex;
@@ -1744,7 +1769,7 @@ class RichEditableCodeState extends EditableTextState {
     }
   }
 
-  VoidCallback _semanticsOnCopy(TextSelectionControls controls) {
+  VoidCallback _semanticsOnCopy(CreamyTextSelectionControls controls) {
     return widget.selectionEnabled &&
             copyEnabled &&
             _hasFocus &&
@@ -1753,7 +1778,7 @@ class RichEditableCodeState extends EditableTextState {
         : null;
   }
 
-  VoidCallback _semanticsOnCut(TextSelectionControls controls) {
+  VoidCallback _semanticsOnCut(CreamyTextSelectionControls controls) {
     return widget.selectionEnabled &&
             cutEnabled &&
             _hasFocus &&
@@ -1762,7 +1787,7 @@ class RichEditableCodeState extends EditableTextState {
         : null;
   }
 
-  VoidCallback _semanticsOnPaste(TextSelectionControls controls) {
+  VoidCallback _semanticsOnPaste(CreamyTextSelectionControls controls) {
     return widget.selectionEnabled &&
             pasteEnabled &&
             _hasFocus &&
@@ -1777,10 +1802,11 @@ class RichEditableCodeState extends EditableTextState {
     _focusAttachment.reparent();
     super.build(context); // See AutomaticKeepAliveClientMixin.
 
-    final TextSelectionControls controls = widget.selectionControls;
+    final CreamyTextSelectionControls controls = widget.selectionControls;
     return Scrollable(
       excludeFromSemantics: true,
-      axisDirection: _isMultiline ? AxisDirection.down : AxisDirection.right,
+      axisDirection: AxisDirection
+          .down, //_isMultiline ? AxisDirection.down : AxisDirection.right,
       controller: _scrollController,
       physics: widget.scrollPhysics,
       dragStartBehavior: widget.dragStartBehavior,
@@ -1943,7 +1969,7 @@ class _Editable extends LeafRenderObjectWidget {
   final ui.BoxHeightStyle selectionHeightStyle;
   final ui.BoxWidthStyle selectionWidthStyle;
   final bool enableInteractiveSelection;
-  final TextSelectionDelegate textSelectionDelegate;
+  final CreamyTextSelectionDelegate textSelectionDelegate;
   final double devicePixelRatio;
   final bool paintCursorAboveText;
 

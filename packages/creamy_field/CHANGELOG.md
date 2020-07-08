@@ -2,8 +2,11 @@
 
 ## upcoming
 
-- extended text selection widget
+## 0.2.3
+
 - fix delayed animation of line indicator column
+- Custom text selection controls
+- extended text selection widget
 
 ## 0.2.2
 
