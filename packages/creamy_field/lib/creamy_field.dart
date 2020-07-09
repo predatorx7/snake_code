@@ -4,11 +4,10 @@
 // found in the LICENSE file.
 
 /// This library provides rich text editing field, controllers, syntax highlighting classes, etc.
-// library creamy_field;
 
 // text field
 export './src/creamy_text_field.dart';
-export './src/rich_editable_code.dart';
+export './src/rich_editable_text.dart';
 export './src/creamy_editing_controller.dart';
 
 // text tools

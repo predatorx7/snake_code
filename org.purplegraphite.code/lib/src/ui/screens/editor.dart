@@ -5,7 +5,6 @@ import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/components/acrylic.dart';
 import 'package:code/src/ui/components/buttons/action_tabs_button.dart';
 import 'package:code/src/ui/components/buttons/popup_menu.dart';
-import 'package:code/src/ui/components/code_editing_field.dart';
 import 'package:code/src/ui/components/drawer/editor_drawer.dart';
 import 'package:code/src/ui/components/popup_menu_tile.dart';
 import 'package:creamy_field/creamy_field.dart';

@@ -179,14 +179,29 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
     return (_extent - (precursorText?.lastIndexOf('\n') ?? 0));
   }
 
-  Map<String, dynamic> get textDescriptionToMap => <String, dynamic>{
+  /// The column index where the selection extent ends.
+  /// Same as [atColumn].
+  int get extentColumn {
+    return atColumn;
+  }
+
+  /// The column index at which the selection (base) begins.
+  int get baseColumn {
+    int _base = value?.selection?.baseOffset ?? 0;
+    String precursorText = text?.substring(0, _base) ?? '';
+    return (_base - (precursorText?.lastIndexOf('\n') ?? 0));
+  }
+
+  Map<String, dynamic> get textDescriptionMap => <String, dynamic>{
         'text': text,
+        'beforeSelectedText': beforeSelectedText,
+        'afterSelectedText': afterSelectedText,
+        'selectedText': selectedText,
         'totalLines': totalLineCount,
         'atLine': atLine,
         'atColumn': atColumn,
-        'selectedText': selectedText,
-        'beforeSelectedText': beforeSelectedText,
-        'afterSelectedText': afterSelectedText,
+        'baseColumn': baseColumn,
+        'extentColumn': extentColumn,
       };
 
   /// Set the [value] to empty.

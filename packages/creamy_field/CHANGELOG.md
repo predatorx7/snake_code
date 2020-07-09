@@ -1,11 +1,15 @@
 # Changelog
 
-## upcoming
+## 0.3.0+hotfix.2
+
+- renamed RichEditableText
+- added a few tests, expecting more
+- changed text description getters. (could be breaking)
 
 ## 0.3.0+hotfix.1
 
-- Fixed documentation issues
-- FIxed null exception issues
+- fixed documentation issues
+- fixed null exception issues
 - added asserts
 
 ## 0.3.0

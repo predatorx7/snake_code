@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 
 import 'creamy_editing_controller.dart';
 import 'decoration/line_indicator.dart';
-import 'rich_editable_code.dart';
+import 'rich_editable_text.dart';
 import 'syntax_highlighter.dart';
 import 'text_tools/input.dart';
 import 'text_tools/text_selection.dart';
@@ -317,7 +317,7 @@ class CreamyField extends StatefulWidget {
   /// obscuring. In this case requesting the focus again will not
   /// cause the focus to change, and will not make the keyboard visible.
   ///
-  /// This widget builds an [RichEditableCode] and will ensure that the keyboard is
+  /// This widget builds an [RichEditableText] and will ensure that the keyboard is
   /// showing when it is tapped by calling [SynEditableCodeState.requestKeyboard()].
   final FocusNode focusNode;
 
@@ -483,7 +483,7 @@ class CreamyField extends StatefulWidget {
   ///
   /// See also:
   ///
-  ///  * [RichEditableCode.onSubmitted] for an example of how to handle moving to
+  ///  * [RichEditableText.onSubmitted] for an example of how to handle moving to
   ///    the next/previous field when using [TextInputAction.next] and
   ///    [TextInputAction.previous] for [textInputAction].
   final ValueChanged<String> onSubmitted;
@@ -701,8 +701,8 @@ class _CreamyFieldState extends State<CreamyField>
   bool forcePressEnabled;
 
   @override
-  final GlobalKey<RichEditableCodeState> editableTextKey =
-      GlobalKey<RichEditableCodeState>();
+  final GlobalKey<RichEditableTextState> editableTextKey =
+      GlobalKey<RichEditableTextState>();
 
   @override
   bool get selectionEnabled => widget.selectionEnabled;
@@ -830,7 +830,7 @@ class _CreamyFieldState extends State<CreamyField>
     super.dispose();
   }
 
-  RichEditableCodeState get _editableText => editableTextKey.currentState;
+  RichEditableTextState get _editableText => editableTextKey.currentState;
 
   void _requestKeyboard() {
     _editableText?.requestKeyboard();
@@ -951,7 +951,7 @@ class _CreamyFieldState extends State<CreamyField>
     textSelectionControls =
         widget.selectionControls ?? creamyTextSelectionControls;
     Widget child = RepaintBoundary(
-      child: RichEditableCode(
+      child: RichEditableText(
         key: editableTextKey,
         readOnly: widget.readOnly,
         toolbarOptions: widget.toolbarOptions,

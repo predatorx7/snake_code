@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../rich_editable_code.dart';
+import '../rich_editable_text.dart';
 import 'input.dart';
 
 /// The text position that a give selection handle manipulates. Dragging the
@@ -18,7 +18,7 @@ enum _TextSelectionHandlePosition { start, end }
 abstract class RichTextSelectionGestureDetectorBuilderDelegate {
   /// [GlobalKey] to the [EditableText] for which the
   /// [TextSelectionGestureDetectorBuilder] will build a [CreamyTextSelectionGestureDetector].
-  GlobalKey<RichEditableCodeState> get editableTextKey;
+  GlobalKey<RichEditableTextState> get editableTextKey;
 
   /// Whether the textfield should respond to force presses.
   bool get forcePressEnabled;
@@ -72,7 +72,7 @@ class CreamyTextSelectionGestureDetectorBuilder {
   /// The [State] of the [EditableText] for which the builder will provide a
   /// [CreamyTextSelectionGestureDetector].
   @protected
-  RichEditableCodeState get editableText =>
+  RichEditableTextState get editableText =>
       delegate.editableTextKey.currentState;
 
   /// The [RenderObject] of the [EditableText] for which the builder will

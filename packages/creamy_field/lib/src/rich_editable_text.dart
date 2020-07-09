@@ -42,13 +42,13 @@ const Duration _kCursorBlinkWaitForStart = Duration(milliseconds: 150);
 // is shown in an obscured text field.
 const int _kObscureShowLatestCharCursorTicks = 3;
 
-/// Toolbar configuration for [RichEditableCode].
+/// Toolbar configuration for [RichEditableText].
 ///
 /// Toolbar is a context menu that will show up when user right click or long
-/// press the [RichEditableCode]. It includes several options: cut, copy, paste,
+/// press the [RichEditableText]. It includes several options: cut, copy, paste,
 /// and select all.
 ///
-/// [RichEditableCode] and its derived widgets have their own default [ToolbarOptions].
+/// [RichEditableText] and its derived widgets have their own default [ToolbarOptions].
 /// Create a custom [ToolbarOptions] if you want explicit control over the toolbar
 /// option.
 
@@ -107,7 +107,7 @@ const int _kObscureShowLatestCharCursorTicks = 3;
 ///
 ///  * [TextField], which is a full-featured, material-design text input field
 ///    with placeholder text, labels, and [Form] integration.
-class RichEditableCode extends StatefulWidget {
+class RichEditableText extends StatefulWidget {
   /// Creates a basic text input control.
   ///
   /// The [maxLines] property can be set to null to remove the restriction on
@@ -127,7 +127,7 @@ class RichEditableCode extends StatefulWidget {
   /// [enableSuggestions], [paintCursorAboveText], [textAlign], [dragStartBehavior],
   /// [scrollPadding], [dragStartBehavior], [toolbarOptions],
   /// [rendererIgnoresPointer], and [readOnly] arguments must not be null.
-  RichEditableCode({
+  RichEditableText({
     Key key,
     @required this.controller,
     @required this.focusNode,
@@ -323,7 +323,7 @@ class RichEditableCode extends StatefulWidget {
   /// {@template flutter.widgets.SynEditableCode.showCursor}
   /// Whether to show cursor.
   ///
-  /// The cursor refers to the blinking caret when the [RichEditableCode] is focused.
+  /// The cursor refers to the blinking caret when the [RichEditableText] is focused.
   ///
   /// See also:
   ///
@@ -554,16 +554,16 @@ class RichEditableCode extends StatefulWidget {
 
   /// Optional delegate for building the text selection handles and toolbar.
   ///
-  /// The [RichEditableCode] widget used on its own will not trigger the display
+  /// The [RichEditableText] widget used on its own will not trigger the display
   /// of the selection toolbar by itself. The toolbar is shown by calling
-  /// [RichEditableCodeState.showToolbar] in response to an appropriate user event.
+  /// [RichEditableTextState.showToolbar] in response to an appropriate user event.
   ///
   /// See also:
   ///
-  ///  * [CupertinoTextField], which wraps an [RichEditableCode] and which shows the
+  ///  * [CupertinoTextField], which wraps an [RichEditableText] and which shows the
   ///    selection toolbar upon user events that are appropriate on the iOS
   ///    platform.
-  ///  * [TextField], a Material Design themed wrapper of [RichEditableCode], which
+  ///  * [TextField], a Material Design themed wrapper of [RichEditableText], which
   ///    shows the selection toolbar upon appropriate user events based on the
   ///    user's platform set in [ThemeData.platform].
   final CreamyTextSelectionControls selectionControls;
@@ -686,7 +686,7 @@ class RichEditableCode extends StatefulWidget {
   /// is often desirable to move the focus to the next or previous field.  To do
   /// this, handle it as in this example, by calling [FocusNode.focusNext] in
   /// the [TextFormField.onFieldSubmitted] callback ([TextFormField] wraps
-  /// [RichEditableCode] internally, and uses the value of `onFieldSubmitted` as its
+  /// [RichEditableText] internally, and uses the value of `onFieldSubmitted` as its
   /// [onSubmitted]).
   ///
   /// ```dart
@@ -857,7 +857,7 @@ class RichEditableCode extends StatefulWidget {
   bool get selectionEnabled => enableInteractiveSelection;
 
   @override
-  RichEditableCodeState createState() => RichEditableCodeState();
+  RichEditableTextState createState() => RichEditableTextState();
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -899,12 +899,12 @@ class RichEditableCode extends StatefulWidget {
   }
 }
 
-/// State for a [RichEditableCode].
-class RichEditableCodeState extends State<RichEditableCode>
+/// State for a [RichEditableText].
+class RichEditableTextState extends State<RichEditableText>
     with
-        AutomaticKeepAliveClientMixin<RichEditableCode>,
+        AutomaticKeepAliveClientMixin<RichEditableText>,
         WidgetsBindingObserver,
-        TickerProviderStateMixin<RichEditableCode>
+        TickerProviderStateMixin<RichEditableText>
     implements TextInputClient, CreamyTextSelectionDelegate {
   Timer _cursorTimer;
   bool _targetCursorVisibility = false;
@@ -1000,7 +1000,7 @@ class RichEditableCodeState extends State<RichEditableCode>
   }
 
   @override
-  void didUpdateWidget(RichEditableCode oldWidget) {
+  void didUpdateWidget(RichEditableText oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller.removeListener(_didChangeTextEditingValue);
@@ -1638,7 +1638,7 @@ class RichEditableCodeState extends State<RichEditableCode>
   void _startCursorTimer() {
     _targetCursorVisibility = true;
     _cursorBlinkOpacityController.value = 1.0;
-    if (RichEditableCode.debugDeterministicCursor) return;
+    if (RichEditableText.debugDeterministicCursor) return;
     if (widget.cursorOpacityAnimates) {
       _cursorTimer =
           Timer.periodic(_kCursorBlinkWaitForStart, _cursorWaitForStart);
@@ -1652,7 +1652,7 @@ class RichEditableCodeState extends State<RichEditableCode>
     _cursorTimer = null;
     _targetCursorVisibility = false;
     _cursorBlinkOpacityController.value = 0.0;
-    if (RichEditableCode.debugDeterministicCursor) return;
+    if (RichEditableText.debugDeterministicCursor) return;
     if (resetCharTicks) _obscureShowCharTicksPending = 0;
     if (widget.cursorOpacityAnimates) {
       _cursorBlinkOpacityController.stop();
@@ -1841,7 +1841,7 @@ class RichEditableCodeState extends State<RichEditableCode>
               value: _value,
               cursorColor: _cursorColor,
               backgroundCursorColor: widget.backgroundCursorColor,
-              showCursor: RichEditableCode.debugDeterministicCursor
+              showCursor: RichEditableText.debugDeterministicCursor
                   ? ValueNotifier<bool>(widget.showCursor)
                   : _cursorVisibilityNotifier,
               forceLine: widget.forceLine,

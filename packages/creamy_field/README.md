@@ -3,8 +3,7 @@
 [![](https://img.shields.io/pub/v/creamy_field)](https://pub.dev/packages/creamy_field)
 [![](https://img.shields.io/github/issues/predatorx7/snake_code)](https://github.com/predatorx7/snake_code/issues)
 
-Creamy components & widgets for Rich text editors.
-Provides with rich text, custom selection toolbar & syntax highlight support.
+Components & widgets with rich text, custom selection toolbar & syntax highlight support. Useful for Rich text editors.
 
 ## Getting Started
 
@@ -15,8 +14,7 @@ Provides with rich text, custom selection toolbar & syntax highlight support.
 1. Syntax Highlighter
 1. creamyTextSelectionControls
 
-The CreamyTextField is a text widget similar to Flutter's `TextField` widget. However, unlike a regular `TextField`
-the editor supports a syntax highlighter and a controller which provides more description about a text.
+The CreamyTextField is a text widget similar to Flutter's `TextField` widget. However, unlike a regular `TextField` the editor supports a syntax highlighter and a controller which provides more description about a text.
 
 You can also use a limited support for many programming languages & themes using CreamySyntaxHighlighter.
 
