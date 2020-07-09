@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../creamy_field.dart';
-
 /// The decoration which will be applied to [LineCountIndicator]
 class LineCountIndicatorDecoration {
   /// width of this widget
