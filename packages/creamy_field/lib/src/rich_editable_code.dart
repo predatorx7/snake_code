@@ -186,6 +186,7 @@ class RichEditableCode extends StatefulWidget {
     SmartQuotesType smartQuotesType,
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
+    this.horizontallyScrollable,
   })  : assert(controller != null),
         assert(focusNode != null),
         assert(obscureText != null),
@@ -235,6 +236,9 @@ class RichEditableCode extends StatefulWidget {
             : inputFormatters,
         showCursor = showCursor ?? !readOnly,
         super(key: key);
+
+  /// Whether the Textfield is horizontally scrollable.
+  final bool horizontallyScrollable;
 
   /// {@macro flutter.services.textInput.smartDashesType}
   final SmartDashesType smartDashesType;
@@ -953,6 +957,13 @@ class RichEditableCodeState extends State<RichEditableCode>
   @override
   List<CreamyToolbarItem> get actions => widget.toolbarOptions.actions;
 
+  @override
+  bool get useCamelCaseLabel => widget.toolbarOptions.useCamelCaseLabel;
+
+  @override
+  ThemeMode get selectionToolbarThemeMode =>
+      widget.toolbarOptions.selectionToolbarThemeMode;
+
   PressedKey _pressedKey;
 
   // State lifecycle:
@@ -1084,7 +1095,7 @@ class RichEditableCodeState extends State<RichEditableCode>
     // If value hasn't changed, do nothing, but
     // if it changed then..
     if (value.text != _value.text) {
-      var editableCode = widget as RichEditableCode;
+      var editableCode = widget;
 
       _pressedKey = KeyboardUtilz.getPressedKey(_value, value);
 
@@ -1811,6 +1822,11 @@ class RichEditableCodeState extends State<RichEditableCode>
       physics: widget.scrollPhysics,
       dragStartBehavior: widget.dragStartBehavior,
       viewportBuilder: (BuildContext context, ViewportOffset offset) {
+        // TODO: do something about padding
+        // Issue: Text InputDecoration renders child like a stack of decoration & child, therfore padding only applies to child.
+        // widget.horizontallyScrollable
+        // ? const EdgeInsets.only(left: 8.0)
+        // : EdgeInsets.zero
         return CompositedTransformTarget(
           link: _toolbarLayerLink,
           child: Semantics(

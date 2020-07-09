@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'dart:math' as math;
 
+import 'package:creamy_field/src/text_tools/toolbar_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ enum _TextSelectionHandlePosition { start, end }
 
 abstract class RichTextSelectionGestureDetectorBuilderDelegate {
   /// [GlobalKey] to the [EditableText] for which the
-  /// [TextSelectionGestureDetectorBuilder] will build a [TextSelectionGestureDetector].
+  /// [TextSelectionGestureDetectorBuilder] will build a [CreamyTextSelectionGestureDetector].
   GlobalKey<RichEditableCodeState> get editableTextKey;
 
   /// Whether the textfield should respond to force presses.
@@ -26,7 +27,7 @@ abstract class RichTextSelectionGestureDetectorBuilderDelegate {
   bool get selectionEnabled;
 }
 
-/// Builds a [TextSelectionGestureDetector] to wrap an [EditableText].
+/// Builds a [CreamyTextSelectionGestureDetector] to wrap an [EditableText].
 ///
 /// The class implements sensible defaults for many user interactions
 /// with an [EditableText] (see the documentation of the various gesture handler
@@ -35,7 +36,7 @@ abstract class RichTextSelectionGestureDetectorBuilderDelegate {
 /// responds to these gesture events by overriding the corresponding handler
 /// methods of this class.
 ///
-/// The resulting [TextSelectionGestureDetector] to wrap an [EditableText] is
+/// The resulting [CreamyTextSelectionGestureDetector] to wrap an [EditableText] is
 /// obtained by calling [buildGestureDetector].
 ///
 /// See also:
@@ -69,13 +70,13 @@ class CreamyTextSelectionGestureDetectorBuilder {
   bool _shouldShowSelectionToolbar = true;
 
   /// The [State] of the [EditableText] for which the builder will provide a
-  /// [TextSelectionGestureDetector].
+  /// [CreamyTextSelectionGestureDetector].
   @protected
   RichEditableCodeState get editableText =>
       delegate.editableTextKey.currentState;
 
   /// The [RenderObject] of the [EditableText] for which the builder will
-  /// provide a [TextSelectionGestureDetector].
+  /// provide a [CreamyTextSelectionGestureDetector].
   @protected
   RenderEditable get renderEditable => editableText.renderEditable;
 
@@ -287,7 +288,7 @@ class CreamyTextSelectionGestureDetectorBuilder {
     /* Subclass should override this method if needed. */
   }
 
-  /// Returns a [TextSelectionGestureDetector] configured with the handlers
+  /// Returns a [CreamyTextSelectionGestureDetector] configured with the handlers
   /// provided by this builder.
   ///
   /// The [child] or its subtree should contain [EditableText].
@@ -904,12 +905,20 @@ class _TextSelectionToolbar extends StatefulWidget {
     this.handlePaste,
     this.handleSelectAll,
     this.isAbove,
+    this.brightness,
+    this.actions,
+    this.useCamelCaseLabel,
+    this.selectionToolbarThemeMode,
   }) : super(key: key);
 
   final VoidCallback handleCut;
   final VoidCallback handleCopy;
   final VoidCallback handlePaste;
   final VoidCallback handleSelectAll;
+  final Brightness brightness;
+  final bool useCamelCaseLabel;
+  final List<CreamyToolbarItem> actions;
+  final ThemeMode selectionToolbarThemeMode;
 
   // When true, the toolbar fits above its anchor and will be positioned there.
   final bool isAbove;
@@ -928,12 +937,48 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
   // The key for _TextSelectionToolbarContainer.
   UniqueKey _containerKey = UniqueKey();
 
-  FlatButton _getItem(VoidCallback onPressed, String label) {
+  bool get isDark {
+    switch (widget.selectionToolbarThemeMode) {
+      case ThemeMode.light:
+        return false;
+        break;
+      case ThemeMode.dark:
+        return true;
+        break;
+      case ThemeMode.system:
+      default:
+        return Theme.of(context).brightness == Brightness.dark;
+    }
+  }
+
+  String _formatAsCamelCase(String text) {
+    if (widget.useCamelCaseLabel) {
+      return '${text[0].toUpperCase()}${text.substring(1).toLowerCase()}';
+    }
+    return text;
+  }
+
+  Widget _getItem(VoidCallback onPressed, String label) {
     assert(onPressed != null);
     return FlatButton(
-      child: Text(label),
+      padding: EdgeInsets.zero,
+      child: Text(
+        _formatAsCamelCase(label),
+        style: TextStyle(
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
       onPressed: onPressed,
     );
+  }
+
+  List<Widget> _buildActions(List<CreamyToolbarItem> actions) {
+    final List<Widget> actionButtons = [];
+    for (var item in actions) {
+      if (!item.visible) continue;
+      actionButtons.add(_getItem(item.callback, item.label));
+    }
+    return actionButtons;
   }
 
   @override
@@ -968,13 +1013,14 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
         _getItem(widget.handlePaste, localizations.pasteButtonLabel),
       if (widget.handleSelectAll != null)
         _getItem(widget.handleSelectAll, localizations.selectAllButtonLabel),
+      if (widget.actions != null) ..._buildActions(widget.actions),
     ];
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
       return Container(width: 0.0, height: 0.0);
     }
-
+    final BorderRadiusGeometry _borderRadius = BorderRadius.circular(10);
     return _TextSelectionToolbarContainer(
       key: _containerKey,
       overflowOpen: _overflowOpen,
@@ -985,28 +1031,28 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
         duration: const Duration(milliseconds: 140),
         child: Material(
           elevation: 1.0,
+          color: isDark ? Colors.grey.shade800 : Colors.white,
+          borderRadius: _borderRadius,
           child: _TextSelectionToolbarItems(
             isAbove: widget.isAbove,
             overflowOpen: _overflowOpen,
             children: <Widget>[
               // The navButton that shows and hides the overflow menu is the
               // first child.
-              Material(
-                child: IconButton(
-                  // TODO(justinmc): This should be an AnimatedIcon, but
-                  // AnimatedIcons doesn't yet support arrow_back to more_vert.
-                  // https://github.com/flutter/flutter/issues/51209
-                  icon:
-                      Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
-                  onPressed: () {
-                    setState(() {
-                      _overflowOpen = !_overflowOpen;
-                    });
-                  },
-                  tooltip: _overflowOpen
-                      ? localizations.backButtonTooltip
-                      : localizations.moreButtonTooltip,
-                ),
+              IconButton(
+                // TODO(justinmc): This should be an AnimatedIcon, but
+                // AnimatedIcons doesn't yet support arrow_back to more_vert.
+                // https://github.com/flutter/flutter/issues/51209
+                icon: Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
+                onPressed: () {
+                  setState(() {
+                    _overflowOpen = !_overflowOpen;
+                  });
+                },
+                color: isDark ? Colors.white : Colors.black,
+                tooltip: _overflowOpen
+                    ? localizations.backButtonTooltip
+                    : localizations.moreButtonTooltip,
               ),
               ...items,
             ],
@@ -1518,6 +1564,11 @@ class _TextSelectionHandlePainter extends CustomPainter {
 }
 
 class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
+  Brightness _brightness = Brightness.light;
+
+  @override
+  Brightness get brightness => _brightness;
+
   /// Returns the size of the Material handle.
   @override
   Size getHandleSize(double textLineHeight) =>
@@ -1535,6 +1586,8 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
   ) {
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
+
+    _brightness = Theme.of(context).brightness;
 
     // The toolbar should appear below the TextField when there is not enough
     // space above the TextField to show it.
@@ -1577,6 +1630,10 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
             handleSelectAll:
                 canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
             isAbove: fitsAbove,
+            brightness: brightness,
+            actions: delegate.actions,
+            useCamelCaseLabel: delegate.useCamelCaseLabel,
+            selectionToolbarThemeMode: delegate.selectionToolbarThemeMode,
           ),
         ),
       ],

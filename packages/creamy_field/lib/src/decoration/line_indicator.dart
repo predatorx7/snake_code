@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../creamy_field.dart';
 
+/// The decoration which will be applied to [LineCountIndicator]
 class LineCountIndicatorDecoration {
   /// width of this widget
   final double width;
@@ -24,10 +25,16 @@ class LineCountIndicatorDecoration {
   /// defaults to [ClampingScrollPhysics]
   final ScrollPhysics scrollPhysics;
 
+  /// Decoration for right border side
   final BorderSide rightBorderSide;
 
+  /// Alignment of numbers in the Line Indicator Column
   final AlignmentGeometry alignment;
 
+  /// The padding for the line indicator column.
+  final EdgeInsetsGeometry padding;
+
+  /// The decoration which will be applied to [LineCountIndicator]
   const LineCountIndicatorDecoration({
     this.width,
     this.textStyle,
@@ -36,8 +43,10 @@ class LineCountIndicatorDecoration {
     this.scrollPhysics,
     this.rightBorderSide,
     this.alignment,
+    this.padding,
   });
 
+  /// Merge this with other
   LineCountIndicatorDecoration merge(LineCountIndicatorDecoration other) {
     return LineCountIndicatorDecoration(
       width: other?.width ?? this.width,
@@ -62,30 +71,24 @@ class LineCountIndicator extends StatefulWidget {
 
   /// Text Field's scroll controller. Do not provide a new scroll controller
   /// for this widget
-  final ScrollController scrollController;
+  final ScrollController scrollControllerOfTextField;
 
-  /// Number of lines in text
-  ///
-  /// Can be obtained with a simple logic
-  /// ```dart
-  /// lineCount = '\n'.allMatches(yourTextController.text).length + 1;
-  /// ```
-  // final int lineCount;
-
+  /// The decoration which will be applied to this widget
   final LineCountIndicatorDecoration decoration;
 
-  final CreamyEditingController controller;
+  /// Number of lines in text will be obtained from this controller
+  final TextEditingController textController;
 
   /// Creates a Line count indicator Flex which can be kept
   /// adjacent (preferably left) of a Text Field.
   const LineCountIndicator({
     // @required this.lineCount,
     @required this.decoration,
-    this.scrollController,
+    @required this.scrollControllerOfTextField,
     this.visible = true,
     this.child,
     Key key,
-    this.controller,
+    this.textController,
   })  : assert(child != null),
         super(key: key);
 
@@ -100,9 +103,9 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
 
   void _whenTextFieldScrollControllerChanges() {
     // Changes scroll offset of lineStrip with EditableText
-    if (widget.scrollController?.offset != null) {
+    if (widget.scrollControllerOfTextField?.offset != null) {
       lineScrollController.jumpTo(
-        widget.scrollController.offset,
+        widget.scrollControllerOfTextField.offset,
       );
     }
   }
@@ -111,7 +114,8 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
   void initState() {
     super.initState();
     lineScrollController = ScrollController();
-    widget.scrollController.addListener(_whenTextFieldScrollControllerChanges);
+    widget.scrollControllerOfTextField
+        .addListener(_whenTextFieldScrollControllerChanges);
   }
 
   @override
@@ -146,18 +150,19 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
             fontFamily: 'monospace',
             color: _color,
           );
+    final ThemeData _theme = Theme.of(context);
+    final Color _accent = _theme.accentColor;
     final BorderSide effectiveRightBorderSide = BorderSide(
-      color: widget?.decoration?.rightBorderSide?.color ??
-          Theme.of(context).accentColor,
+      color: widget?.decoration?.rightBorderSide?.color ?? _accent,
       width: widget?.decoration?.rightBorderSide?.width ?? 2,
       style: widget?.decoration?.rightBorderSide?.style ?? BorderStyle.solid,
     );
-    final int digitsOfMaxLineCount =
-        widget.controller.totalLineCount.toString().length;
+    final int totalLineCount =
+        widget.textController.value.text?.split('\n')?.length ?? 0;
+    final int digitsOfMaxLineCount = totalLineCount.toString().length;
     final double _widthConstraints =
         widget?.decoration?.width ?? (14 * digitsOfMaxLineCount) + 2.0;
-    final double topBottomPadding =
-        calculateTopBottomPadding(widget.controller.totalLineCount);
+    final double topBottomPadding = calculateTopBottomPadding(totalLineCount);
     final Alignment _alignment =
         widget.decoration.alignment ?? Alignment.centerRight;
     final Widget lineIndicator = IgnorePointer(
@@ -165,12 +170,12 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
       child: Container(
         alignment: _alignment,
         decoration: BoxDecoration(
-          color: widget?.decoration?.backgroundColor ??
-              Theme.of(context).accentColor.withAlpha(0x88),
+          color: widget?.decoration?.backgroundColor ?? _accent.withAlpha(0x88),
           border: Border(
             right: effectiveRightBorderSide,
           ),
         ),
+        padding: widget?.decoration?.padding ?? EdgeInsets.zero,
         constraints: BoxConstraints(
           // Allows width for line number to show wihtout overflowing.
           // Changes with digits of Max number
@@ -180,7 +185,7 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
         child: ListView.builder(
           shrinkWrap: false,
           controller: lineScrollController,
-          itemCount: widget.controller.totalLineCount,
+          itemCount: totalLineCount,
           padding: EdgeInsets.only(
             top: topBottomPadding,
             bottom: (latestBottomViewInset ?? 0) + topBottomPadding,

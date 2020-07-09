@@ -2,7 +2,7 @@
 
 ## upcoming
 
-## 0.2.3
+## 0.3.0
 
 - fix delayed animation of line indicator column
 - Custom text selection controls

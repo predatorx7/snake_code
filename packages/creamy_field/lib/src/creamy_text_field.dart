@@ -195,6 +195,7 @@ class CreamyField extends StatefulWidget {
     this.horizontallyScrollable,
     this.horizontalScrollExtent,
     this.lineCountIndicatorDecoration,
+    this.selectionControls,
   })  : assert(textAlign != null),
         assert(readOnly != null),
         assert(autofocus != null),
@@ -525,6 +526,8 @@ class CreamyField extends StatefulWidget {
 
   /// {@macro flutter.widgets.scrollable.dragStartBehavior}
   final DragStartBehavior dragStartBehavior;
+
+  final CreamyTextSelectionControls selectionControls;
 
   /// {@macro flutter.rendering.editable.selectionEnabled}
   bool get selectionEnabled => enableInteractiveSelection;
@@ -936,8 +939,8 @@ class _CreamyFieldState extends State<CreamyField>
         cursorColor ??= themeData.cursorColor;
         break;
     }
-
-    textSelectionControls = creamyTextSelectionControls;
+    textSelectionControls =
+        widget.selectionControls ?? creamyTextSelectionControls;
     Widget child = RepaintBoundary(
       child: RichEditableCode(
         key: editableTextKey,
@@ -988,6 +991,7 @@ class _CreamyFieldState extends State<CreamyField>
         scrollPhysics: widget.scrollPhysics,
         onBackSpacePress: widget.onBackSpacePress,
         onEnterPress: widget.onEnterPress,
+        horizontallyScrollable: widget.horizontallyScrollable,
       ),
     );
 
@@ -1035,8 +1039,8 @@ class _CreamyFieldState extends State<CreamyField>
               child: LineCountIndicator(
                 visible: widget.showLineIndicator,
                 // Required to keep it in sync with text field
-                scrollController: effectiveScrollController,
-                controller: _effectiveController,
+                scrollControllerOfTextField: effectiveScrollController,
+                textController: _effectiveController,
                 child: child,
                 decoration: LineCountIndicatorDecoration(
                   textStyle: style,
@@ -1047,7 +1051,6 @@ class _CreamyFieldState extends State<CreamyField>
           child: HorizontalScrollable(
             beScrollable: widget.horizontallyScrollable,
             useExpanded: false,
-            // TODO: Change this static value with the calculation horizontal scroll extent based on the pixel length of text of the longest line in textField.
             horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
             physics: widget.scrollPhysics,
             child: _selectionGestureDetectorBuilder.buildGestureDetector(

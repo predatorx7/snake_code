@@ -59,11 +59,28 @@ class _MyEditorAppState extends State<MyEditorApp> {
         controller: controller,
         textCapitalization: TextCapitalization.none,
         decoration: InputDecoration.collapsed(hintText: 'Start writing'),
+        lineCountIndicatorDecoration: LineCountIndicatorDecoration(
+          backgroundColor: Colors.grey,
+        ),
         maxLines: null,
         // Shows line indicator column adjacent to this widget
         showLineIndicator: true,
         // Allow this Text field to be horizontally scrollable
         horizontallyScrollable: true,
+        // Additional options for text selection widget
+        toolbarOptions: CreamyToolbarOptions.allTrue(
+          // Below line enables dark mode in selection widget
+          selectionToolbarThemeMode: ThemeMode.dark,
+          useCamelCaseLabel: true,
+          actions: [
+            CreamyToolbarItem(
+              label: 'BUTTON',
+              callback: () {
+                print('Button');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -33,6 +34,11 @@ abstract class CreamyTextSelectionDelegate implements TextSelectionDelegate {
   /// Whether select all is enabled, must not be null.
   bool get selectAllEnabled => true;
 
+  /// Whether to format label in camelcase
+  bool get useCamelCaseLabel => true;
+
+  ThemeMode get selectionToolbarThemeMode => ThemeMode.system;
+
   List<CreamyToolbarItem> get actions => null;
 }
 
@@ -41,6 +47,9 @@ abstract class CreamyTextSelectionDelegate implements TextSelectionDelegate {
 ///
 /// Override text operations such as [handleCut] if needed.
 abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ {
+  /// Whether brightness is dark or light.
+  Brightness get brightness => Brightness.light;
+
   /// Builds a selection handle of the given type.
   ///
   /// The top left corner of this widget is positioned at the bottom of the
