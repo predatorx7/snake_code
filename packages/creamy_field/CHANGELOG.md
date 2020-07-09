@@ -2,6 +2,12 @@
 
 ## upcoming
 
+## 0.3.0+hotfix.1
+
+- Fixed documentation issues
+- FIxed null exception issues
+- added asserts
+
 ## 0.3.0
 
 - fix delayed animation of line indicator column

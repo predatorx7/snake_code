@@ -1,33 +1,21 @@
-import 'package:code/src/models/plain_model/text_description.dart';
-import 'package:flutter/widgets.dart'
-    show ChangeNotifier, TextEditingController;
+import 'package:creamy_field/creamy_field.dart';
+import 'package:flutter/widgets.dart' show ChangeNotifier;
 
 class CodeController extends ChangeNotifier {
-  TextEditingController textController;
+  CreamyEditingController textController;
   String path;
 
-  TextDescription _documentDescription;
-
-  TextDescription get documentDescription => _documentDescription;
-
-  void addController(TextEditingController controller) {
+  void addController(CreamyEditingController controller) {
     textController = controller;
-    notifyListeners();
-    textController.addListener(listenController);
   }
 
-  void updateController(TextEditingController controller) {
+  void updateController(CreamyEditingController controller) {
     disposeController();
     addController(controller);
   }
 
   void disposeController() {
     textController.dispose();
-  }
-
-  void listenController() {
-    _documentDescription = TextDescription(textController);
-    notifyListeners();
   }
 
   void updatePath(String path) {

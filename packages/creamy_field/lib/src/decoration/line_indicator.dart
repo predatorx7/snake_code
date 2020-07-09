@@ -140,7 +140,8 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.visible) return widget.child;
+    final bool _visible = widget?.visible ?? true;
+    if (!_visible) return widget.child;
     final Color _color = widget?.decoration?.textColor ?? Colors.white;
     final TextStyle _style = (widget?.decoration?.textStyle != null)
         ? widget.decoration.textStyle.copyWith(color: _color)

@@ -34,11 +34,16 @@ class HorizontalScrollable extends StatelessWidget {
     this.horizontalScrollExtent = 2000,
     this.padding,
     this.useExpanded = false,
-  }) : super(key: key);
+  })  : assert(beScrollable != null, 'beScrollable should not be null'),
+        assert(horizontalScrollExtent != null,
+            'horizontal scroll extent should not be null'),
+        assert(horizontalScrollExtent > 0,
+            'horizontal scroll extent should not be less than 1'),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (!beScrollable) return child;
+    if (!beScrollable ?? true) return child;
     Widget _scrollable = SingleChildScrollView(
       padding: padding ?? EdgeInsets.zero,
       scrollDirection: Axis.horizontal,

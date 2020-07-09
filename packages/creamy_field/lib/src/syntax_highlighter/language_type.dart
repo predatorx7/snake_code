@@ -200,7 +200,7 @@ enum LanguageType {
 ///
 /// Strips off the enum class name from the `LanguageType.toString()` and
 /// returns a proper name for the syntax highlighter's parser.
-String toLanguageName(Object enumEntry) {
+String toLanguageName(LanguageType enumEntry) {
   final String language = describeEnum(enumEntry);
   // handle exceptionals
   switch (language) {

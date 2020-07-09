@@ -48,7 +48,12 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
 
   /// Highlight language
   ///
-  /// It is recommended to give it a value for performance
+  /// It is recommended to give it a value for performance.
+  ///
+  /// If [language] is null than language auto detection is used.
+  /// Notice that this may cause performance issue if it's null because this will
+  /// try to parse source with all registered languages and use the most
+  /// relevant one.
   ///
   /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
   final String language;
@@ -67,12 +72,20 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   ///
   /// The supported highlight themes are
   /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
+  ///
+  /// Note: If [language] is null than language auto detection is used.
+  /// Notice that this may cause performance issue if it's null because it will
+  /// try to parse source with all registered languages and use the most
+  /// relevant one.
   CreamySyntaxHighlighter({
-    LanguageType language,
-    HighlightedThemeType theme = HighlightedThemeType.githubTheme,
+    @required LanguageType language,
+    @required HighlightedThemeType theme,
     this.tabSize = 8, // TODO: https://github.com/flutter/flutter/issues/50087
-  })  : this.language = toLanguageName(language) ?? LanguageType.all,
-        this.theme = getHighlightedThemeStyle(theme) ?? const {};
+  })  : this.language =
+            (language != null) ? (toLanguageName(language) ?? 'all') : null,
+        this.theme = (language != null)
+            ? (getHighlightedThemeStyle(theme) ?? const {})
+            : const {};
 
   List<TextSpan> _convert(List<Node> nodes) {
     List<TextSpan> spans = [];
@@ -109,7 +122,9 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   @override
   List<TextSpan> parseTextEditingValue(TextEditingValue value) {
     _source = value.text.replaceAll('\t', ' ' * tabSize);
-    return _convert(highlight.parse(source, language: language).nodes);
+    return _convert(highlight
+        .parse(source, language: language, autoDetection: language == null)
+        .nodes);
   }
 
   @override

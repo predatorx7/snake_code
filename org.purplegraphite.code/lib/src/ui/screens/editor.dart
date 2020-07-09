@@ -8,6 +8,7 @@ import 'package:code/src/ui/components/buttons/popup_menu.dart';
 import 'package:code/src/ui/components/code_editing_field.dart';
 import 'package:code/src/ui/components/drawer/editor_drawer.dart';
 import 'package:code/src/ui/components/popup_menu_tile.dart';
+import 'package:creamy_field/creamy_field.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +21,7 @@ class EditorScreen extends StatefulWidget {
 }
 
 class _EditorScreenState extends State<EditorScreen> {
-  ScrollController _scrollController, _fieldScrollController;
+  ScrollController _scrollController;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final key1 = GlobalKey();
   final key2 = GlobalKey();
@@ -31,13 +32,19 @@ class _EditorScreenState extends State<EditorScreen> {
   EditorController _mainScreenController;
   ThemeProvider _themeProvider;
   FocusNode _focusNode;
+  final SyntaxHighlighter _syntaxHighlighter = CreamySyntaxHighlighter(
+    language: LanguageType.dart,
+    theme: HighlightedThemeType.vsTheme,
+  );
 
   @override
   void initState() {
     _scrollController = ScrollController();
-    _fieldScrollController = ScrollController();
-    Provider.of<CodeController>(context, listen: false)
-        .addController(TextEditingController());
+    Provider.of<CodeController>(context, listen: false).addController(
+      CreamyEditingController(
+        syntaxHighlighter: _syntaxHighlighter,
+      ),
+    );
     _focusNode = FocusNode();
     super.initState();
   }
@@ -46,7 +53,6 @@ class _EditorScreenState extends State<EditorScreen> {
   void dispose() {
     _scrollController.dispose();
     Provider.of<CodeController>(context, listen: false).disposeController();
-    _fieldScrollController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -57,10 +63,15 @@ class _EditorScreenState extends State<EditorScreen> {
     if (Provider.of<CodeController>(context).path !=
         _mainScreenController?.currentFile?.absolutePath) {
       Provider.of<CodeController>(context, listen: false)
-          .updateController(TextEditingController());
+          .updateController(CreamyEditingController(
+        syntaxHighlighter: _syntaxHighlighter,
+      ));
     }
-    Provider.of<CodeController>(context, listen: false)
-        .updatePath(_mainScreenController?.currentFile?.absolutePath);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CodeController>(context, listen: false)
+          .updatePath(_mainScreenController?.currentFile?.absolutePath);
+    });
+
     _themeProvider = Provider.of<ThemeProvider>(context);
     super.didChangeDependencies();
   }
@@ -268,9 +279,10 @@ class _EditorScreenState extends State<EditorScreen> {
                     IconButton(
                       icon: Icon(Icons.refresh),
                       onPressed: () {
-                        Provider.of<CodeController>(context, listen: false)
-                            .documentDescription
-                            .printMap();
+                        print(
+                            Provider.of<CodeController>(context, listen: false)
+                                .textController
+                                .textDescriptionToMap);
                       },
                     ),
                     ActionsTabButton(),
@@ -284,14 +296,34 @@ class _EditorScreenState extends State<EditorScreen> {
             },
             body: Consumer<EditorController>(
               builder: (context, _mainController, _) {
-                return CodeEditingField(
+                return CreamyField(
                   key: key3,
                   controller:
                       Provider.of<CodeController>(context).textController,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
+                  textCapitalization: TextCapitalization.none,
+                  textAlign: TextAlign.left,
+                  textDirection: TextDirection.ltr,
+                  obscureText: false,
                   focusNode: _focusNode,
-                  verticalAxisScrollController: _fieldScrollController,
                   style: ThemeProvider.monospaceTextStyle
                       .copyWith(color: whiteOnDark),
+                  autocorrect: true,
+                  enableSuggestions: true,
+                  maxLines: null,
+                  scrollPadding: const EdgeInsets.all(20.0),
+                  smartDashesType: SmartDashesType.enabled,
+                  smartQuotesType: SmartQuotesType.enabled,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration.collapsed(
+                    hintText: 'Start writing..',
+                    hintStyle: ThemeProvider.monospaceTextStyle.copyWith(
+                      color: whiteOnDark.withOpacity(0.5),
+                    ),
+                  ),
+                  showLineIndicator: true,
+                  horizontallyScrollable: true,
                 );
               },
             ),

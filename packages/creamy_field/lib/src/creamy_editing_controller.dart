@@ -1,4 +1,3 @@
-import 'package:creamy_field/src/syntax_highlighter/creamy_syntax_highlighter.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:creamy_field/creamy_field.dart';
@@ -17,7 +16,11 @@ import 'syntax_highlighter.dart';
 class CreamyEditingController extends ValueNotifier<TextEditingValue>
     implements TextEditingController {
   /// Enable syntax highlighting
-  final bool enableHighlighting;
+  bool _enableHighlighting;
+
+  /// syntax highlighting status
+  bool get enableHighlighting =>
+      _enableHighlighting ?? (syntaxHighlighter != null) ?? false;
 
   /// The syntax highlighter which will parse text from Text Field
   final SyntaxHighlighter syntaxHighlighter;
@@ -32,9 +35,8 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   CreamyEditingController({
     String text,
     this.syntaxHighlighter,
-    this.enableHighlighting = true,
-  })  : this._syntaxHighlighter =
-            syntaxHighlighter ?? CreamySyntaxHighlighter(),
+  })  : this._syntaxHighlighter = syntaxHighlighter,
+        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
         super(text == null
             ? TextEditingValue.empty
             : TextEditingValue(text: text));
@@ -46,8 +48,8 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   CreamyEditingController.fromValue(
     TextEditingValue value, {
     this.syntaxHighlighter,
-    this.enableHighlighting = true,
   })  : this._syntaxHighlighter = syntaxHighlighter,
+        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
         super(value ?? TextEditingValue.empty);
 
   /// The current string the user is editing.
@@ -59,6 +61,11 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// [languageType] & [highlightedThemeType]
   void changeSyntaxHighlighting(SyntaxHighlighter syntaxHighlighter) {
     _syntaxHighlighter = syntaxHighlighter;
+  }
+
+  /// Toggle text's syntax highlighting.
+  void toggleHighlighting(bool value) {
+    this._enableHighlighting = value;
   }
 
   /// Setting this will notify all the listeners of this [TextEditingController]
@@ -169,7 +176,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   int get atColumn {
     int _extent = value?.selection?.extentOffset ?? 0;
     String precursorText = text?.substring(0, _extent) ?? '';
-    return (_extent - precursorText?.lastIndexOf('\n') ?? 0) + 1;
+    return (_extent - (precursorText?.lastIndexOf('\n') ?? 0));
   }
 
   Map<String, dynamic> get textDescriptionToMap => <String, dynamic>{

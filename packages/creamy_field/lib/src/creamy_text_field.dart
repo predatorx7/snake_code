@@ -191,9 +191,9 @@ class CreamyField extends StatefulWidget {
     this.syntaxHighlighter,
     this.onBackSpacePress,
     this.onEnterPress,
-    this.showLineIndicator,
-    this.horizontallyScrollable,
-    this.horizontalScrollExtent,
+    this.showLineIndicator = false,
+    this.horizontallyScrollable = false,
+    this.horizontalScrollExtent = 2000,
     this.lineCountIndicatorDecoration,
     this.selectionControls,
   })  : assert(textAlign != null),
@@ -242,6 +242,12 @@ class CreamyField extends StatefulWidget {
                     selectAll: true,
                     paste: true,
                   )),
+        assert(horizontallyScrollable != null,
+            'horizontallyScrollable should not be null'),
+        assert(horizontalScrollExtent != null,
+            'horizontalScrollExtent should not be null'),
+        assert(horizontalScrollExtent > 0,
+            'horizontalScrollExtent should not be less than 1'),
         super(key: key);
 
   /// Controls the text being edited.
@@ -263,7 +269,10 @@ class CreamyField extends StatefulWidget {
   /// Keep this widget horizontally scrollable
   final bool horizontallyScrollable;
 
-  /// The horizontal scroll extent of this widget
+  /// The horizontal scroll extent of this widget. Defaults to 2000 if
+  /// [horizontallyScrollable] is true.
+  ///
+  /// Prefer values more than the width of device screen
   final double horizontalScrollExtent;
 
   /// Syntax highlighter which will parse text from this text field and apply color highlights
@@ -1049,7 +1058,7 @@ class _CreamyFieldState extends State<CreamyField>
             );
           },
           child: HorizontalScrollable(
-            beScrollable: widget.horizontallyScrollable,
+            beScrollable: widget?.horizontallyScrollable ?? false,
             useExpanded: false,
             horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
             physics: widget.scrollPhysics,
