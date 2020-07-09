@@ -2,6 +2,7 @@
 
 [![](https://img.shields.io/pub/v/creamy_field)](https://pub.dev/packages/creamy_field)
 [![](https://img.shields.io/github/issues/predatorx7/snake_code)](https://github.com/predatorx7/snake_code/issues)
+[![](https://github.com/predatorx7/snake_code/workflows/Flutter%20package%20analysis/badge.svg)](https://github.com/predatorx7/snake_code/actions?query=workflow%3A%22Flutter+package+analysis%22)
 
 Components & widgets with rich text, custom selection toolbar & syntax highlight support. Useful for Rich text editors.
 
