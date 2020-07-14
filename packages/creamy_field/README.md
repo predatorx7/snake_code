@@ -15,9 +15,9 @@ Components & widgets with rich text, custom selection toolbar & syntax highlight
 1. Syntax Highlighter
 1. creamyTextSelectionControls
 
-The CreamyTextField is a text widget similar to Flutter's `TextField` widget. However, unlike a regular `TextField` the editor supports a syntax highlighter and a controller which provides more description about a text.
+The CreamyTextField is a text widget similar to Flutter's `TextField` widget. However, unlike a regular `TextField` the widget supports a syntax highlighter, line indicator, selection toolbar actions, custom text selection toolbar support, ability to horizontally scroll and a controller which provides more description about a text.
 
-You can also use a limited support for many programming languages & themes using CreamySyntaxHighlighter.
+You can also use a limited support for syntax highlighting of many programming languages & themes using CreamySyntaxHighlighter.
 
 Since the text field itself is independent of the syntax highlighting rules, the same text field can be used for any other programming or markup langugage.
 Only the syntax highlighter implementation needs to be created separately for each new programming language.

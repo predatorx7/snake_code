@@ -192,6 +192,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
     return (_base - (precursorText?.lastIndexOf('\n') ?? 0));
   }
 
+  // TODO: add extensions to TextEditingValue
   Map<String, dynamic> get textDescriptionMap => <String, dynamic>{
         'text': text,
         'beforeSelectedText': beforeSelectedText,

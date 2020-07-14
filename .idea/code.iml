@@ -6,6 +6,12 @@
       <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/org.purplegraphite.code/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/build" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/creamy_field/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/packages/rich_code_editor/build" />
