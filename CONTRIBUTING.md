@@ -9,23 +9,22 @@ The following is a set of guidelines for contributing to Snake and its packages,
 [Code of Conduct](#code-of-conduct)
 
 [What should I know before I get started?](#what-should-i-know-before-i-get-started)
-
 - [Snake Code and Packages](#Snake's-application-and-Packages)
+- [Structure](#structure)
 
 [How Can I Contribute?](#how-can-i-contribute)
 
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
 - [Contributing](#contributing)
-- [Your First Code Contribution](#your-first-code-contribution)
-- [Style guide](#style-guide)
+- [Your First Code Contribution](#your-first-code-contribution) <!-- - [Style guide](#style-guide) -->
 - [Reference articles](#reference-articles)
 
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the [Snake's Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [smushaheed@outlook.com](mailto:smushaheed@outlook.com).
 
-> **I don't want to read this whole thing I just have a question!!!**<br>Please don't file an issue to ask a question. You'll get faster results by using the resources below. If your doubt is still unresolved then send me a mail about it at [smushaheed@outlook.com](mailto:smushaheed@outlook.com)
+> **You don't want to read this whole thing and just have a question??!!!**<br>Please don't file an issue to ask a question. You'll get faster results by using the resources below. If your doubt is still unresolved then send me a mail about it at [smushaheed@outlook.com](mailto:smushaheed@outlook.com)
 
 ## What should I know before I get started?
 
@@ -44,6 +43,89 @@ Any flutter/dart code which is not part of UI and core logic code must be separa
 Here's a list of current packages:
 
 - creamy_field
+
+### Structure
+
+The code of application based loosely on [Single responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle).
+Source code in flutter application's lib folder must follow the below directory architecture pattern:
+
+```
+src
+├── commons
+│   ├── assets.dart (Reference to Fonts, Images, Icons)
+│   ├── routes.dart (Routes to use with named navigation)
+│   ├── routing_constants.dart
+│   ├── strings.dart
+│   └── styles.dart
+├── core
+│   ├── api
+│   ├── bloc
+│   ├── services (May run in the background or provide some service)
+│   └── utils
+├── database
+├── models
+│   ├── plain_models (search for PODO OR POJO)
+│   └── view_models
+├── providers
+└── ui
+    ├── components (UI Widgets)
+    └── screens
+```
+
+#### Commons
+
+Variables, Objects which are common whole app like app style, locale based strings, assets, routes (screens), routing_constants (route names).
+
+1. Assets
+   - All references to fonts, images, icons or other media.
+1. Routes
+   - Route generator of navigations to routes/screens.
+1. Routing_constants
+   - Screen/Route names for routing with route generator
+1. Strings
+   - Strings (maybe based on locale) for whole app.
+1. Styles
+   - Custom colors, widget decorations, text styles.
+
+#### Core
+
+Stores business logic code, apis, services, utils
+
+1. Api
+   Web APIs and native interaction code will be here.
+1. Blocs
+   Holds business logic code which the respective provider in "providers" folder will provide.
+1. Services
+   Services like NavigationService, ConnectionService which will run in background or irrelative
+   of BuildContext will be here.
+1. Utils
+   Utilities like Validation class will be here.
+
+#### Database
+
+All database CRUD operations and classes will be here
+
+#### Models
+
+1. Plain_models
+   Plain old dart objects like POJOs will be here.
+   Document Node Models should also be here.
+2. View_models
+   ChangeNotifiers for state management of respective screens will be here.
+
+#### Providers
+
+Providers for bloc and state management should be here.
+
+#### UI
+
+1. Screens
+   - The "screens" folder holds many different folders or primary screen files, each of which corresponds to a different screen of the app. Each screen folder holds primary screen files.
+1. Components
+   - “components” folder which holds each component in its own separate file.
+	- Any piece of a screen more complicated then a few widgets should be its own component.
+	- Any widget used in more than one
+   screen should be in component.
 
 ## How Can I Contribute?
 
@@ -139,88 +221,8 @@ Unsure where to begin contributing to Snake? You can start by looking through th
 
 * [good-first-issue][beginner] - issues which should only require a few lines of code, and a test or two. Good for beginners.
 
-### Style guide
-
-The code of application based loosely on [Single responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle).
-Source code in flutter application's lib folder must follow the below directory architecture pattern:
-
-```
-src
-├── commons
-│   ├── assets.dart (Reference to Fonts, Images, Icons)
-│   ├── routes.dart (Routes to use with named navigation)
-│   ├── routing_constants.dart
-│   ├── strings.dart
-│   └── styles.dart
-├── core
-│   ├── api
-│   ├── bloc
-│   ├── services (May run in the background or provide some service)
-│   └── utils
-├── database
-├── models
-│   ├── plain_models (search for PODO OR POJO)
-│   └── view_models
-├── providers
-└── ui
-    ├── components (UI Widgets)
-    └── screens
-```
-
-#### Commons
-
-Variables, Objects which are common whole app like app style, locale based strings, assets, routes (screens), routing_constants (route names).
-
-1. Assets
-   - All references to fonts, images, icons or other media.
-1. Routes
-   - Route generator of navigations to routes/screens.
-1. Routing_constants
-   - Screen/Route names for routing with route generator
-1. Strings
-   - Strings (maybe based on locale) for whole app.
-1. Styles
-   - Custom colors, widget decorations, text styles.
-
-#### Core
-
-Stores business logic code, apis, services, utils
-
-1. Api
-   Web APIs and native interaction code will be here.
-1. Blocs
-   Holds business logic code which the respective provider in "providers" folder will provide.
-1. Services
-   Services like NavigationService, ConnectionService which will run in background or irrelative
-   of BuildContext will be here.
-1. Utils
-   Utilities like Validation class will be here.
-
-#### Database
-
-All database CRUD operations and classes will be here
-
-#### Models
-
-1. Plain_models
-   Plain old dart objects like POJOs will be here.
-   Document Node Models should also be here.
-2. View_models
-   ChangeNotifiers for state management of respective screens will be here.
-
-#### Providers
-
-Providers for bloc and state management should be here.
-
-#### UI
-
-1. Screens
-   - The "screens" folder holds many different folders or primary screen files, each of which corresponds to a different screen of the app. Each screen folder holds primary screen files.
-1. Components
-   - “components” folder which holds each component in its own separate file.
-	- Any piece of a screen more complicated then a few widgets should be its own component.
-	- Any widget used in more than one
-   screen should be in component.
+<!-- ### Style guide
+ -->
 
 ### Reference articles
 
