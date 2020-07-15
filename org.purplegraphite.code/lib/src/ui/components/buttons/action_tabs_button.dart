@@ -1,11 +1,10 @@
-import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ActionsTabButton extends StatelessWidget {
   /// Return proper tab button label based on number of tabs open
-  static String changeLabel(Map<String, Entity> tabsOpen) {
+  static String changeLabel(Iterable tabsOpen) {
     if (tabsOpen?.isEmpty ?? true) {
       return '0';
     } else if (tabsOpen.length > 99) {
@@ -22,9 +21,8 @@ class ActionsTabButton extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final bool isDark = theme.brightness == Brightness.dark;
     Color appbarAccent = isDark ? Colors.amber : Colors.white;
-    final tabsOpen = editorController.openFiles;
-    String label = changeLabel(tabsOpen);
-
+    final tabs = editorController.tabs;
+    String label = changeLabel(tabs);
     return Tooltip(
       message: 'change tabs',
       child: IconButton(

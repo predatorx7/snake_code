@@ -1,10 +1,8 @@
 import 'package:code/src/common/routing_const.dart';
-import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/utils/fileutils.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
 
 /// The main screen displayed when the user opens app
 class StartScreen extends StatelessWidget {
@@ -248,9 +246,8 @@ class StartScreen extends StatelessWidget {
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () async {
             var emptyWorkspace = await FileUtils.createTemporaryWorkspace();
-            Provider.of<EditorController>(context, listen: false)
-                .setCurrentWorkspace(emptyWorkspace);
-            Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
+            Navigator.of(context).pushReplacementNamed(EditorScreenRoute,
+                arguments: emptyWorkspace);
           },
           icon: Icon(
             EvaIcons.editOutline,

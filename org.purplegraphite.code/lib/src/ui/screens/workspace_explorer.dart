@@ -26,8 +26,7 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
   @override
   void initState() {
     super.initState();
-    dir = Provider.of<EditorController>(context, listen: false)
-            .currentWorkspace ??
+    dir = Provider.of<EditorController>(context, listen: false).workspace ??
         Directory.systemTemp;
     Provider.of<BrowserController>(context, listen: false).setCurrent(dir);
   }

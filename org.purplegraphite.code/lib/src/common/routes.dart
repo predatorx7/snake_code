@@ -1,3 +1,4 @@
+import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case StartScreenRoute:
       return wrapPageRoute<StartScreen>(StartScreen());
     case EditorScreenRoute:
-      return wrapPageRoute<EditorScreen>(EditorScreen());
+      return wrapPageRoute<EditorScreen>(
+        ChangeNotifierProvider(
+          create: (context) => EditorController(settings.arguments),
+          child: EditorScreen(),
+        ),
+      );
     case BrowserScreenRoute:
       return wrapPageRoute<BrowserScreen>(
         ChangeNotifierProvider(

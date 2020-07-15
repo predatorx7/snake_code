@@ -1,12 +1,9 @@
 import 'package:code/src/common/routes.dart';
-import 'package:code/src/models/provider/code_controller.dart';
 import 'package:code/src/models/provider/theme.dart';
 import 'package:code/src/ui/screens/start.dart';
 import 'package:code/src/utils/permissions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'src/models/view_model/editor_controller.dart';
 
 void main() async {
   runApp(App());
@@ -30,14 +27,6 @@ class App extends StatelessWidget {
           create: (_) => ThemeProvider(
             navigatorKey: _navigatorKey,
           ),
-        ),
-        ChangeNotifierProvider<EditorController>(
-          // This provider is used to control the Editor Screen.
-          create: (context) => EditorController(),
-        ),
-        ChangeNotifierProvider<CodeController>(
-          // This provider is controls the code in CodeEditingField.
-          create: (context) => CodeController(),
         ),
       ],
       child: Consumer<ThemeProvider>(

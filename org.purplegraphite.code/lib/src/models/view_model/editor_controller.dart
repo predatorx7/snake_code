@@ -1,45 +1,52 @@
 import 'dart:io';
 
-import 'package:code/src/models/plain_model/entity.dart';
-import 'package:flutter/widgets.dart';
+import 'package:code/src/models/provider/tab_controller.dart';
+import 'package:code/src/ui/screens/editor.dart';
+import 'package:code/src/ui/screens/editor_tab.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
-class EditorController extends ChangeNotifier {
-  Map<String, Entity> _openFiles = {};
+class EditorController with ChangeNotifier {
+  EditorController(this.workspace);
 
-  /// A map of open files where a file's full path is key & it's [Entity] is value.
-  Map<String, Entity> get openFiles => _openFiles;
+  void initialize(EditorScreenState vsync) {
+    _tabController = STabController(initialIndex: 0, length: 1, vsync: vsync);
+  }
 
-  /// Basename of file in viewport
-  String currentTitle;
+  @override
+  void dispose() {
+    tabController.dispose();
+    _tabs = null;
+    super.dispose();
+  }
 
-  /// Current file in viewport
-  Entity currentFile;
+  final Directory workspace;
 
-  Directory _currentWorkspace;
+  STabController _tabController;
+  STabController get tabController => _tabController;
 
-  Directory get currentWorkspace => _currentWorkspace;
+  List<EditorTab> _tabs = <EditorTab>[];
+  List<EditorTab> get tabs => _tabs;
 
-  /// set workspace
-  void setCurrentWorkspace(Directory currentWorkspace) {
-    _currentWorkspace = currentWorkspace;
+  EditorTab get currentTab => _tabs[_tabController.index];
+
+  EditorTabController get currentTabController => currentTab.controller;
+
+  String get currentTitle => currentTabController.entity.basename;
+
+  void addFile(File file) {
+    _tabs.add(EditorTab.fromFile(file));
+    _tabController.dispose();
+    _tabController = _tabController.copyWith(
+      index: _tabController.length,
+      length: _tabController.length + 1,
+      previousIndex: _tabController.index,
+    );
     notifyListeners();
   }
 
-  /// Set current tab
-  void setCurrentTab(Entity file) {
-    currentTitle = file.basename;
-    currentFile = file;
+  void removeTab(EditorTab tab) {
+    print('Tab removed: ${_tabs.remove(tab)}');
     notifyListeners();
-  }
-
-  /// Add files to open-file-list
-  void addToOpenFiles(Entity file) {
-    _openFiles[file.id] = file;
-    notifyListeners();
-  }
-
-  /// Remove files from open-file-list. Use `<Enitity>.id` as [key].
-  void removeFromOpenFiles(String key) {
-    _openFiles.remove(key);
   }
 }

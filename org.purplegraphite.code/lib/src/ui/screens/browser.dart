@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:code/src/common/routing_const.dart';
 import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/models/view_model/browser_controller.dart';
-import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/components/newfolder_dialog.dart';
 import 'package:code/src/utils/fileutils.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -43,23 +42,27 @@ class _BrowserScreenState extends State<BrowserScreen> {
     super.didChangeDependencies();
   }
 
-  Icon getFileTypeIcon(Entity object) {
+  Icon getFileTypeIcon(Entity object, bool isDark) {
+    // TODO: Save computation here
     FileStat stat = object?.stat;
     IconData data;
+    final bool isHidden = object?.basename[0] == '.';
     Color color;
     switch (stat?.type) {
       case FileSystemEntityType.directory:
         data = EvaIcons.folder;
-        color = Theme.of(context).accentColor;
+        color = isDark
+            ? Color.lerp(Theme.of(context).accentColor, Colors.white, 0.25)
+            : Theme.of(context).accentColor;
         break;
       case FileSystemEntityType.file:
-        data = EvaIcons.fileOutline;
-        color = Colors.grey;
+        data = isHidden ? EvaIcons.fileOutline : EvaIcons.file;
+        color = isDark ? Colors.white : Colors.grey;
         break;
       default:
         data = EvaIcons.alertCircleOutline;
     }
-    if (object?.basename[0] == '.') {
+    if (isHidden) {
       // File represents a hidden entity
       color = color.withAlpha(0xbb);
     }
@@ -68,6 +71,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color foregroundInDarkness = isDark ? Colors.white : Colors.black;
     Widget _selectFolderButton = Tooltip(
       message: 'Select this folder',
       child: Center(
@@ -81,11 +86,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
               onPressed: widget?.dir == null
                   ? null
                   : () {
-                      print('select this directory');
-                      Provider.of<EditorController>(context, listen: false)
-                          .setCurrentWorkspace(_view.current);
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                          EditorScreenRoute, (Route<dynamic> route) => false);
+                          EditorScreenRoute, (Route<dynamic> route) => false,
+                          arguments: widget.dir);
                     },
               borderSide: BorderSide(
                 width: 1.6,
@@ -133,8 +136,13 @@ class _BrowserScreenState extends State<BrowserScreen> {
                       arguments: x);
                 }
               },
-              leading: getFileTypeIcon(object),
-              title: Text(object.basename),
+              leading: getFileTypeIcon(object, isDark),
+              title: Text(
+                object.basename,
+                style: TextStyle(
+                  color: foregroundInDarkness,
+                ),
+              ),
               trailing: Visibility(
                 visible:
                     _view.recentlyCreatedFolder.contains(object.absolutePath),

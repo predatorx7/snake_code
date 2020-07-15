@@ -19,26 +19,29 @@ void prepareCollisionTestFiles(File file, String message) {
 void main() {
   group('File tests for collision', () {
     String currentDirectory;
-    String test1Path;
-    String test2Path;
-    File test1, test2;
+    String test1Path, test2Path, test3Path;
+    File test1, test2, test3;
     setUp(() {
       currentDirectory = Directory.current.path;
       test1Path = path.join(currentDirectory, 'test1.txt');
       test2Path = path.join(currentDirectory, 'test2.txt');
+      test3Path = path.join(currentDirectory, 'test3.txt');
       test1 = File(test1Path);
       test2 = File(test2Path);
+      test3 = File(test3Path);
       prepareCollisionTestFiles(test1, 'This is message 1');
       prepareCollisionTestFiles(test2, 'It\'s message 2');
+      prepareCollisionTestFiles(test3, 'This is message 1');
     });
-    test('by comparing a file\'s checksum with itself', () async {
+    test('by comparing a file\'s checksum with another file with same content',
+        () async {
       final String reason =
           'Checksums of same file (calculated twice) do not match!';
       final String digest1 = await Checksum.getDigest(test1);
-      final String digest2 = await Checksum.getDigest(test1);
+      final String digest2 = await Checksum.getDigest(test3);
       expect(digest1, digest2, reason: reason);
       final String digest3 = Checksum.getDigestSync(test1);
-      final String digest4 = Checksum.getDigestSync(test1);
+      final String digest4 = Checksum.getDigestSync(test3);
       expect(digest3, digest4, reason: reason);
     });
     test('by comparing a file\'s checksum with other file\'s checksum',
@@ -56,6 +59,7 @@ void main() {
     tearDown(() {
       test1.delete();
       test2.delete();
+      test3.delete();
     });
   });
 }
