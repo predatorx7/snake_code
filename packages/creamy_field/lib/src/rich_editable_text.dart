@@ -187,7 +187,6 @@ class RichEditableText extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.horizontallyScrollable,
-    this.onTabSpacePress,
   })  : assert(controller != null),
         assert(focusNode != null),
         assert(obscureText != null),
@@ -262,8 +261,6 @@ class RichEditableText extends StatefulWidget {
 
   // Trigger when enter was pressed with value before enter was pressed
   final ValueChanged<TextEditingValue> onEnterPress;
-
-  final ValueChanged<TextEditingValue> onTabSpacePress;
 
   /// Controls the text being edited.
   final CreamyEditingController controller;
@@ -1110,11 +1107,6 @@ class RichEditableTextState extends State<RichEditableText>
       if (_pressedKey == PressedKey.backSpace &&
           editableCode.onBackSpacePress != null) {
         editableCode.onBackSpacePress(value);
-      }
-
-      if (_pressedKey == PressedKey.tabSpace &&
-          editableCode.onTabSpacePress != null) {
-        editableCode.onTabSpacePress(value);
       }
     }
 

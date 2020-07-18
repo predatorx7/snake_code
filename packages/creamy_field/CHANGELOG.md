@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+- tabSpace can be set in CreamyEditingController
+- removed tabSpace from CreamySyntaxHighlighter
+- property to add tab to text at baseOffset
+
 ## 0.3.0+hotfix.2
 
 - renamed RichEditableText

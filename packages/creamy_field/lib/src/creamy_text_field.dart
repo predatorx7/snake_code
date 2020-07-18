@@ -191,7 +191,6 @@ class CreamyField extends StatefulWidget {
     this.syntaxHighlighter,
     this.onBackSpacePress,
     this.onEnterPress,
-    this.onTabSpacePress,
     this.showLineIndicator = false,
     this.horizontallyScrollable = false,
     this.horizontalScrollExtent = 2000,
@@ -261,9 +260,6 @@ class CreamyField extends StatefulWidget {
 
   /// Triggered when enter is pressed
   final ValueChanged<TextEditingValue> onEnterPress;
-
-  /// Triggered when tabspace is pressed
-  final ValueChanged<TextEditingValue> onTabSpacePress;
 
   /// When true, shows a line indicating column adjacent to the text field
   final bool showLineIndicator;
@@ -1004,7 +1000,6 @@ class _CreamyFieldState extends State<CreamyField>
         scrollPhysics: widget.scrollPhysics,
         onBackSpacePress: widget.onBackSpacePress,
         onEnterPress: widget.onEnterPress,
-        onTabSpacePress: widget.onTabSpacePress,
         horizontallyScrollable: widget.horizontallyScrollable,
       ),
     );
