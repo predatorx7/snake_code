@@ -14,7 +14,7 @@ class MyEditorApp extends StatefulWidget {
 
 class _MyEditorAppState extends State<MyEditorApp> {
   // Declared a regular syntax controller.
-  TextEditingController controller;
+  CreamyEditingController controller;
 
   @override
   void initState() {
@@ -30,6 +30,10 @@ class _MyEditorAppState extends State<MyEditorApp> {
         language: LanguageType.dart,
         theme: HighlightedThemeType.githubTheme,
       ),
+      // The number of spaces which will replace `\t`.
+      // Setting this to 1 does nothing & setting this to value less than 1
+      // throws assertion error.
+      tabSize: 4,
     );
   }
 
@@ -43,6 +47,15 @@ class _MyEditorAppState extends State<MyEditorApp> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Rich Code Editor"),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Add tab'),
+            onPressed: () {
+              // Adds a tab at the selection's base base-offet
+              controller.addTab();
+            },
+          )
+        ],
       ),
       // A CreamyField is a text field which supports CreamyEditingController
       // & CreamySyntaxHighlighter.

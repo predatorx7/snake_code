@@ -4,11 +4,12 @@
 
 The following is a set of guidelines for contributing to Snake and its packages, which are hosted in the [snake_code repository](https://github.com/predatorx7/snake_code) on GitHub. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
-#### Table Of Contents
+## Table Of Contents
 
 [Code of Conduct](#code-of-conduct)
 
 [What should I know before I get started?](#what-should-i-know-before-i-get-started)
+
 - [Snake Code and Packages](#Snake's-application-and-Packages)
 - [Structure](#structure)
 
@@ -123,8 +124,8 @@ Providers for bloc and state management should be here.
    - The "screens" folder holds many different folders or primary screen files, each of which corresponds to a different screen of the app. Each screen folder holds primary screen files.
 1. Components
    - “components” folder which holds each component in its own separate file.
-	- Any piece of a screen more complicated then a few widgets should be its own component.
-	- Any widget used in more than one
+   - piece of a screen more complicated then a few widgets should be its own component.
+   - Any widget used in more than one
    screen should be in component.
 
 ## How Can I Contribute?

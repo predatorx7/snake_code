@@ -75,4 +75,73 @@ void main() {
       expect(textController3.extentColumn, 281);
     });
   });
+
+  group(
+      'When using CreamyEditingController, are \\t getting replaced with spaces when',
+      () {
+    CreamyEditingController controller;
+    final int tabSize = 4;
+    final String textWithSpaces = 'hello${' ' * tabSize}world';
+    final String textWithTabs = 'hello\tworld';
+    setUp(() {
+      controller = CreamyEditingController(
+        text: textWithTabs,
+        tabSize: tabSize,
+      );
+      controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length));
+    });
+    test('the constructor is initialized with a text containing `\\t`', () {
+      expect(
+        controller.text,
+        textWithSpaces,
+        reason:
+            'The number of spaces replaced by single tab is not equal to tabSize',
+      );
+    });
+    test('text is changed', () {
+      final String newLineWithTab = '\n\tAdded tab on start of this line';
+      final String newLineWithSpaces =
+          '\n${' ' * tabSize}Added tab on start of this line';
+      controller.text = '${controller.text}$newLineWithTab';
+      expect(controller.text, textWithSpaces + newLineWithSpaces);
+    });
+
+    test('\\t is added to the end', () {
+      final String previousText = controller.text;
+      controller.addTab();
+      final int newBaseOffset = controller.selection.baseOffset;
+      final String newText = controller.text;
+      expect(newBaseOffset, controller.text.length,
+          reason: 'cursor was not moved to the end');
+      expect(newText, previousText + (' ' * tabSize),
+          reason:
+              'At the end, the number of spaces replaced by single tab is not equal to tabSize');
+    });
+
+    test('\\t is added not in the end or start', () {
+      final String previousText = controller.text;
+      final int offset = (previousText.length / 2).round();
+      controller.selection = TextSelection.fromPosition(TextPosition(
+        offset: offset,
+      ));
+      final int oldBaseOffset = controller.selection.baseOffset;
+      controller.addTab();
+      final int newBaseOffset = controller.selection.baseOffset;
+      final String newText = controller.text;
+      expect(newBaseOffset, oldBaseOffset + tabSize,
+          reason:
+              'cursor was not moved to the correct position after tabs where replaced with spaces, previous offset: ${previousText.length}, tabSize: $tabSize');
+      expect(
+          newText,
+          previousText.substring(0, offset) +
+              (' ' * tabSize) +
+              previousText.substring(offset, previousText.length),
+          reason:
+              'At the end, the number of spaces replaced by single tab is not equal to tabSize');
+    });
+    tearDown(() {
+      controller.dispose();
+    });
+  });
 }

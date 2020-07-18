@@ -15,7 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart' show DragStartBehavior;
 import 'package:flutter/widgets.dart';
 
-import 'creamy_editing_controller.dart';
+import 'text_tools/creamy_editing_controller.dart';
 import 'text_tools/input.dart';
 import 'text_tools/text_selection.dart';
 import 'text_tools/toolbar_options.dart';
@@ -187,6 +187,7 @@ class RichEditableText extends StatefulWidget {
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.horizontallyScrollable,
+    this.onTabSpacePress,
   })  : assert(controller != null),
         assert(focusNode != null),
         assert(obscureText != null),
@@ -261,6 +262,8 @@ class RichEditableText extends StatefulWidget {
 
   // Trigger when enter was pressed with value before enter was pressed
   final ValueChanged<TextEditingValue> onEnterPress;
+
+  final ValueChanged<TextEditingValue> onTabSpacePress;
 
   /// Controls the text being edited.
   final CreamyEditingController controller;
@@ -1108,6 +1111,11 @@ class RichEditableTextState extends State<RichEditableText>
           editableCode.onBackSpacePress != null) {
         editableCode.onBackSpacePress(value);
       }
+
+      if (_pressedKey == PressedKey.tabSpace &&
+          editableCode.onTabSpacePress != null) {
+        editableCode.onTabSpacePress(value);
+      }
     }
 
     // To keep the cursor from blinking while typing, we want to restart the
@@ -1822,8 +1830,10 @@ class RichEditableTextState extends State<RichEditableText>
       physics: widget.scrollPhysics,
       dragStartBehavior: widget.dragStartBehavior,
       viewportBuilder: (BuildContext context, ViewportOffset offset) {
-        // TODO: do something about padding
-        // Issue: Text InputDecoration renders child like a stack of decoration & child, therfore padding only applies to child.
+        // TODO: Do something about padding
+        // Issue: Text InputDecoration renders child like a stack of decoration
+        // & child, therfore padding only applies to child.
+        //
         // widget.horizontallyScrollable
         // ? const EdgeInsets.only(left: 8.0)
         // : EdgeInsets.zero
@@ -2086,11 +2096,19 @@ class KeyboardUtilz {
 
     var lastChar = newValue.text
         .substring(currentSelection.baseOffset, newSelection.baseOffset);
-    return lastChar == "\n" ? PressedKey.enter : PressedKey.regular;
+
+    switch (lastChar) {
+      case '\n':
+        return PressedKey.enter;
+      case '\t':
+        return PressedKey.tabSpace;
+      default:
+        return PressedKey.regular;
+    }
   }
 }
 
-enum PressedKey { enter, backSpace, regular }
+enum PressedKey { enter, backSpace, tabSpace, regular }
 
 // This formatter inserts [Unicode.RLM] and [Unicode.LRM] into the
 // string in order to preserve expected caret behavior when trailing

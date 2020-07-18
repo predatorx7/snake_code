@@ -11,7 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-import 'creamy_editing_controller.dart';
+import 'text_tools/creamy_editing_controller.dart';
 import 'decoration/line_indicator.dart';
 import 'rich_editable_text.dart';
 import 'syntax_highlighter.dart';
@@ -191,6 +191,7 @@ class CreamyField extends StatefulWidget {
     this.syntaxHighlighter,
     this.onBackSpacePress,
     this.onEnterPress,
+    this.onTabSpacePress,
     this.showLineIndicator = false,
     this.horizontallyScrollable = false,
     this.horizontalScrollExtent = 2000,
@@ -255,11 +256,14 @@ class CreamyField extends StatefulWidget {
   /// If null, this widget will create its own [CreamyEditingController].
   final CreamyEditingController controller;
 
-  /// Triggered when backspace was pressed with value before backspace was pressed
+  /// Triggered when backspace is pressed
   final ValueChanged<TextEditingValue> onBackSpacePress;
 
-  /// Triggered when enter was pressed with value before enter was pressed
+  /// Triggered when enter is pressed
   final ValueChanged<TextEditingValue> onEnterPress;
+
+  /// Triggered when tabspace is pressed
+  final ValueChanged<TextEditingValue> onTabSpacePress;
 
   /// When true, shows a line indicating column adjacent to the text field
   final bool showLineIndicator;
@@ -1000,6 +1004,7 @@ class _CreamyFieldState extends State<CreamyField>
         scrollPhysics: widget.scrollPhysics,
         onBackSpacePress: widget.onBackSpacePress,
         onEnterPress: widget.onEnterPress,
+        onTabSpacePress: widget.onTabSpacePress,
         horizontallyScrollable: widget.horizontallyScrollable,
       ),
     );

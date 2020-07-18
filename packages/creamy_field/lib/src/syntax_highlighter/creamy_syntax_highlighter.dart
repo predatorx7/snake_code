@@ -43,9 +43,6 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// The original code to be highlighted
   String get source => _source;
 
-  /// The [tabSize] number of spaces which will be used instead of `\t`.
-  final int tabSize;
-
   /// Highlight language
   ///
   /// It is recommended to give it a value for performance.
@@ -80,7 +77,6 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   CreamySyntaxHighlighter({
     @required LanguageType language,
     @required HighlightedThemeType theme,
-    this.tabSize = 8, // TODO: https://github.com/flutter/flutter/issues/50087
   })  : this.language =
             (language != null) ? (toLanguageName(language) ?? 'all') : null,
         this.theme = (language != null)
@@ -121,7 +117,7 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
 
   @override
   List<TextSpan> parseTextEditingValue(TextEditingValue value) {
-    _source = value.text.replaceAll('\t', ' ' * tabSize);
+    _source = value.text;
     return _convert(highlight
         .parse(source, language: language, autoDetection: language == null)
         .nodes);

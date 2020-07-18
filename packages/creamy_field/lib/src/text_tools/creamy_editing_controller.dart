@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:creamy_field/creamy_field.dart';
 
-import 'syntax_highlighter.dart';
+import '../syntax_highlighter.dart';
 
 /// A controller for an editable text field.
 ///
@@ -15,8 +15,49 @@ import 'syntax_highlighter.dart';
 /// Also supports syntax highlighting, and syntax highlight theme type.
 class CreamyEditingController extends ValueNotifier<TextEditingValue>
     implements TextEditingController {
+  /// Creates a controller for an editable text field.
+  ///
+  /// This constructor treats a null [text] argument as if it were an empty
+  /// string.
+  CreamyEditingController({
+    String text,
+    this.syntaxHighlighter,
+    this.tabSize = 1,
+  })  : assert(tabSize != null),
+        assert(tabSize > 0),
+        this._syntaxHighlighter = syntaxHighlighter,
+        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
+        super(text == null
+            ? TextEditingValue.empty
+            : TextEditingValue(text: __replaceTabsWithSpaces(text, tabSize)));
+
+  /// Creates a controller for an editable text field from an initial [TextEditingValue].
+  ///
+  /// This constructor treats a null [value] argument as if it were
+  /// [TextEditingValue.empty].
+  CreamyEditingController.fromValue(
+    TextEditingValue value, {
+    this.syntaxHighlighter,
+    this.tabSize = 1,
+  })  : assert(tabSize != null),
+        assert(tabSize > 0),
+        this._syntaxHighlighter = syntaxHighlighter,
+        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
+        super(value ?? TextEditingValue.empty);
+
+  /// The current string the user is editing.
+  String get text => value.text;
+
   /// Enable syntax highlighting
   bool _enableHighlighting;
+
+  /// The [tabSize] number of spaces which will be used instead of `\t`.
+  /// Defaults to 1.
+  ///
+  /// Note: Flutter currently doesn't support tabSize.
+  /// Check this issue for more information
+  /// https://github.com/flutter/flutter/issues/50087
+  final int tabSize;
 
   /// syntax highlighting status
   bool get enableHighlighting =>
@@ -28,32 +69,8 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// The syntax highlighter which will parse text from Text Field
   SyntaxHighlighter _syntaxHighlighter;
 
-  /// Creates a controller for an editable text field.
-  ///
-  /// This constructor treats a null [text] argument as if it were an empty
-  /// string.
-  CreamyEditingController({
-    String text,
-    this.syntaxHighlighter,
-  })  : this._syntaxHighlighter = syntaxHighlighter,
-        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
-        super(text == null
-            ? TextEditingValue.empty
-            : TextEditingValue(text: text));
-
-  /// Creates a controller for an editable text field from an initial [TextEditingValue].
-  ///
-  /// This constructor treats a null [value] argument as if it were
-  /// [TextEditingValue.empty].
-  CreamyEditingController.fromValue(
-    TextEditingValue value, {
-    this.syntaxHighlighter,
-  })  : this._syntaxHighlighter = syntaxHighlighter,
-        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
-        super(value ?? TextEditingValue.empty);
-
-  /// The current string the user is editing.
-  String get text => value.text;
+  // Observed that \t renders as a single space in flutter.
+  // int tabSize = 4;
 
   /// Use your own implementation of [SyntaxHighlighter].
   ///
@@ -79,7 +96,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// change the controller's [value].
   set text(String newText) {
     value = value.copyWith(
-      text: newText,
+      text: __replaceTabsWithSpaces(newText, tabSize),
       selection: const TextSelection.collapsed(offset: -1),
       composing: TextRange.empty,
     );
@@ -108,11 +125,48 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
     );
   }
 
+  /// Appends a tab at the [TextSelection.baseOffset] and
+  /// moves the selection-offset at `previous offset + tab size`.
+  void addTab() {
+    final int oldOffset = this.selection.baseOffset;
+    String replacement;
+    if (tabSize != 1) {
+      replacement = ' ' * tabSize;
+    } else {
+      replacement = '\t';
+    }
+    text = text.replaceRange(oldOffset, oldOffset, replacement);
+    this.selection = TextSelection.fromPosition(
+      TextPosition(
+        offset: oldOffset + tabSize,
+      ),
+    );
+  }
+
+  /// Replaces tabs `\t` with `'' * [tabSize]`
+  /// Check https://github.com/flutter/flutter/issues/50087
+  // TODO: temporary solution was used. Find a proper fix.
+  void _replaceTabsWithSpaces() {
+    if (tabSize != 1) {
+      if (text.contains('\t')) {
+        text = __replaceTabsWithSpaces(text, tabSize);
+      }
+    }
+  }
+
+  /// purpose of this static function is to use in constructor
+  /// to prevent unnecessary state rebuild.
+  static String __replaceTabsWithSpaces(String text, int tabSize) {
+    if (tabSize == 1) return text;
+    return text.replaceAll('\t', ' ' * tabSize);
+  }
+
   /// Builds [TextSpan] from current editing value.
   ///
   /// By default makes text in composing range appear as underlined.
   /// Descendants can override this method to customize appearance of text.
   TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
+    _replaceTabsWithSpaces();
     // This is where the magic happens
     if (_syntaxHighlighter != null && enableHighlighting) {
       // custom syntax highlighter is used.

@@ -30,6 +30,9 @@ class CreamyToolbarOptions implements ToolbarOptions {
         assert(paste != null),
         assert(selectAll != null);
 
+  /// Create a toolbar configuration with given options.
+  ///
+  /// All options default to true if they are not explicitly set.
   const CreamyToolbarOptions.allTrue({
     this.copy = true,
     this.cut = true,

@@ -8,7 +8,7 @@
 // text field
 export './src/creamy_text_field.dart';
 export './src/rich_editable_text.dart';
-export './src/creamy_editing_controller.dart';
+export 'src/text_tools/creamy_editing_controller.dart';
 
 // text tools
 export './src/text_tools/input.dart';
