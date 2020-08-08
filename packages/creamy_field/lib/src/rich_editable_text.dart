@@ -1892,7 +1892,7 @@ class RichEditableTextState extends State<RichEditableText>
   TextSpan buildTextSpan() {
     if (widget.obscureText) {
       String text = _value.text;
-      text = RenderEditable.obscuringCharacter * text.length;
+      text = renderEditable.obscuringCharacter * text.length;
       final int o =
           _obscureShowCharTicksPending > 0 ? _obscureLatestCharIndex : null;
       if (o != null && o >= 0 && o < text.length)
@@ -1905,6 +1905,12 @@ class RichEditableTextState extends State<RichEditableText>
       withComposing: !widget.readOnly,
     );
   }
+
+  @override
+  AutofillScope get currentAutofillScope => null;
+
+  @override
+  void showAutocorrectionPromptRect(int start, int end) {}
 }
 
 class _Editable extends LeafRenderObjectWidget {
