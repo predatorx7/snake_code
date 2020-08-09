@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Flutter 1.20 capability fix
+
 ## 0.3.1
 
 - tabSpace can be set in CreamyEditingController

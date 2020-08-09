@@ -51,20 +51,11 @@ class _MyEditorAppState extends State<MyEditorApp> {
           FlatButton(
             child: Text('Add tab'),
             onPressed: () {
-              // Adds a tab at the selection's base base-offet
               controller.addTab();
             },
           )
         ],
       ),
-      // A CreamyField is a text field which supports CreamyEditingController
-      // & CreamySyntaxHighlighter.
-      //
-      // This text field is similar to Material TextField but will be
-      // tailored (expected in future) for writing rich text,
-      // especially for markup & programming languages.
-      //
-      // For now, using it like Material TextField as below
       body: CreamyField(
         autofocus: true,
         // Our controller should be up casted as CreamyEditingController
