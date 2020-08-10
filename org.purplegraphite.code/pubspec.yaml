@@ -31,7 +31,7 @@ dependencies:
   permission_handler: ^5.0.0+hotfix.8
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
-  creamy_field: ^0.3.0+hotfix.2
+  creamy_field: ^0.3.2
     # path: ../packages/creamy_field
   crypto: ^2.1.4
 
