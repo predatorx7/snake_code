@@ -79,7 +79,10 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   Brightness get brightness => _brightness;
 
   /// Provide the context to this highligher. This method will be used to update
-  /// the brighness based on context.
+  /// the brighness based on context in [RichEditableText]
+  ///
+  /// If you're not using [CreamyField] or [RichEditableText] then use this
+  /// to obtain context as it's required to get context.
   void withContext(BuildContext context) {
     // change brightness
     switch (themeMode) {
@@ -140,9 +143,11 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
     List<List<TextSpan>> stack = [];
 
     void _traverse(Node node) {
+      final TextStyle _all =
+          _isThemeDark ? TextStyle(color: Colors.white) : null;
       if (node.value != null) {
         currentSpans.add(node.className == null
-            ? TextSpan(text: node.value)
+            ? TextSpan(text: node.value, style: _all)
             : TextSpan(
                 text: node.value, style: _effectiveTheme[node.className]));
       } else if (node.children != null) {

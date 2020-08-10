@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:creamy_field/creamy_field.dart'; // imported the package
 
 void main() {
+  final ThemeData _theme = ThemeData(primarySwatch: Colors.blue);
   runApp(MaterialApp(
     home: MyEditorApp(),
+    // Change theme mode to try syntax highlighting colors in dark mode & light mode
+    themeMode: ThemeMode.light,
+    theme: ThemeData(primarySwatch: Colors.blue),
+    darkTheme: _theme.copyWith(brightness: Brightness.dark),
   ));
 }
 
@@ -26,7 +31,7 @@ class _MyEditorAppState extends State<MyEditorApp> {
       // to generate list of RichText for syntax highlighting
       syntaxHighlighter: CreamySyntaxHighlighter(
         language: LanguageType.dart,
-        theme: HighlightedThemeType.githubTheme,
+        theme: HighlightedThemeType.defaultTheme,
       ),
       // The number of spaces which will replace `\t`.
       // Setting this to 1 does nothing & setting this to value less than 1
@@ -42,7 +47,9 @@ class _MyEditorAppState extends State<MyEditorApp> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isDark = Theme.of(context).brightness == Brightness.dark;
     return new Scaffold(
+      backgroundColor: _isDark ? Colors.black : Colors.white,
       appBar: new AppBar(
         title: new Text("Rich Code Editor"),
         actions: <Widget>[
@@ -77,9 +84,15 @@ class _MyEditorAppState extends State<MyEditorApp> {
           useCamelCaseLabel: true,
           actions: [
             CreamyToolbarItem(
-              label: 'BUTTON',
+              label: 'Button1',
               callback: () {
-                print('Button');
+                print('Button2');
+              },
+            ),
+            CreamyToolbarItem(
+              label: 'Button2',
+              callback: () {
+                print('Button2');
               },
             ),
           ],
