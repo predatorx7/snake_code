@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui hide TextStyle;
 
+import 'package:creamy_field/src/syntax_highlighter/creamy_syntax_highlighter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -229,9 +230,8 @@ class RichEditableText extends StatefulWidget {
             (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
         inputFormatters = maxLines == 1
             ? <TextInputFormatter>[
-                BlacklistingTextInputFormatter.singleLineFormatter,
-                ...(inputFormatters ??
-                    const Iterable<TextInputFormatter>.empty()),
+                FilteringTextInputFormatter.singleLineFormatter,
+                ...inputFormatters ?? const Iterable<TextInputFormatter>.empty()
               ]
             : inputFormatters,
         showCursor = showCursor ?? !readOnly,
@@ -1898,6 +1898,12 @@ class RichEditableTextState extends State<RichEditableText>
       if (o != null && o >= 0 && o < text.length)
         text = text.replaceRange(o, o + 1, _value.text.substring(o, o + 1));
       return TextSpan(style: widget.style, text: text);
+    }
+    if (widget.controller.syntaxHighlighter is CreamySyntaxHighlighter) {
+      // If we're using CreamySyntaxHighlighter (and it is not null) then obtain the context
+      // for updating syntax theme mode to match with system brightness.
+      (widget.controller.syntaxHighlighter as CreamySyntaxHighlighter)
+          .withContext(context);
     }
     // Read only mode should not paint text composing.
     return widget.controller.buildTextSpan(

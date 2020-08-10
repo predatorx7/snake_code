@@ -5,6 +5,7 @@ homepage: https://github.com/predatorx7/snake_code/tree/master/packages/creamy_f
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
+  flutter: ^1.20.0
 
 dependencies:
   flutter:

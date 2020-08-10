@@ -20,12 +20,10 @@ class _MyEditorAppState extends State<MyEditorApp> {
   void initState() {
     super.initState();
 
-    // The below example shows the [CreamyEditingController] as [TextEditingController]
-    // which uses CreamySyntaxHighlighter for highlighting syntax of text value from
-    // the text field which uses this controller.
+    // The below example shows [CreamyEditingController], a text editing controller.
     controller = CreamyEditingController(
       // This is the CreamySyntaxHighlighter which will be used by the controller
-      // to generate list of RichText.
+      // to generate list of RichText for syntax highlighting
       syntaxHighlighter: CreamySyntaxHighlighter(
         language: LanguageType.dart,
         theme: HighlightedThemeType.githubTheme,
@@ -51,6 +49,7 @@ class _MyEditorAppState extends State<MyEditorApp> {
           FlatButton(
             child: Text('Add tab'),
             onPressed: () {
+              // Adds a tab at the selection's base base-offet
               controller.addTab();
             },
           )

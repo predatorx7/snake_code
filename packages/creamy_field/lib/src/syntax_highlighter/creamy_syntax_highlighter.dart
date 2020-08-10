@@ -27,6 +27,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_highlight/themes/dark.dart' as dark_theme_highlight;
+import 'package:flutter_highlight/themes/default.dart'
+    as default_theme_highlight;
 import 'package:highlight/highlight.dart' show highlight, Node;
 
 import './highlighted_theme_type.dart';
@@ -35,34 +38,80 @@ import '../syntax_highlighter.dart';
 
 /// Highlights a source code's syntax based on language type & theme type.
 ///
-/// This highlighter internally uses `flutter_highlight` & `highlight`
+/// This highlighter internally uses [flutter_highlight](https://pub.dev/packages/flutter_highlight)
+/// & [highlight](https://pub.dev/packages/highlight)
 class CreamySyntaxHighlighter implements SyntaxHighlighter {
-  /// The original code to be highlighted
+  // The original code to be highlighted
   String _source;
-
-  /// The original code to be highlighted
-  String get source => _source;
 
   /// Highlight language
   ///
-  /// It is recommended to give it a value for performance.
-  ///
-  /// If [language] is null than language auto detection is used.
-  /// Notice that this may cause performance issue if it's null because this will
-  /// try to parse source with all registered languages and use the most
-  /// relevant one.
+  /// If null then no syntax highlighting will be done.
   ///
   /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
-  final String language;
+  final LanguageType language;
+
+  final String _language;
 
   /// Highlight theme
   ///
+  /// Defaults to a light theme.
+  ///
   /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
-  final Map<String, TextStyle> theme;
+  final HighlightedThemeType theme;
+
+  Map<String, TextStyle> _theme;
+
+  /// The dark theme used by this highlighter when [brightness] is [Brightness.dark]
+  ///
+  /// Defaults to a dark theme.
+  final HighlightedThemeType darkTheme;
+
+  Map<String, TextStyle> _darkTheme;
+
+  /// The theme used by this syntax highlighter.
+  /// If brightness is dark, [darkTheme] is used and when it's light or null, [theme] is used.
+  final ThemeMode themeMode;
+
+  Brightness _brightness;
+
+  /// The Theme brightness of the syntax highlight
+  Brightness get brightness => _brightness;
+
+  /// Provide the context to this highligher. This method will be used to update
+  /// the brighness based on context.
+  void withContext(BuildContext context) {
+    // change brightness
+    switch (themeMode) {
+      case ThemeMode.light:
+        _brightness = Brightness.light;
+        break;
+      case ThemeMode.dark:
+        _brightness = Brightness.dark;
+        break;
+      case ThemeMode.system:
+      default:
+        _brightness = Theme.of(context).brightness;
+        break;
+    }
+  }
+
+  // The effective theme brighness of this syntax highlighter.
+  Brightness get _effectiveBrightness => _brightness ?? Brightness.light;
+
+  bool get _isThemeDark => (_effectiveBrightness == Brightness.dark) ?? false;
+
+  Map<String, TextStyle> get _effectiveTheme {
+    if (language == null) return const {};
+    // Returning the regular theme as dark theme is null.
+    if (_darkTheme == null) return _theme;
+    // If theme mode is dark returns a dark theme, else returns the regular theme
+    return _isThemeDark ? _darkTheme : _theme;
+  }
 
   /// Creates a syntax highlighter.
   ///
-  /// You can specify the language mode & theme type with [language], [theme] respectively.
+  /// You can specify the language mode & theme type with [language], [theme], [darkTheme], [brightness] respectively.
   ///
   /// For the highlight language, it is recommended to give [language] a value for performance
   /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
@@ -70,18 +119,20 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// The supported highlight themes are
   /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
   ///
-  /// Note: If [language] is null than language auto detection is used.
-  /// Notice that this may cause performance issue if it's null because it will
-  /// try to parse source with all registered languages and use the most
-  /// relevant one.
+  /// syntax will not be highlighted if language is null.
   CreamySyntaxHighlighter({
-    @required LanguageType language,
-    @required HighlightedThemeType theme,
-  })  : this.language =
+    @required this.language,
+    @required this.theme,
+    this.darkTheme,
+    this.themeMode,
+  })  : this._language =
             (language != null) ? (toLanguageName(language) ?? 'all') : null,
-        this.theme = (language != null)
-            ? (getHighlightedThemeStyle(theme) ?? const {})
-            : const {};
+        this._theme = theme != null
+            ? getHighlightedThemeStyle(theme)
+            : default_theme_highlight.defaultTheme,
+        this._darkTheme = darkTheme != null
+            ? getHighlightedThemeStyle(darkTheme)
+            : dark_theme_highlight.darkTheme;
 
   List<TextSpan> _convert(List<Node> nodes) {
     List<TextSpan> spans = [];
@@ -92,10 +143,12 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
       if (node.value != null) {
         currentSpans.add(node.className == null
             ? TextSpan(text: node.value)
-            : TextSpan(text: node.value, style: theme[node.className]));
+            : TextSpan(
+                text: node.value, style: _effectiveTheme[node.className]));
       } else if (node.children != null) {
         List<TextSpan> tmp = [];
-        currentSpans.add(TextSpan(children: tmp, style: theme[node.className]));
+        currentSpans.add(
+            TextSpan(children: tmp, style: _effectiveTheme[node.className]));
         stack.add(currentSpans);
         currentSpans = tmp;
 
@@ -119,7 +172,7 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   List<TextSpan> parseTextEditingValue(TextEditingValue value) {
     _source = value.text;
     return _convert(highlight
-        .parse(source, language: language, autoDetection: language == null)
+        .parse(_source, language: _language, autoDetection: _language == null)
         .nodes);
   }
 

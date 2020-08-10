@@ -3,6 +3,7 @@
 ## 0.3.2
 
 - Flutter 1.20 capability fix
+- Ability to change syntax highlighting based on system ThemeMode & app Brightness
 
 ## 0.3.1
 
