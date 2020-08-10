@@ -338,6 +338,7 @@ class CreamyTextSelectionOverlay {
     this.selectionDelegate,
     this.dragStartBehavior = DragStartBehavior.start,
     this.onSelectionHandleTapped,
+    this.clipboardStatus,
   })  : assert(value != null),
         assert(context != null),
         assert(handlesVisible != null),
@@ -410,6 +411,13 @@ class CreamyTextSelectionOverlay {
   /// gesture won't.
   /// {@endtemplate}
   final VoidCallback onSelectionHandleTapped;
+
+  /// Maintains the status of the clipboard for determining if its contents can
+  /// be pasted or not.
+  ///
+  /// Useful because the actual value of the clipboard can only be checked
+  /// asynchronously (see [Clipboard.getData]).
+  final ClipboardStatusNotifier clipboardStatus;
 
   /// Controls the fade-in and fade-out animations for the toolbar and handles.
   static const Duration fadeDuration = Duration(milliseconds: 150);
@@ -630,6 +638,7 @@ class CreamyTextSelectionOverlay {
           midpoint,
           endpoints,
           selectionDelegate,
+          clipboardStatus,
         ),
       ),
     );
@@ -899,6 +908,7 @@ const double _kToolbarContentDistance = 8.0;
 /// Manages a copy/paste text selection toolbar.
 class _TextSelectionToolbar extends StatefulWidget {
   const _TextSelectionToolbar({
+    this.clipboardStatus,
     Key key,
     this.handleCut,
     this.handleCopy,
@@ -911,6 +921,7 @@ class _TextSelectionToolbar extends StatefulWidget {
     this.selectionToolbarThemeMode,
   }) : super(key: key);
 
+  final ClipboardStatusNotifier clipboardStatus;
   final VoidCallback handleCut;
   final VoidCallback handleCopy;
   final VoidCallback handlePaste;
@@ -927,8 +938,21 @@ class _TextSelectionToolbar extends StatefulWidget {
   _TextSelectionToolbarState createState() => _TextSelectionToolbarState();
 }
 
+// Intermediate data used for building menu items with the _getItems method.
+class _ItemData {
+  const _ItemData(
+    this.onPressed,
+    this.label,
+  )   : assert(onPressed != null),
+        assert(label != null);
+
+  final VoidCallback onPressed;
+  final String label;
+}
+
 class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
     with TickerProviderStateMixin {
+  ClipboardStatusNotifier _clipboardStatus;
   // Whether or not the overflow menu is open. When it is closed, the menu
   // items that don't overflow are shown. When it is open, only the overflowing
   // menu items are shown.
@@ -951,76 +975,146 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
     }
   }
 
-  String _formatAsCamelCase(String text) {
+  // TODO: Find use or remove if unnecessary
+  // Capitalize first character of every word
+  // ignore: unused_element
+  String _capitalize(String text) {
     if (widget.useCamelCaseLabel) {
       return '${text[0].toUpperCase()}${text.substring(1).toLowerCase()}';
     }
     return text;
   }
 
-  Widget _getItem(VoidCallback onPressed, String label) {
-    assert(onPressed != null);
-    return FlatButton(
-      padding: EdgeInsets.zero,
-      child: Text(
-        _formatAsCamelCase(label),
-        style: TextStyle(
-          color: isDark ? Colors.white : Colors.black,
-        ),
+  Widget _getItem(_ItemData itemData, bool isFirst, bool isLast) {
+    assert(isFirst != null);
+    assert(isLast != null);
+    return ButtonTheme.fromButtonThemeData(
+      data: ButtonTheme.of(context).copyWith(
+        height: kMinInteractiveDimension,
+        minWidth: kMinInteractiveDimension,
       ),
-      onPressed: onPressed,
+      child: FlatButton(
+        onPressed: itemData.onPressed,
+        padding: EdgeInsets.only(
+          // These values were eyeballed to match the native text selection menu
+          // on a Pixel 2 running Android 10.
+          left: 9.5 + (isFirst ? 5.0 : 0.0),
+          right: 9.5 + (isLast ? 5.0 : 0.0),
+        ),
+        shape: Border.all(width: 0.0, color: Colors.transparent),
+        child: Text(itemData.label),
+      ),
     );
   }
 
-  List<Widget> _buildActions(List<CreamyToolbarItem> actions) {
-    final List<Widget> actionButtons = [];
+  List<_ItemData> _buildActions(List<CreamyToolbarItem> actions) {
+    final List<_ItemData> actionButtons = [];
     for (var item in actions) {
       if (!item.visible) continue;
-      actionButtons.add(_getItem(item.callback, item.label));
+      actionButtons.add(_ItemData(item.callback, item.label));
     }
     return actionButtons;
   }
 
+  // Close the menu and reset layout calculations, as in when the menu has
+  // changed and saved values are no longer relevant. This should be called in
+  // setState or another context where a rebuild is happening.
+  void _reset() {
+    // Change _TextSelectionToolbarContainer's key when the menu changes in
+    // order to cause it to rebuild. This lets it recalculate its
+    // saved width for the new set of children, and it prevents AnimatedSize
+    // from animating the size change.
+    _containerKey = UniqueKey();
+    // If the menu items change, make sure the overflow menu is closed. This
+    // prevents an empty overflow menu.
+    _overflowOpen = false;
+  }
+
+  void _onChangedClipboardStatus() {
+    setState(() {
+      // Inform the widget that the value of clipboardStatus has changed.
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _clipboardStatus = widget.clipboardStatus ?? ClipboardStatusNotifier();
+    _clipboardStatus.addListener(_onChangedClipboardStatus);
+    _clipboardStatus.update();
+  }
+
   @override
   void didUpdateWidget(_TextSelectionToolbar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the children are changing, the current page should be reset.
     if (((widget.handleCut == null) != (oldWidget.handleCut == null)) ||
         ((widget.handleCopy == null) != (oldWidget.handleCopy == null)) ||
         ((widget.handlePaste == null) != (oldWidget.handlePaste == null)) ||
         ((widget.handleSelectAll == null) !=
             (oldWidget.handleSelectAll == null))) {
-      // Change _TextSelectionToolbarContainer's key when the menu changes in
-      // order to cause it to rebuild. This lets it recalculate its
-      // saved width for the new set of children, and it prevents AnimatedSize
-      // from animating the size change.
-      _containerKey = UniqueKey();
-      // If the menu items change, make sure the overflow menu is closed. This
-      // prevents an empty overflow menu.
-      _overflowOpen = false;
+      _reset();
     }
-    super.didUpdateWidget(oldWidget);
+    if (oldWidget.clipboardStatus == null && widget.clipboardStatus != null) {
+      _clipboardStatus.removeListener(_onChangedClipboardStatus);
+      _clipboardStatus.dispose();
+      _clipboardStatus = widget.clipboardStatus;
+    } else if (oldWidget.clipboardStatus != null) {
+      if (widget.clipboardStatus == null) {
+        _clipboardStatus = ClipboardStatusNotifier();
+        _clipboardStatus.addListener(_onChangedClipboardStatus);
+        oldWidget.clipboardStatus.removeListener(_onChangedClipboardStatus);
+      } else if (widget.clipboardStatus != oldWidget.clipboardStatus) {
+        _clipboardStatus = widget.clipboardStatus;
+        _clipboardStatus.addListener(_onChangedClipboardStatus);
+        oldWidget.clipboardStatus.removeListener(_onChangedClipboardStatus);
+      }
+    }
+    if (widget.handlePaste != null) {
+      _clipboardStatus.update();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // When used in an Overlay, this can be disposed after its creator has
+    // already disposed _clipboardStatus.
+    if (!_clipboardStatus.disposed) {
+      _clipboardStatus.removeListener(_onChangedClipboardStatus);
+      if (widget.clipboardStatus == null) {
+        _clipboardStatus.dispose();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Don't render the menu until the state of the clipboard is known.
+    if (widget.handlePaste != null &&
+        _clipboardStatus.value == ClipboardStatus.unknown) {
+      return const SizedBox(width: 0.0, height: 0.0);
+    }
+
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
-    final List<Widget> items = <Widget>[
+    final List<_ItemData> itemDatas = <_ItemData>[
       if (widget.handleCut != null)
-        _getItem(widget.handleCut, localizations.cutButtonLabel),
+        _ItemData(widget.handleCut, localizations.cutButtonLabel),
       if (widget.handleCopy != null)
-        _getItem(widget.handleCopy, localizations.copyButtonLabel),
+        _ItemData(widget.handleCopy, localizations.copyButtonLabel),
       if (widget.handlePaste != null)
-        _getItem(widget.handlePaste, localizations.pasteButtonLabel),
+        _ItemData(widget.handlePaste, localizations.pasteButtonLabel),
       if (widget.handleSelectAll != null)
-        _getItem(widget.handleSelectAll, localizations.selectAllButtonLabel),
+        _ItemData(widget.handleSelectAll, localizations.selectAllButtonLabel),
       if (widget.actions != null) ..._buildActions(widget.actions),
     ];
 
     // If there is no option available, build an empty widget.
-    if (items.isEmpty) {
-      return Container(width: 0.0, height: 0.0);
+    if (itemDatas.isEmpty) {
+      return SizedBox(width: 0.0, height: 0.0);
     }
-    final BorderRadiusGeometry _borderRadius = BorderRadius.circular(10);
+
     return _TextSelectionToolbarContainer(
       key: _containerKey,
       overflowOpen: _overflowOpen,
@@ -1030,31 +1124,38 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
         // API 28.
         duration: const Duration(milliseconds: 140),
         child: Material(
+          // This value was eyeballed to match the native text selection menu on
+          // a Pixel 2 running Android 10.
+          borderRadius: const BorderRadius.all(Radius.circular(7.0)),
+          clipBehavior: Clip.antiAlias,
           elevation: 1.0,
-          color: isDark ? Colors.grey.shade800 : Colors.white,
-          borderRadius: _borderRadius,
+          type: MaterialType.card,
           child: _TextSelectionToolbarItems(
             isAbove: widget.isAbove,
             overflowOpen: _overflowOpen,
             children: <Widget>[
               // The navButton that shows and hides the overflow menu is the
               // first child.
-              IconButton(
-                // TODO(justinmc): This should be an AnimatedIcon, but
-                // AnimatedIcons doesn't yet support arrow_back to more_vert.
-                // https://github.com/flutter/flutter/issues/51209
-                icon: Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
-                onPressed: () {
-                  setState(() {
-                    _overflowOpen = !_overflowOpen;
-                  });
-                },
-                color: isDark ? Colors.white : Colors.black,
-                tooltip: _overflowOpen
-                    ? localizations.backButtonTooltip
-                    : localizations.moreButtonTooltip,
+              Material(
+                type: MaterialType.card,
+                child: IconButton(
+                  // TODO(justinmc): This should be an AnimatedIcon, but
+                  // AnimatedIcons doesn't yet support arrow_back to more_vert.
+                  // https://github.com/flutter/flutter/issues/51209
+                  icon:
+                      Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
+                  onPressed: () {
+                    setState(() {
+                      _overflowOpen = !_overflowOpen;
+                    });
+                  },
+                  tooltip: _overflowOpen
+                      ? localizations.backButtonTooltip
+                      : localizations.moreButtonTooltip,
+                ),
               ),
-              ...items,
+              for (int i = 0; i < itemDatas.length; i++)
+                _getItem(itemDatas[i], i == 0, i == itemDatas.length - 1)
             ],
           ),
         ),
@@ -1583,6 +1684,7 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
     Offset selectionMidpoint,
     List<TextSelectionPoint> endpoints,
     CreamyTextSelectionDelegate delegate,
+    ClipboardStatusNotifier clipboardStatus,
   ) {
     assert(debugCheckHasMediaQuery(context));
     assert(debugCheckHasMaterialLocalizations(context));
@@ -1624,7 +1726,9 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
           ),
           child: _TextSelectionToolbar(
             handleCut: canCut(delegate) ? () => handleCut(delegate) : null,
-            handleCopy: canCopy(delegate) ? () => handleCopy(delegate) : null,
+            handleCopy: canCopy(delegate)
+                ? () => handleCopy(delegate, clipboardStatus)
+                : null,
             handlePaste:
                 canPaste(delegate) ? () => handlePaste(delegate) : null,
             handleSelectAll:

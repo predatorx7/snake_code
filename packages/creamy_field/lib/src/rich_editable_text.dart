@@ -1,4 +1,4 @@
-// Copyright 2015 The Chromium Authors. All rights reserved.
+// Copyright 2014 The Flutter Authors.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -133,8 +133,11 @@ class RichEditableText extends StatefulWidget {
     @required this.controller,
     @required this.focusNode,
     this.readOnly = false,
+    this.obscuringCharacter = '•',
     this.obscureText = false,
     this.autocorrect = true,
+    SmartDashesType smartDashesType,
+    SmartQuotesType smartQuotesType,
     this.enableSuggestions = true,
     @required this.style,
     StrutStyle strutStyle,
@@ -148,6 +151,7 @@ class RichEditableText extends StatefulWidget {
     this.minLines,
     this.expands = false,
     this.forceLine = true,
+    this.textHeightBehavior,
     this.textWidthBasis = TextWidthBasis.parent,
     this.autofocus = false,
     bool showCursor,
@@ -163,6 +167,7 @@ class RichEditableText extends StatefulWidget {
     this.onSelectionChanged,
     this.onSelectionHandleTapped,
     List<TextInputFormatter> inputFormatters,
+    this.mouseCursor,
     this.rendererIgnoresPointer = false,
     this.cursorWidth = 2.0,
     this.cursorRadius,
@@ -171,25 +176,26 @@ class RichEditableText extends StatefulWidget {
     this.onBackSpacePress,
     this.onEnterPress,
     this.paintCursorAboveText = false,
+    this.selectionHeightStyle = ui.BoxHeightStyle.tight,
+    this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.scrollPadding = const EdgeInsets.all(20.0),
     this.keyboardAppearance = Brightness.light,
     this.dragStartBehavior = DragStartBehavior.start,
     this.enableInteractiveSelection = true,
     this.scrollController,
     this.scrollPhysics,
+    this.autocorrectionTextRectColor,
     this.toolbarOptions = const CreamyToolbarOptions(
       copy: true,
       cut: true,
       paste: true,
       selectAll: true,
     ),
-    SmartDashesType smartDashesType,
-    SmartQuotesType smartQuotesType,
-    this.selectionHeightStyle = ui.BoxHeightStyle.tight,
-    this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.horizontallyScrollable,
+    this.clipBehavior = Clip.hardEdge,
   })  : assert(controller != null),
         assert(focusNode != null),
+        assert(obscuringCharacter != null && obscuringCharacter.length == 1),
         assert(obscureText != null),
         assert(autocorrect != null),
         assert(enableSuggestions != null),
@@ -225,6 +231,7 @@ class RichEditableText extends StatefulWidget {
         assert(scrollPadding != null),
         assert(dragStartBehavior != null),
         assert(toolbarOptions != null),
+        assert(clipBehavior != null),
         _strutStyle = strutStyle,
         keyboardType = keyboardType ??
             (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
@@ -268,15 +275,27 @@ class RichEditableText extends StatefulWidget {
   /// Controls whether this widget has keyboard focus.
   final FocusNode focusNode;
 
-  /// {@template flutter.widgets.SynEditableCode.obscureText}
+  /// {@template flutter.widgets.editableText.obscuringCharacter}
+  /// Character used for obscuring text if [obscureText] is true.
+  ///
+  /// Must be only a single character.
+  ///
+  /// Defaults to the character U+2022 BULLET (•).
+  /// {@endtemplate}
+  final String obscuringCharacter;
+
+  /// {@template flutter.widgets.editableText.obscureText}
   /// Whether to hide the text being edited (e.g., for passwords).
   ///
   /// When this is set to true, all the characters in the text field are
-  /// replaced by U+2022 BULLET characters (•).
+  /// replaced by [obscuringCharacter].
   ///
   /// Defaults to false. Cannot be null.
   /// {@endtemplate}
   final bool obscureText;
+
+  /// {@macro flutter.dart:ui.textHeightBehavior},
+  final TextHeightBehavior textHeightBehavior;
 
   /// {@macro flutter.widgets.text.DefaultTextStyle.textWidthBasis}
   final TextWidthBasis textWidthBasis;
@@ -446,6 +465,18 @@ class RichEditableText extends StatefulWidget {
   ///
   /// Cannot be null.
   final Color cursorColor;
+
+  /// The color to use when painting the autocorrection Rect.
+  ///
+  /// For [CupertinoTextField]s, the value is set to the ambient
+  /// [CupertinoThemeData.primaryColor] with 20% opacity. For [TextField]s, the
+  /// value is null on non-iOS platforms and the same color used in [CupertinoTextField]
+  /// on iOS.
+  ///
+  /// Currently the autocorrection Rect only appears on iOS.
+  ///
+  /// Defaults to null, which disables autocorrection Rect painting.
+  final Color autocorrectionTextRectColor;
 
   /// The color to use when painting the background cursor aligned with the text
   /// while rendering the floating cursor.
@@ -753,6 +784,17 @@ class RichEditableText extends StatefulWidget {
   /// {@endtemplate}
   final List<TextInputFormatter> inputFormatters;
 
+  /// The cursor for a mouse pointer when it enters or is hovering over the
+  /// widget.
+  ///
+  /// If this property is null, [SystemMouseCursors.text] will be used.
+  ///
+  /// The [mouseCursor] is the only property of [EditableText] that controls the
+  /// appearance of the mouse pointer. All other properties related to "cursor"
+  /// stands for the text cursor, which is usually a blinking vertical line at
+  /// the editing position.
+  final MouseCursor mouseCursor;
+
   /// If true, the [RenderEditable] created by this widget will not handle
   /// pointer events, see [renderEditable] and [RenderEditable.ignorePointer].
   ///
@@ -853,6 +895,11 @@ class RichEditableText extends StatefulWidget {
   /// {@endtemplate}
   final ScrollPhysics scrollPhysics;
 
+  /// {@macro flutter.widgets.Clip}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
   /// {@macro flutter.rendering.editable.selectionEnabled}
   bool get selectionEnabled => enableInteractiveSelection;
 
@@ -911,6 +958,8 @@ class RichEditableTextState extends State<RichEditableText>
   final ValueNotifier<bool> _cursorVisibilityNotifier =
       ValueNotifier<bool>(true);
   final GlobalKey _editableKey = GlobalKey();
+  final ClipboardStatusNotifier _clipboardStatus =
+      kIsWeb ? null : ClipboardStatusNotifier();
 
   TextInputConnection _textInputConnection;
   CreamyTextSelectionOverlay _selectionOverlay;
@@ -954,6 +1003,12 @@ class RichEditableTextState extends State<RichEditableText>
   @override
   bool get selectAllEnabled => widget.toolbarOptions.selectAll;
 
+  void _onChangedClipboardStatus() {
+    setState(() {
+      // Inform the widget that the value of clipboardStatus has changed.
+    });
+  }
+
   @override
   List<CreamyToolbarItem> get actions => widget.toolbarOptions.actions;
 
@@ -971,6 +1026,7 @@ class RichEditableTextState extends State<RichEditableText>
   @override
   void initState() {
     super.initState();
+    _clipboardStatus?.addListener(_onChangedClipboardStatus);
     widget.controller.addListener(_didChangeTextEditingValue);
     _focusAttachment = widget.focusNode.attach(context);
     widget.focusNode.addListener(_handleFocusChanged);
@@ -1037,6 +1093,11 @@ class RichEditableTextState extends State<RichEditableText>
         );
       }
     }
+    if (widget.selectionEnabled &&
+        pasteEnabled &&
+        widget.selectionControls?.canPaste(this) == true) {
+      _clipboardStatus?.update();
+    }
   }
 
   @override
@@ -1052,10 +1113,11 @@ class RichEditableTextState extends State<RichEditableText>
     _selectionOverlay = null;
     _focusAttachment.detach();
     widget.focusNode.removeListener(_handleFocusChanged);
+    WidgetsBinding.instance.removeObserver(this);
+    _clipboardStatus?.removeListener(_onChangedClipboardStatus);
+    _clipboardStatus?.dispose();
     super.dispose();
   }
-
-  // TextEditingValue _lastKnownRemoteTextEditingValue;
 
   // TextInputClient implementation:
 
@@ -1097,7 +1159,7 @@ class RichEditableTextState extends State<RichEditableText>
     if (value.text != _value.text) {
       var editableCode = widget;
 
-      _pressedKey = KeyboardUtilz.getPressedKey(_value, value);
+      _pressedKey = KeyboardButtonAction.getPressedKey(_value, value);
 
       if (_pressedKey == PressedKey.enter &&
           editableCode.onEnterPress != null) {
@@ -1110,10 +1172,12 @@ class RichEditableTextState extends State<RichEditableText>
       }
     }
 
-    // To keep the cursor from blinking while typing, we want to restart the
-    // cursor timer every time a new character is typed.
-    _stopCursorTimer(resetCharTicks: false);
-    _startCursorTimer();
+    if (_hasInputConnection) {
+      // To keep the cursor from blinking while typing, we want to restart the
+      // cursor timer every time a new character is typed.
+      _stopCursorTimer(resetCharTicks: false);
+      _startCursorTimer();
+    }
   }
 
   @override
@@ -1263,49 +1327,60 @@ class RichEditableTextState extends State<RichEditableText>
   bool get _hasFocus => widget.focusNode.hasFocus;
   bool get _isMultiline => widget.maxLines != 1;
 
-  // Calculate the new scroll offset so the cursor remains visible.
-  double _getScrollOffsetForCaret(Rect caretRect) {
-    double caretStart;
-    double caretEnd;
-    if (_isMultiline) {
-      // The caret is vertically centered within the line. Expand the caret's
-      // height so that it spans the line because we're going to ensure that the entire
-      // expanded caret is scrolled into view.
-      final double lineHeight = renderEditable.preferredLineHeight;
-      final double caretOffset = (lineHeight - caretRect.height) / 2;
-      caretStart = caretRect.top - caretOffset;
-      caretEnd = caretRect.bottom + caretOffset;
+  // Finds the closest scroll offset to the current scroll offset that fully
+  // reveals the given caret rect. If the given rect's main axis extent is too
+  // large to be fully revealed in `renderEditable`, it will be centered along
+  // the main axis.
+  //
+  // If this is a multiline EditableText (which means the Editable can only
+  // scroll vertically), the given rect's height will first be extended to match
+  // `renderEditable.preferredLineHeight`, before the target scroll offset is
+  // calculated.
+  RevealedOffset _getOffsetToRevealCaret(Rect rect) {
+    if (!_scrollController.position.allowImplicitScrolling)
+      return RevealedOffset(offset: _scrollController.offset, rect: rect);
+
+    final Size editableSize = renderEditable.size;
+    double additionalOffset;
+    Offset unitOffset;
+
+    if (!_isMultiline) {
+      additionalOffset = rect.width >= editableSize.width
+          // Center `rect` if it's oversized.
+          ? editableSize.width / 2 - rect.center.dx
+          // Valid additional offsets range from (rect.right - size.width)
+          // to (rect.left). Pick the closest one if out of range.
+          : 0.0.clamp(rect.right - editableSize.width, rect.left) as double;
+      unitOffset = const Offset(1, 0);
     } else {
-      // Scrolls horizontally for single-line fields.
-      caretStart = caretRect.left;
-      caretEnd = caretRect.right;
+      // The caret is vertically centered within the line. Expand the caret's
+      // height so that it spans the line because we're going to ensure that the
+      // entire expanded caret is scrolled into view.
+      final Rect expandedRect = Rect.fromCenter(
+        center: rect.center,
+        width: rect.width,
+        height: math.max(rect.height, renderEditable.preferredLineHeight),
+      );
+
+      additionalOffset = expandedRect.height >= editableSize.height
+          ? editableSize.height / 2 - expandedRect.center.dy
+          : 0.0.clamp(
+                  expandedRect.bottom - editableSize.height, expandedRect.top)
+              as double;
+      unitOffset = const Offset(0, 1);
     }
 
-    double scrollOffset = _scrollController.offset;
-    final double viewportExtent = _scrollController.position.viewportDimension;
-    if (caretStart < 0.0) {
-      // cursor before start of bounds
-      scrollOffset += caretStart;
-    } else if (caretEnd >= viewportExtent) {
-      // cursor after end of bounds
-      scrollOffset += caretEnd - viewportExtent;
-    }
+    // No overscrolling when encountering tall fonts/scripts that extend past
+    // the ascent.
+    final double targetOffset =
+        (additionalOffset + _scrollController.offset).clamp(
+      _scrollController.position.minScrollExtent,
+      _scrollController.position.maxScrollExtent,
+    ) as double;
 
-    if (_isMultiline) {
-      // Clamp the final results to prevent programmatically scrolling to
-      // out-of-paragraph-bounds positions when encountering tall fonts/scripts that
-      // extend past the ascent.
-      scrollOffset = scrollOffset.clamp(0.0, renderEditable.maxScrollExtent);
-    }
-    return scrollOffset;
-  }
-
-  // Calculates where the `caretRect` would be if `_scrollController.offset` is set to `scrollOffset`.
-  Rect _getCaretRectAtScrollOffset(Rect caretRect, double scrollOffset) {
-    final double offsetDiff = _scrollController.offset - scrollOffset;
-    return _isMultiline
-        ? caretRect.translate(0.0, offsetDiff)
-        : caretRect.translate(offsetDiff, 0.0);
+    final double offsetDelta = _scrollController.offset - targetOffset;
+    return RevealedOffset(
+        rect: rect.shift(unitOffset * offsetDelta), offset: targetOffset);
   }
 
   bool get _hasInputConnection =>
@@ -1318,24 +1393,14 @@ class RichEditableTextState extends State<RichEditableText>
     if (!_hasInputConnection) {
       final TextEditingValue localValue = _value;
       _lastFormattedUnmodifiedTextEditingValue = localValue;
-      _textInputConnection = TextInput.attach(
-        this,
-        TextInputConfiguration(
-          inputType: widget.keyboardType,
-          obscureText: widget.obscureText,
-          autocorrect: widget.autocorrect,
-          enableSuggestions: widget.enableSuggestions,
-          inputAction: widget.textInputAction ??
-              (widget.keyboardType == TextInputType.multiline
-                  ? TextInputAction.newline
-                  : TextInputAction.done),
-          textCapitalization: widget.textCapitalization,
-          keyboardAppearance: widget.keyboardAppearance,
-        ),
-      );
-      _textInputConnection.show();
 
+      _textInputConnection = TextInput.attach(this, textInputConfiguration);
+      _textInputConnection.show();
       _updateSizeAndTransform();
+      // Request autofill AFTER the size and the transform have been sent to the
+      // platform side.
+      _textInputConnection.requestAutofill();
+
       final TextStyle style = widget.style;
       _textInputConnection
         ..setStyle(
@@ -1424,6 +1489,7 @@ class RichEditableTextState extends State<RichEditableText>
 
     if (widget.selectionControls != null) {
       _selectionOverlay = CreamyTextSelectionOverlay(
+        clipboardStatus: _clipboardStatus,
         context: context,
         value: _value,
         debugRequiredFor: widget,
@@ -1472,21 +1538,15 @@ class RichEditableTextState extends State<RichEditableText>
       if (_currentCaretRect == null || !_scrollController.hasClients) {
         return;
       }
-      final double scrollOffsetForCaret =
-          _getScrollOffsetForCaret(_currentCaretRect);
-      _scrollController.animateTo(
-        scrollOffsetForCaret,
-        duration: _caretAnimationDuration,
-        curve: _caretAnimationCurve,
-      );
-      final Rect newCaretRect =
-          _getCaretRectAtScrollOffset(_currentCaretRect, scrollOffsetForCaret);
-      // Enlarge newCaretRect by scrollPadding to ensure that caret is not
+
+      final double lineHeight = renderEditable.preferredLineHeight;
+
+      // Enlarge the target rect by scrollPadding to ensure that caret is not
       // positioned directly at the edge after scrolling.
       double bottomSpacing = widget.scrollPadding.bottom;
       if (_selectionOverlay?.selectionControls != null) {
         final double handleHeight = _selectionOverlay.selectionControls
-            .getHandleSize(renderEditable.preferredLineHeight)
+            .getHandleSize(lineHeight)
             .height;
         final double interactiveHandleHeight = math.max(
           handleHeight,
@@ -1495,7 +1555,7 @@ class RichEditableTextState extends State<RichEditableText>
         final Offset anchor =
             _selectionOverlay.selectionControls.getHandleAnchor(
           TextSelectionHandleType.collapsed,
-          renderEditable.preferredLineHeight,
+          lineHeight,
         );
         final double handleCenter = handleHeight / 2 - anchor.dy;
         bottomSpacing = math.max(
@@ -1503,17 +1563,24 @@ class RichEditableTextState extends State<RichEditableText>
           bottomSpacing,
         );
       }
-      final Rect inflatedRect = Rect.fromLTRB(
-        newCaretRect.left - widget.scrollPadding.left,
-        newCaretRect.top - widget.scrollPadding.top,
-        newCaretRect.right + widget.scrollPadding.right,
-        newCaretRect.bottom + bottomSpacing,
+
+      final EdgeInsets caretPadding =
+          widget.scrollPadding.copyWith(bottom: bottomSpacing);
+
+      final RevealedOffset targetOffset =
+          _getOffsetToRevealCaret(_currentCaretRect);
+
+      _scrollController.animateTo(
+        targetOffset.offset,
+        duration: _caretAnimationDuration,
+        curve: _caretAnimationCurve,
       );
-      _editableKey.currentContext.findRenderObject().showOnScreen(
-            rect: inflatedRect,
-            duration: _caretAnimationDuration,
-            curve: _caretAnimationCurve,
-          );
+
+      renderEditable.showOnScreen(
+        rect: caretPadding.inflateRect(targetOffset.rect),
+        duration: _caretAnimationDuration,
+        curve: _caretAnimationCurve,
+      );
     });
   }
 
@@ -1535,20 +1602,17 @@ class RichEditableTextState extends State<RichEditableText>
         _WhitespaceDirectionalityFormatter(textDirection: _textDirection);
 
     // Check if the new value is the same as the current local value, or is the same
-    // as the post-formatting value of the previous pass.
+    // as the pre-formatting value of the previous pass (repeat call).
     final bool textChanged = _value?.text != value?.text;
-    final bool isRepeatText =
-        value?.text == _lastFormattedUnmodifiedTextEditingValue?.text;
-    final bool isRepeatSelection =
-        value?.selection == _lastFormattedUnmodifiedTextEditingValue?.selection;
-    final bool isRepeatComposing =
-        value?.composing == _lastFormattedUnmodifiedTextEditingValue?.composing;
-    // Only format when the text has changed and there are available formatters.
-    if (!isRepeatText &&
-        textChanged &&
+    final bool isRepeat = value == _lastFormattedUnmodifiedTextEditingValue;
+
+    if (textChanged &&
         widget.inputFormatters != null &&
         widget.inputFormatters.isNotEmpty) {
-      for (TextInputFormatter formatter in widget.inputFormatters) {
+      // Only format when the text has changed and there are available formatters.
+      // Pass through the formatter regardless of repeat status if the input value is
+      // different than the stored value.
+      for (final TextInputFormatter formatter in widget.inputFormatters) {
         value = formatter.formatEditUpdate(_value, value);
       }
       // Always pass the text through the whitespace directionality formatter to
@@ -1556,27 +1620,19 @@ class RichEditableTextState extends State<RichEditableText>
       value = _whitespaceFormatter.formatEditUpdate(_value, value);
       _lastFormattedValue = value;
     }
+
+    // Setting _value here ensures the selection and composing region info is passed.
     _value = value;
     // Use the last formatted value when an identical repeat pass is detected.
-    if (isRepeatText &&
-        isRepeatSelection &&
-        isRepeatComposing &&
-        textChanged &&
-        _lastFormattedValue != null) {
+    if (isRepeat && textChanged && _lastFormattedValue != null) {
       _value = _lastFormattedValue;
     }
+
     // Always attempt to send the value. If the value has changed, then it will send,
     // otherwise, it will short-circuit.
     _updateRemoteEditingValueIfNeeded();
 
-    if (textChanged &&
-        widget.onChanged != null &&
-        _pressedKey ==
-            PressedKey
-                .regular) //backspace and enter press are handled separately
-    {
-      widget.onChanged(value.text);
-    }
+    if (textChanged && widget.onChanged != null) widget.onChanged(value.text);
     _lastFormattedUnmodifiedTextEditingValue = _receivedRemoteTextEditingValue;
   }
 
@@ -1697,6 +1753,7 @@ class RichEditableTextState extends State<RichEditableText>
       WidgetsBinding.instance.removeObserver(this);
       // Clear the selection and composition state if this widget lost focus.
       _value = TextEditingValue(text: _value.text);
+      _currentPromptRectRange = null;
     }
     updateKeepAlive();
   }
@@ -1740,8 +1797,11 @@ class RichEditableTextState extends State<RichEditableText>
 
   @override
   void bringIntoView(TextPosition position) {
-    _scrollController.jumpTo(_getScrollOffsetForCaret(
-        renderEditable.getLocalRectForCaret(position)));
+    final Rect localRect = renderEditable.getLocalRectForCaret(position);
+    final RevealedOffset targetOffset = _getOffsetToRevealCaret(localRect);
+
+    _scrollController.jumpTo(targetOffset.offset);
+    renderEditable.showOnScreen(rect: targetOffset.rect);
   }
 
   /// Shows the selection toolbar at the location of the current cursor.
@@ -1780,12 +1840,48 @@ class RichEditableTextState extends State<RichEditableText>
     }
   }
 
+  // RichEditableText does not support autofill
+  TextInputConfiguration get textInputConfiguration {
+    return TextInputConfiguration(
+      inputType: widget.keyboardType,
+      obscureText: widget.obscureText,
+      autocorrect: widget.autocorrect,
+      smartDashesType: widget.smartDashesType ??
+          (widget.obscureText
+              ? SmartDashesType.disabled
+              : SmartDashesType.enabled),
+      smartQuotesType: widget.smartQuotesType ??
+          (widget.obscureText
+              ? SmartQuotesType.disabled
+              : SmartQuotesType.enabled),
+      enableSuggestions: widget.enableSuggestions,
+      inputAction: widget.textInputAction ??
+          (widget.keyboardType == TextInputType.multiline
+              ? TextInputAction.newline
+              : TextInputAction.done),
+      textCapitalization: widget.textCapitalization,
+      keyboardAppearance: widget.keyboardAppearance,
+      // RichEditableText does not care about autofill
+      autofillConfiguration: null,
+    );
+  }
+
+  // null if no promptRect should be shown.
+  TextRange _currentPromptRectRange;
+
+  @override
+  void showAutocorrectionPromptRect(int start, int end) {
+    setState(() {
+      _currentPromptRectRange = TextRange(start: start, end: end);
+    });
+  }
+
   VoidCallback _semanticsOnCopy(CreamyTextSelectionControls controls) {
     return widget.selectionEnabled &&
             copyEnabled &&
             _hasFocus &&
             controls?.canCopy(this) == true
-        ? () => controls.handleCopy(this)
+        ? () => controls.handleCopy(this, _clipboardStatus)
         : null;
   }
 
@@ -1814,74 +1910,82 @@ class RichEditableTextState extends State<RichEditableText>
     super.build(context); // See AutomaticKeepAliveClientMixin.
 
     final CreamyTextSelectionControls controls = widget.selectionControls;
-    return Scrollable(
-      excludeFromSemantics: true,
-      axisDirection: AxisDirection
-          .down, //_isMultiline ? AxisDirection.down : AxisDirection.right,
-      controller: _scrollController,
-      physics: widget.scrollPhysics,
-      dragStartBehavior: widget.dragStartBehavior,
-      viewportBuilder: (BuildContext context, ViewportOffset offset) {
-        // TODO: Do something about padding
-        // Issue: Text InputDecoration renders child like a stack of decoration
-        // & child, therfore padding only applies to child.
-        //
-        // widget.horizontallyScrollable
-        // ? const EdgeInsets.only(left: 8.0)
-        // : EdgeInsets.zero
-        return CompositedTransformTarget(
-          link: _toolbarLayerLink,
-          child: Semantics(
-            onCopy: _semanticsOnCopy(controls),
-            onCut: _semanticsOnCut(controls),
-            onPaste: _semanticsOnPaste(controls),
-            child: _Editable(
-              key: _editableKey,
-              startHandleLayerLink: _startHandleLayerLink,
-              endHandleLayerLink: _endHandleLayerLink,
-              textSpan: buildTextSpan(),
-              value: _value,
-              cursorColor: _cursorColor,
-              backgroundCursorColor: widget.backgroundCursorColor,
-              showCursor: RichEditableText.debugDeterministicCursor
-                  ? ValueNotifier<bool>(widget.showCursor)
-                  : _cursorVisibilityNotifier,
-              forceLine: widget.forceLine,
-              readOnly: widget.readOnly,
-              hasFocus: _hasFocus,
-              maxLines: widget.maxLines,
-              minLines: widget.minLines,
-              expands: widget.expands,
-              strutStyle: widget.strutStyle,
-              selectionColor: widget.selectionColor,
-              textScaleFactor: widget.textScaleFactor ??
-                  MediaQuery.textScaleFactorOf(context),
-              textAlign: widget.textAlign,
-              textDirection: _textDirection,
-              locale: widget.locale,
-              textWidthBasis: widget.textWidthBasis,
-              obscureText: widget.obscureText,
-              autocorrect: widget.autocorrect,
-              smartDashesType: widget.smartDashesType,
-              smartQuotesType: widget.smartQuotesType,
-              enableSuggestions: widget.enableSuggestions,
-              offset: offset,
-              onSelectionChanged: _handleSelectionChanged,
-              onCaretChanged: _handleCaretChanged,
-              rendererIgnoresPointer: widget.rendererIgnoresPointer,
-              cursorWidth: widget.cursorWidth,
-              cursorRadius: widget.cursorRadius,
-              cursorOffset: widget.cursorOffset,
-              selectionHeightStyle: widget.selectionHeightStyle,
-              selectionWidthStyle: widget.selectionWidthStyle,
-              paintCursorAboveText: widget.paintCursorAboveText,
-              enableInteractiveSelection: widget.enableInteractiveSelection,
-              textSelectionDelegate: this,
-              devicePixelRatio: _devicePixelRatio,
+    return MouseRegion(
+      cursor: widget.mouseCursor ?? SystemMouseCursors.text,
+      child: Scrollable(
+        excludeFromSemantics: true,
+        axisDirection: _isMultiline ? AxisDirection.down : AxisDirection.right,
+        controller: _scrollController,
+        physics: widget.scrollPhysics,
+        dragStartBehavior: widget.dragStartBehavior,
+        viewportBuilder: (BuildContext context, ViewportOffset offset) {
+          // TODO: Do something about padding
+          // Issue: Text InputDecoration renders child like a stack of decoration
+          // & child, therfore padding only applies to child.
+          //
+          // widget.horizontallyScrollable
+          // ? const EdgeInsets.only(left: 8.0)
+          // : EdgeInsets.zero
+          return CompositedTransformTarget(
+            link: _toolbarLayerLink,
+            child: Semantics(
+              onCopy: _semanticsOnCopy(controls),
+              onCut: _semanticsOnCut(controls),
+              onPaste: _semanticsOnPaste(controls),
+              child: _Editable(
+                key: _editableKey,
+                startHandleLayerLink: _startHandleLayerLink,
+                endHandleLayerLink: _endHandleLayerLink,
+                textSpan: buildTextSpan(),
+                value: _value,
+                cursorColor: _cursorColor,
+                backgroundCursorColor: widget.backgroundCursorColor,
+                showCursor: RichEditableText.debugDeterministicCursor
+                    ? ValueNotifier<bool>(widget.showCursor)
+                    : _cursorVisibilityNotifier,
+                forceLine: widget.forceLine,
+                readOnly: widget.readOnly,
+                hasFocus: _hasFocus,
+                maxLines: widget.maxLines,
+                minLines: widget.minLines,
+                expands: widget.expands,
+                strutStyle: widget.strutStyle,
+                selectionColor: widget.selectionColor,
+                textScaleFactor: widget.textScaleFactor ??
+                    MediaQuery.textScaleFactorOf(context),
+                textAlign: widget.textAlign,
+                textDirection: _textDirection,
+                locale: widget.locale,
+                textHeightBehavior: widget.textHeightBehavior ??
+                    DefaultTextHeightBehavior.of(context),
+                textWidthBasis: widget.textWidthBasis,
+                obscuringCharacter: widget.obscuringCharacter,
+                obscureText: widget.obscureText,
+                autocorrect: widget.autocorrect,
+                smartDashesType: widget.smartDashesType,
+                smartQuotesType: widget.smartQuotesType,
+                enableSuggestions: widget.enableSuggestions,
+                offset: offset,
+                onSelectionChanged: _handleSelectionChanged,
+                onCaretChanged: _handleCaretChanged,
+                rendererIgnoresPointer: widget.rendererIgnoresPointer,
+                cursorWidth: widget.cursorWidth,
+                cursorRadius: widget.cursorRadius,
+                cursorOffset: widget.cursorOffset,
+                selectionHeightStyle: widget.selectionHeightStyle,
+                selectionWidthStyle: widget.selectionWidthStyle,
+                paintCursorAboveText: widget.paintCursorAboveText,
+                enableInteractiveSelection: widget.enableInteractiveSelection,
+                textSelectionDelegate: this,
+                devicePixelRatio: _devicePixelRatio,
+                promptRectRange: _currentPromptRectRange,
+                promptRectColor: widget.autocorrectionTextRectColor,
+                clipBehavior: widget.clipBehavior,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -1892,11 +1996,17 @@ class RichEditableTextState extends State<RichEditableText>
   TextSpan buildTextSpan() {
     if (widget.obscureText) {
       String text = _value.text;
-      text = renderEditable.obscuringCharacter * text.length;
-      final int o =
-          _obscureShowCharTicksPending > 0 ? _obscureLatestCharIndex : null;
-      if (o != null && o >= 0 && o < text.length)
-        text = text.replaceRange(o, o + 1, _value.text.substring(o, o + 1));
+      text = widget.obscuringCharacter * text.length;
+      // Reveal the latest character in an obscured field only on mobile.
+      if ((defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS ||
+              defaultTargetPlatform == TargetPlatform.fuchsia) &&
+          !kIsWeb) {
+        final int o =
+            _obscureShowCharTicksPending > 0 ? _obscureLatestCharIndex : null;
+        if (o != null && o >= 0 && o < text.length)
+          text = text.replaceRange(o, o + 1, _value.text.substring(o, o + 1));
+      }
       return TextSpan(style: widget.style, text: text);
     }
     if (widget.controller.syntaxHighlighter is CreamySyntaxHighlighter) {
@@ -1914,9 +2024,6 @@ class RichEditableTextState extends State<RichEditableText>
 
   @override
   AutofillScope get currentAutofillScope => null;
-
-  @override
-  void showAutocorrectionPromptRect(int start, int end) {}
 }
 
 class _Editable extends LeafRenderObjectWidget {
@@ -1931,6 +2038,7 @@ class _Editable extends LeafRenderObjectWidget {
     this.showCursor,
     this.forceLine,
     this.readOnly,
+    this.textHeightBehavior,
     this.textWidthBasis,
     this.hasFocus,
     this.maxLines,
@@ -1942,6 +2050,7 @@ class _Editable extends LeafRenderObjectWidget {
     this.textAlign,
     @required this.textDirection,
     this.locale,
+    this.obscuringCharacter,
     this.obscureText,
     this.autocorrect,
     this.smartDashesType,
@@ -1954,12 +2063,15 @@ class _Editable extends LeafRenderObjectWidget {
     this.cursorWidth,
     this.cursorRadius,
     this.cursorOffset,
+    this.paintCursorAboveText,
     this.selectionHeightStyle = ui.BoxHeightStyle.tight,
     this.selectionWidthStyle = ui.BoxWidthStyle.tight,
     this.enableInteractiveSelection = true,
     this.textSelectionDelegate,
-    this.paintCursorAboveText,
     this.devicePixelRatio,
+    this.promptRectRange,
+    this.promptRectColor,
+    this.clipBehavior,
   })  : assert(textDirection != null),
         assert(rendererIgnoresPointer != null),
         super(key: key);
@@ -1983,7 +2095,9 @@ class _Editable extends LeafRenderObjectWidget {
   final TextAlign textAlign;
   final TextDirection textDirection;
   final Locale locale;
+  final String obscuringCharacter;
   final bool obscureText;
+  final TextHeightBehavior textHeightBehavior;
   final TextWidthBasis textWidthBasis;
   final bool autocorrect;
   final SmartDashesType smartDashesType;
@@ -1996,12 +2110,15 @@ class _Editable extends LeafRenderObjectWidget {
   final double cursorWidth;
   final Radius cursorRadius;
   final Offset cursorOffset;
+  final bool paintCursorAboveText;
   final ui.BoxHeightStyle selectionHeightStyle;
   final ui.BoxWidthStyle selectionWidthStyle;
   final bool enableInteractiveSelection;
-  final CreamyTextSelectionDelegate textSelectionDelegate;
+  final TextSelectionDelegate textSelectionDelegate;
   final double devicePixelRatio;
-  final bool paintCursorAboveText;
+  final TextRange promptRectRange;
+  final Color promptRectColor;
+  final Clip clipBehavior;
 
   @override
   RenderEditable createRenderObject(BuildContext context) {
@@ -2029,7 +2146,9 @@ class _Editable extends LeafRenderObjectWidget {
       onSelectionChanged: onSelectionChanged,
       onCaretChanged: onCaretChanged,
       ignorePointer: rendererIgnoresPointer,
+      obscuringCharacter: obscuringCharacter,
       obscureText: obscureText,
+      textHeightBehavior: textHeightBehavior,
       textWidthBasis: textWidthBasis,
       cursorWidth: cursorWidth,
       cursorRadius: cursorRadius,
@@ -2040,6 +2159,9 @@ class _Editable extends LeafRenderObjectWidget {
       enableInteractiveSelection: enableInteractiveSelection,
       textSelectionDelegate: textSelectionDelegate,
       devicePixelRatio: devicePixelRatio,
+      promptRectRange: promptRectRange,
+      promptRectColor: promptRectColor,
+      clipBehavior: clipBehavior,
     );
   }
 
@@ -2068,7 +2190,9 @@ class _Editable extends LeafRenderObjectWidget {
       ..onSelectionChanged = onSelectionChanged
       ..onCaretChanged = onCaretChanged
       ..ignorePointer = rendererIgnoresPointer
+      ..textHeightBehavior = textHeightBehavior
       ..textWidthBasis = textWidthBasis
+      ..obscuringCharacter = obscuringCharacter
       ..obscureText = obscureText
       ..cursorWidth = cursorWidth
       ..cursorRadius = cursorRadius
@@ -2077,11 +2201,14 @@ class _Editable extends LeafRenderObjectWidget {
       ..selectionWidthStyle = selectionWidthStyle
       ..textSelectionDelegate = textSelectionDelegate
       ..devicePixelRatio = devicePixelRatio
-      ..paintCursorAboveText = paintCursorAboveText;
+      ..paintCursorAboveText = paintCursorAboveText
+      ..promptRectColor = promptRectColor
+      ..clipBehavior = clipBehavior
+      ..setPromptRectRange(promptRectRange);
   }
 }
 
-class KeyboardUtilz {
+class KeyboardButtonAction {
   /// Check and see if last pressed key was enter key.
   /// This is checked by looking if the last character text == "\n".
   static PressedKey getPressedKey(
@@ -2207,9 +2334,16 @@ class _WhitespaceDirectionalityFormatter extends TextInputFormatter {
         composingEnd -= outputCodepoints.length < composingEnd ? 1 : 0;
       }
 
+      final bool isBackspace =
+          oldValue.text.runes.length - newValue.text.runes.length == 1 &&
+              isDirectionalityMarker(oldValue.text.runes.last) &&
+              oldValue.text.substring(0, oldValue.text.length - 1) ==
+                  newValue.text;
+
       bool previousWasWhitespace = false;
       bool previousWasDirectionalityMarker = false;
       int previousNonWhitespaceCodepoint;
+      int index = 0;
       for (final int codepoint in newValue.text.runes) {
         if (isWhitespace(codepoint)) {
           // Only compute the directionality of the non-whitespace
@@ -2225,12 +2359,18 @@ class _WhitespaceDirectionalityFormatter extends TextInputFormatter {
             subtractFromLength();
             outputCodepoints.removeLast();
           }
-          outputCodepoints.add(codepoint);
-          addToLength();
-          outputCodepoints.add(
-              _previousNonWhitespaceDirection == TextDirection.rtl
-                  ? _rlm
-                  : _lrm);
+          // Handle trailing whitespace deleting the directionality char instead of the whitespace.
+          if (isBackspace && index == newValue.text.runes.length - 1) {
+            // Do not append the whitespace to the outputCodepoints.
+            subtractFromLength();
+          } else {
+            outputCodepoints.add(codepoint);
+            addToLength();
+            outputCodepoints.add(
+                _previousNonWhitespaceDirection == TextDirection.rtl
+                    ? _rlm
+                    : _lrm);
+          }
 
           previousWasWhitespace = true;
           previousWasDirectionalityMarker = false;
@@ -2247,7 +2387,7 @@ class _WhitespaceDirectionalityFormatter extends TextInputFormatter {
           previousWasDirectionalityMarker = true;
         } else {
           // If the whitespace was already enclosed by the same directionality,
-          // we can remove the artifically added marker.
+          // we can remove the artificially added marker.
           if (!previousWasDirectionalityMarker &&
               previousWasWhitespace &&
               getDirection(codepoint) == _previousNonWhitespaceDirection) {
@@ -2261,6 +2401,7 @@ class _WhitespaceDirectionalityFormatter extends TextInputFormatter {
           previousWasWhitespace = false;
           previousWasDirectionalityMarker = false;
         }
+        index++;
       }
       final String formatted = String.fromCharCodes(outputCodepoints);
       return TextEditingValue(

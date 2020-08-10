@@ -6,7 +6,7 @@ name: Flutter package analysis
 # events but only for the master branch
 on:
   push:
-    branches: [ packages/*, master ]
+    branches: [ packages/* ]
   pull_request:
     branches: [ packages/*, master]
 
@@ -65,7 +65,7 @@ jobs:
       - uses: subosito/flutter-action@v1.3.2
         with:
           # The Flutter version to make available on the path
-          flutter-version: 1.17.5 # optional
+          flutter-version: 1.20.1 # optional
           # The Flutter build release channel
           channel: stable # optional, default is stable
       - name: run tests

@@ -82,6 +82,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
     Offset position,
     List<TextSelectionPoint> endpoints,
     CreamyTextSelectionDelegate delegate,
+    ClipboardStatusNotifier clipboardStatus,
   );
 
   /// Returns the size of the selection handle.
@@ -112,13 +113,16 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
         !delegate.textEditingValue.selection.isCollapsed;
   }
 
-  /// Whether the current [Clipboard] content can be pasted into the text field
-  /// managed by the given `delegate`.
+  /// Whether the text field managed by the given `delegate` supports pasting
+  /// from the clipboard.
   ///
   /// Subclasses can use this to decide if they should expose the paste
   /// functionality to the user.
+  ///
+  /// This does not consider the contents of the clipboard. Subclasses may want
+  /// to, for example, disallow pasting when the clipboard contains an empty
+  /// string.
   bool canPaste(CreamyTextSelectionDelegate delegate) {
-    // TODO(goderbauer): return false when clipboard is empty, https://github.com/flutter/flutter/issues/11254
     return delegate.pasteEnabled;
   }
 
@@ -160,11 +164,13 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   ///
   /// This is called by subclasses when their copy affordance is activated by
   /// the user.
-  void handleCopy(CreamyTextSelectionDelegate delegate) {
+  void handleCopy(CreamyTextSelectionDelegate delegate,
+      ClipboardStatusNotifier clipboardStatus) {
     final TextEditingValue value = delegate.textEditingValue;
     Clipboard.setData(ClipboardData(
       text: value.selection.textInside(value.text),
     ));
+    clipboardStatus?.update();
     delegate.textEditingValue = TextEditingValue(
       text: value.text,
       selection: TextSelection.collapsed(offset: value.selection.end),

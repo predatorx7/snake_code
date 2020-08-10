@@ -1,6 +1,8 @@
-// Copyright 2015 The Chromium Authors. All rights reserved.
+// Copyright 2014 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
+// @dart = 2.8
 
 import 'dart:ui' as ui show BoxHeightStyle, BoxWidthStyle;
 
@@ -26,22 +28,6 @@ export 'package:flutter/services.dart'
         TextCapitalization,
         SmartQuotesType,
         SmartDashesType;
-
-/// Signature for the [CreamyField.buildCounter] callback.
-typedef InputCounterWidgetBuilder = Widget Function(
-  /// The build context for the PzCodeField
-  BuildContext context, {
-
-  /// The length of the string currently in the input.
-  @required int currentLength,
-
-  /// The maximum string length that can be entered into the PzCodeField.
-  @required int maxLength,
-
-  /// Whether or not the PzCodeField is currently focused.  Mainly provided for
-  /// the [liveRegion] parameter in the [Semantics] widget for accessibility.
-  @required bool isFocused,
-});
 
 class _TextFieldSelectionGestureDetectorBuilder
     extends CreamyTextSelectionGestureDetectorBuilder {
@@ -160,6 +146,7 @@ class CreamyField extends StatefulWidget {
     CreamyToolbarOptions toolbarOptions,
     this.showCursor,
     this.autofocus = false,
+    this.obscuringCharacter = '•',
     this.obscureText = false,
     this.autocorrect = true,
     SmartDashesType smartDashesType,
@@ -185,6 +172,7 @@ class CreamyField extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.start,
     this.enableInteractiveSelection = true,
     this.onTap,
+    this.mouseCursor,
     this.buildCounter,
     this.scrollController,
     this.scrollPhysics,
@@ -199,6 +187,7 @@ class CreamyField extends StatefulWidget {
   })  : assert(textAlign != null),
         assert(readOnly != null),
         assert(autofocus != null),
+        assert(obscuringCharacter != null && obscuringCharacter.length == 1),
         assert(obscureText != null),
         assert(autocorrect != null),
         smartDashesType = smartDashesType ??
@@ -346,7 +335,7 @@ class CreamyField extends StatefulWidget {
   ///
   /// This text style is also used as the base style for the [decoration].
   ///
-  /// If null, defaults to the `subhead` text style from the current [Theme].
+  /// If null, defaults to the `subtitle1` text style from the current [Theme].
   final TextStyle style;
 
   /// {@macro flutter.widgets.editableText.strutStyle}
@@ -363,6 +352,9 @@ class CreamyField extends StatefulWidget {
 
   /// {@macro flutter.widgets.editableText.autofocus}
   final bool autofocus;
+
+  /// {@macro flutter.widgets.editableText.obscuringCharacter}
+  final String obscuringCharacter;
 
   /// {@macro flutter.widgets.editableText.obscureText}
   final bool obscureText;
@@ -563,6 +555,25 @@ class CreamyField extends StatefulWidget {
   /// {@endtemplate}
   final GestureTapCallback onTap;
 
+  /// The cursor for a mouse pointer when it enters or is hovering over the
+  /// widget.
+  ///
+  /// If [mouseCursor] is a [MaterialStateProperty<MouseCursor>],
+  /// [MaterialStateProperty.resolve] is used for the following [MaterialState]s:
+  ///
+  ///  * [MaterialState.error].
+  ///  * [MaterialState.hovered].
+  ///  * [MaterialState.focused].
+  ///  * [MaterialState.disabled].
+  ///
+  /// If this property is null, [MaterialStateMouseCursor.textable] will be used.
+  ///
+  /// The [mouseCursor] is the only property of [TextField] that controls the
+  /// appearance of the mouse pointer. All other properties related to "cursor"
+  /// stand for the text cursor, which is usually a blinking vertical line at
+  /// the editing position.
+  final MouseCursor mouseCursor;
+
   /// Callback that generates a custom [InputDecorator.counter] widget.
   ///
   /// See [InputCounterWidgetBuilder] for an explanation of the passed in
@@ -573,7 +584,7 @@ class CreamyField extends StatefulWidget {
   /// accessibility, but it also needs to be accessible itself.  For example,
   /// if returning a Text widget, set the [semanticsLabel] property.
   ///
-  /// {@tool sample}
+  /// {@tool snippet}
   /// ```dart
   /// Widget counter(
   ///   BuildContext context,
@@ -592,7 +603,7 @@ class CreamyField extends StatefulWidget {
   /// {@end-tool}
   final InputCounterWidgetBuilder buildCounter;
 
-  /// {@macro flutter.widgets.edtiableText.scrollPhysics}
+  /// {@macro flutter.widgets.editableText.scrollPhysics}
   final ScrollPhysics scrollPhysics;
 
   /// {@macro flutter.widgets.editableText.scrollController}
@@ -710,6 +721,14 @@ class _CreamyFieldState extends State<CreamyField>
 
   bool get _isEnabled => widget.enabled ?? widget.decoration?.enabled ?? true;
 
+  bool get _hasIntrinsicError =>
+      widget.maxLength != null &&
+      widget.maxLength > 0 &&
+      _effectiveController.value.text.characters.length > widget.maxLength;
+
+  bool get _hasError =>
+      widget.decoration?.errorText != null || _hasIntrinsicError;
+
   int get _currentLength => _effectiveController.value.text.runes.length;
 
   InputDecoration _getEffectiveDecoration() {
@@ -720,7 +739,7 @@ class _CreamyFieldState extends State<CreamyField>
         (widget.decoration ?? const InputDecoration())
             .applyDefaults(themeData.inputDecorationTheme)
             .copyWith(
-              enabled: widget.enabled,
+              enabled: _isEnabled,
               hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines,
             );
 
@@ -805,6 +824,26 @@ class _CreamyFieldState extends State<CreamyField>
     _effectiveFocusNode.canRequestFocus = _isEnabled;
   }
 
+  bool get _canRequestFocus {
+    final NavigationMode mode =
+        MediaQuery.of(context, nullOk: true)?.navigationMode ??
+            NavigationMode.traditional;
+    switch (mode) {
+      case NavigationMode.traditional:
+        return _isEnabled;
+      case NavigationMode.directional:
+        return true;
+    }
+    assert(false, 'Navigation mode $mode not handled');
+    return null;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _effectiveFocusNode.canRequestFocus = _canRequestFocus;
+  }
+
   @override
   void didUpdateWidget(CreamyField oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -814,10 +853,13 @@ class _CreamyFieldState extends State<CreamyField>
       if (widget.syntaxHighlighter != null) {
         _controller.changeSyntaxHighlighting(widget.syntaxHighlighter);
       }
-    } else if (widget.controller != null && oldWidget.controller == null)
+    } else if (widget.controller != null && oldWidget.controller == null) {
       _controller = null;
-    _effectiveFocusNode.canRequestFocus = _isEnabled;
-    if (_effectiveFocusNode.hasFocus && widget.readOnly != oldWidget.readOnly) {
+    }
+    _effectiveFocusNode.canRequestFocus = _canRequestFocus;
+    if (_effectiveFocusNode.hasFocus &&
+        widget.readOnly != oldWidget.readOnly &&
+        _isEnabled) {
       if (_effectiveController.selection.isCollapsed) {
         _showSelectionHandles = !widget.readOnly;
       }
@@ -846,6 +888,8 @@ class _CreamyFieldState extends State<CreamyField>
 
     if (widget.readOnly && _effectiveController.selection.isCollapsed)
       return false;
+
+    if (!_isEnabled) return false;
 
     if (cause == SelectionChangedCause.longPress) return true;
 
@@ -896,8 +940,7 @@ class _CreamyFieldState extends State<CreamyField>
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMaterial(context));
-    // TODO(jonahwilliams): uncomment out this check once we have migrated tests.
-    // assert(debugCheckHasMaterialLocalizations(context));
+    assert(debugCheckHasMaterialLocalizations(context));
     assert(debugCheckHasDirectionality(context));
     assert(
       !(widget.style != null &&
@@ -922,6 +965,7 @@ class _CreamyFieldState extends State<CreamyField>
     bool cursorOpacityAnimates;
     Offset cursorOffset;
     Color cursorColor = widget.cursorColor;
+    Color autocorrectionTextRectColor;
     Radius cursorRadius = widget.cursorRadius;
 
     switch (themeData.platform) {
@@ -935,6 +979,7 @@ class _CreamyFieldState extends State<CreamyField>
         cursorRadius ??= const Radius.circular(2.0);
         cursorOffset = Offset(
             iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        autocorrectionTextRectColor = themeData.textSelectionColor;
         break;
 
       case TargetPlatform.android:
@@ -948,12 +993,11 @@ class _CreamyFieldState extends State<CreamyField>
         cursorColor ??= themeData.cursorColor;
         break;
     }
-    textSelectionControls =
-        widget.selectionControls ?? creamyTextSelectionControls;
+
     Widget child = RepaintBoundary(
       child: RichEditableText(
         key: editableTextKey,
-        readOnly: widget.readOnly,
+        readOnly: widget.readOnly || !_isEnabled,
         toolbarOptions: widget.toolbarOptions,
         showCursor: widget.showCursor,
         showSelectionHandles: _showSelectionHandles,
@@ -967,6 +1011,7 @@ class _CreamyFieldState extends State<CreamyField>
         textAlign: widget.textAlign,
         textDirection: widget.textDirection,
         autofocus: widget.autofocus,
+        obscuringCharacter: widget.obscuringCharacter,
         obscureText: widget.obscureText,
         autocorrect: widget.autocorrect,
         smartDashesType: widget.smartDashesType,
@@ -976,8 +1021,9 @@ class _CreamyFieldState extends State<CreamyField>
         minLines: widget.minLines,
         expands: widget.expands,
         selectionColor: themeData.textSelectionColor,
-        selectionControls:
-            widget.selectionEnabled ? textSelectionControls : null,
+        selectionControls: widget.selectionEnabled
+            ? (textSelectionControls ?? creamyTextSelectionControls)
+            : null,
         onChanged: widget.onChanged,
         onSelectionChanged: _handleSelectionChanged,
         onEditingComplete: widget.onEditingComplete,
@@ -985,9 +1031,12 @@ class _CreamyFieldState extends State<CreamyField>
         onSelectionHandleTapped: _handleSelectionHandleTapped,
         inputFormatters: formatters,
         rendererIgnoresPointer: true,
+        mouseCursor: MouseCursor.defer, // TextField will handle the cursor
         cursorWidth: widget.cursorWidth,
         cursorRadius: cursorRadius,
         cursorColor: cursorColor,
+        selectionHeightStyle: widget.selectionHeightStyle,
+        selectionWidthStyle: widget.selectionWidthStyle,
         cursorOpacityAnimates: cursorOpacityAnimates,
         cursorOffset: cursorOffset,
         paintCursorAboveText: paintCursorAboveText,
@@ -998,6 +1047,7 @@ class _CreamyFieldState extends State<CreamyField>
         dragStartBehavior: widget.dragStartBehavior,
         scrollController: effectiveScrollController,
         scrollPhysics: widget.scrollPhysics,
+        autocorrectionTextRectColor: autocorrectionTextRectColor,
         onBackSpacePress: widget.onBackSpacePress,
         onEnterPress: widget.onEnterPress,
         horizontallyScrollable: widget.horizontallyScrollable,
@@ -1023,48 +1073,62 @@ class _CreamyFieldState extends State<CreamyField>
         child: child,
       );
     }
-
-    return IgnorePointer(
-      ignoring: !_isEnabled,
-      child: MouseRegion(
-        onEnter: (PointerEnterEvent event) => _handleHover(true),
-        onExit: (PointerExitEvent event) => _handleHover(false),
-        child: AnimatedBuilder(
-          animation: controller, // changes the _currentLength
-          builder: (BuildContext context, Widget child) {
-            return Semantics(
-              maxValueLength: widget.maxLengthEnforced &&
-                      widget.maxLength != null &&
-                      widget.maxLength > 0
-                  ? widget.maxLength
-                  : null,
-              currentValueLength: _currentLength,
-              onTap: () {
-                if (!_effectiveController.selection.isValid)
-                  _effectiveController.selection = TextSelection.collapsed(
-                      offset: _effectiveController.text.length);
-                _requestKeyboard();
-              },
-              child: LineCountIndicator(
-                visible: widget.showLineIndicator,
-                // Required to keep it in sync with text field
-                scrollControllerOfTextField: effectiveScrollController,
-                textController: _effectiveController,
+    final MouseCursor effectiveMouseCursor =
+        MaterialStateProperty.resolveAs<MouseCursor>(
+      widget.mouseCursor ?? MaterialStateMouseCursor.textable,
+      <MaterialState>{
+        if (!_isEnabled) MaterialState.disabled,
+        if (_isHovering) MaterialState.hovered,
+        if (focusNode.hasFocus) MaterialState.focused,
+        if (_hasError) MaterialState.error,
+      },
+    );
+    return MouseRegion(
+      cursor: effectiveMouseCursor,
+      onEnter: (PointerEnterEvent event) => _handleHover(true),
+      onExit: (PointerExitEvent event) => _handleHover(false),
+      child: IgnorePointer(
+        ignoring: !_isEnabled,
+        child: MouseRegion(
+          onEnter: (PointerEnterEvent event) => _handleHover(true),
+          onExit: (PointerExitEvent event) => _handleHover(false),
+          child: AnimatedBuilder(
+            animation: controller, // changes the _currentLength
+            builder: (BuildContext context, Widget child) {
+              return Semantics(
+                maxValueLength: widget.maxLengthEnforced &&
+                        widget.maxLength != null &&
+                        widget.maxLength > 0
+                    ? widget.maxLength
+                    : null,
+                currentValueLength: _currentLength,
+                onTap: () {
+                  if (!_effectiveController.selection.isValid)
+                    _effectiveController.selection = TextSelection.collapsed(
+                        offset: _effectiveController.text.length);
+                  _requestKeyboard();
+                },
+                child: LineCountIndicator(
+                  visible: widget.showLineIndicator,
+                  // Required to keep it in sync with text field
+                  scrollControllerOfTextField: effectiveScrollController,
+                  textController: _effectiveController,
+                  child: child,
+                  decoration: LineCountIndicatorDecoration(
+                    textStyle: style,
+                  ).merge(widget.lineCountIndicatorDecoration),
+                ),
+              );
+            },
+            child: HorizontalScrollable(
+              beScrollable: widget?.horizontallyScrollable ?? false,
+              useExpanded: false,
+              horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
+              physics: widget.scrollPhysics,
+              child: _selectionGestureDetectorBuilder.buildGestureDetector(
+                behavior: HitTestBehavior.translucent,
                 child: child,
-                decoration: LineCountIndicatorDecoration(
-                  textStyle: style,
-                ).merge(widget.lineCountIndicatorDecoration),
               ),
-            );
-          },
-          child: HorizontalScrollable(
-            beScrollable: widget?.horizontallyScrollable ?? false,
-            useExpanded: false,
-            horizontalScrollExtent: widget.horizontalScrollExtent ?? 2000,
-            physics: widget.scrollPhysics,
-            child: _selectionGestureDetectorBuilder.buildGestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: child,
             ),
           ),
         ),
