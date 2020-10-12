@@ -28,8 +28,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_highlight/themes/dark.dart' as dark_theme_highlight;
-import 'package:flutter_highlight/themes/default.dart'
-    as default_theme_highlight;
+import 'package:flutter_highlight/themes/default.dart' as default_theme_highlight;
 import 'package:highlight/highlight.dart' show highlight, Node;
 
 import './highlighted_theme_type.dart';
@@ -128,14 +127,9 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
     @required this.theme,
     this.darkTheme,
     this.themeMode,
-  })  : this._language =
-            (language != null) ? (toLanguageName(language) ?? 'all') : null,
-        this._theme = theme != null
-            ? getHighlightedThemeStyle(theme)
-            : default_theme_highlight.defaultTheme,
-        this._darkTheme = darkTheme != null
-            ? getHighlightedThemeStyle(darkTheme)
-            : dark_theme_highlight.darkTheme;
+  })  : this._language = (language != null) ? (toLanguageName(language) ?? 'all') : null,
+        this._theme = theme != null ? getHighlightedThemeStyle(theme) : default_theme_highlight.defaultTheme,
+        this._darkTheme = darkTheme != null ? getHighlightedThemeStyle(darkTheme) : dark_theme_highlight.darkTheme;
 
   List<TextSpan> _convert(List<Node> nodes) {
     List<TextSpan> spans = [];
@@ -143,17 +137,12 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
     List<List<TextSpan>> stack = [];
 
     void _traverse(Node node) {
-      final TextStyle _all =
-          _isThemeDark ? TextStyle(color: Colors.white) : null;
+      final TextStyle _all = _isThemeDark ? TextStyle(color: Colors.white) : null;
       if (node.value != null) {
-        currentSpans.add(node.className == null
-            ? TextSpan(text: node.value, style: _all)
-            : TextSpan(
-                text: node.value, style: _effectiveTheme[node.className]));
+        currentSpans.add(node.className == null ? TextSpan(text: node.value, style: _all) : TextSpan(text: node.value, style: _effectiveTheme[node.className]));
       } else if (node.children != null) {
         List<TextSpan> tmp = [];
-        currentSpans.add(
-            TextSpan(children: tmp, style: _effectiveTheme[node.className]));
+        currentSpans.add(TextSpan(children: tmp, style: _effectiveTheme[node.className]));
         stack.add(currentSpans);
         currentSpans = tmp;
 
@@ -176,21 +165,16 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   @override
   List<TextSpan> parseTextEditingValue(TextEditingValue value) {
     _source = value.text;
-    return _convert(highlight
-        .parse(_source, language: _language, autoDetection: _language == null)
-        .nodes);
+    return _convert(highlight.parse(_source, language: _language, autoDetection: _language == null).nodes);
   }
 
   @override
-  TextEditingValue onBackSpacePress(
-      TextEditingValue oldValue, TextSpan currentSpan) {
-    throw UnimplementedError(
-        'This syntax highlighter does not support [onBackSpacePress]');
+  TextEditingValue onBackSpacePress(TextEditingValue oldValue, TextSpan currentSpan) {
+    throw UnimplementedError('This syntax highlighter does not support [onBackSpacePress]');
   }
 
   @override
   TextEditingValue onEnterPress(TextEditingValue oldValue) {
-    throw UnimplementedError(
-        'This syntax highlighter does not support [onEnterPress]');
+    throw UnimplementedError('This syntax highlighter does not support [onEnterPress]');
   }
 }

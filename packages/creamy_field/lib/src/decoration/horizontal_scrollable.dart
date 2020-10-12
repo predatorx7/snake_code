@@ -35,10 +35,8 @@ class HorizontalScrollable extends StatelessWidget {
     this.padding,
     this.useExpanded = false,
   })  : assert(beScrollable != null, 'beScrollable should not be null'),
-        assert(horizontalScrollExtent != null,
-            'horizontal scroll extent should not be null'),
-        assert(horizontalScrollExtent > 0,
-            'horizontal scroll extent should not be less than 1'),
+        assert(horizontalScrollExtent != null, 'horizontal scroll extent should not be null'),
+        assert(horizontalScrollExtent > 0, 'horizontal scroll extent should not be less than 1'),
         super(key: key);
 
   @override

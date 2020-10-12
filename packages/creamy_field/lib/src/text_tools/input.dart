@@ -54,8 +54,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   ///
   /// The top left corner of this widget is positioned at the bottom of the
   /// selection position.
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
-      double textLineHeight);
+  Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textLineHeight);
 
   /// Get the anchor point of the handle relative to itself. The anchor point is
   /// the point that is aligned with a specific point in the text. A handle
@@ -97,8 +96,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   /// Subclasses can use this to decide if they should expose the cut
   /// functionality to the user.
   bool canCut(CreamyTextSelectionDelegate delegate) {
-    return delegate.cutEnabled &&
-        !delegate.textEditingValue.selection.isCollapsed;
+    return delegate.cutEnabled && !delegate.textEditingValue.selection.isCollapsed;
   }
 
   /// Whether the current selection of the text field managed by the given
@@ -109,8 +107,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   /// Subclasses can use this to decide if they should expose the copy
   /// functionality to the user.
   bool canCopy(CreamyTextSelectionDelegate delegate) {
-    return delegate.copyEnabled &&
-        !delegate.textEditingValue.selection.isCollapsed;
+    return delegate.copyEnabled && !delegate.textEditingValue.selection.isCollapsed;
   }
 
   /// Whether the text field managed by the given `delegate` supports pasting
@@ -133,9 +130,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   /// Subclasses can use this to decide if they should expose the select all
   /// functionality to the user.
   bool canSelectAll(CreamyTextSelectionDelegate delegate) {
-    return delegate.selectAllEnabled &&
-        delegate.textEditingValue.text.isNotEmpty &&
-        delegate.textEditingValue.selection.isCollapsed;
+    return delegate.selectAllEnabled && delegate.textEditingValue.text.isNotEmpty && delegate.textEditingValue.selection.isCollapsed;
   }
 
   /// Copy the current selection of the text field managed by the given
@@ -150,8 +145,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
       text: value.selection.textInside(value.text),
     ));
     delegate.textEditingValue = TextEditingValue(
-      text: value.selection.textBefore(value.text) +
-          value.selection.textAfter(value.text),
+      text: value.selection.textBefore(value.text) + value.selection.textAfter(value.text),
       selection: TextSelection.collapsed(offset: value.selection.start),
     );
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);
@@ -164,8 +158,7 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   ///
   /// This is called by subclasses when their copy affordance is activated by
   /// the user.
-  void handleCopy(CreamyTextSelectionDelegate delegate,
-      ClipboardStatusNotifier clipboardStatus) {
+  void handleCopy(CreamyTextSelectionDelegate delegate, ClipboardStatusNotifier clipboardStatus) {
     final TextEditingValue value = delegate.textEditingValue;
     Clipboard.setData(ClipboardData(
       text: value.selection.textInside(value.text),
@@ -191,16 +184,12 @@ abstract class CreamyTextSelectionControls /*implements TextSelectionControls*/ 
   /// implemented.
   // TODO(ianh): https://github.com/flutter/flutter/issues/11427
   Future<void> handlePaste(CreamyTextSelectionDelegate delegate) async {
-    final TextEditingValue value =
-        delegate.textEditingValue; // Snapshot the input before using `await`.
+    final TextEditingValue value = delegate.textEditingValue; // Snapshot the input before using `await`.
     final ClipboardData data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data != null) {
       delegate.textEditingValue = TextEditingValue(
-        text: value.selection.textBefore(value.text) +
-            data.text +
-            value.selection.textAfter(value.text),
-        selection: TextSelection.collapsed(
-            offset: value.selection.start + data.text.length),
+        text: value.selection.textBefore(value.text) + data.text + value.selection.textAfter(value.text),
+        selection: TextSelection.collapsed(offset: value.selection.start + data.text.length),
       );
     }
     delegate.bringIntoView(delegate.textEditingValue.selection.extent);

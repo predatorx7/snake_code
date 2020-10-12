@@ -94,8 +94,7 @@ class LineCountIndicator extends StatefulWidget {
   _LineCountIndicatorState createState() => _LineCountIndicatorState();
 }
 
-class _LineCountIndicatorState extends State<LineCountIndicator>
-    with WidgetsBindingObserver {
+class _LineCountIndicatorState extends State<LineCountIndicator> with WidgetsBindingObserver {
   double latestBottomViewInset = 0;
   ScrollController lineScrollController;
 
@@ -112,8 +111,7 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
   void initState() {
     super.initState();
     lineScrollController = ScrollController();
-    widget.scrollControllerOfTextField
-        .addListener(_whenTextFieldScrollControllerChanges);
+    widget.scrollControllerOfTextField.addListener(_whenTextFieldScrollControllerChanges);
   }
 
   @override
@@ -125,8 +123,7 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    final double windowViewInsetsBottom =
-        WidgetsBinding.instance.window.viewInsets.bottom;
+    final double windowViewInsetsBottom = WidgetsBinding.instance.window.viewInsets.bottom;
     if (latestBottomViewInset != windowViewInsetsBottom) {
       latestBottomViewInset = windowViewInsetsBottom;
     }
@@ -156,14 +153,11 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
       width: widget?.decoration?.rightBorderSide?.width ?? 2,
       style: widget?.decoration?.rightBorderSide?.style ?? BorderStyle.solid,
     );
-    final int totalLineCount =
-        widget.textController.value.text?.split('\n')?.length ?? 0;
+    final int totalLineCount = widget.textController.value.text?.split('\n')?.length ?? 0;
     final int digitsOfMaxLineCount = totalLineCount.toString().length;
-    final double _widthConstraints =
-        widget?.decoration?.width ?? (14 * digitsOfMaxLineCount) + 2.0;
+    final double _widthConstraints = widget?.decoration?.width ?? (14 * digitsOfMaxLineCount) + 2.0;
     final double topBottomPadding = calculateTopBottomPadding(totalLineCount);
-    final Alignment _alignment =
-        widget.decoration.alignment ?? Alignment.centerRight;
+    final Alignment _alignment = widget.decoration.alignment ?? Alignment.centerRight;
     final Widget lineIndicator = IgnorePointer(
       ignoring: true,
       child: Container(
@@ -189,8 +183,7 @@ class _LineCountIndicatorState extends State<LineCountIndicator>
             top: topBottomPadding,
             bottom: (latestBottomViewInset ?? 0) + topBottomPadding,
           ), // Adjust bottom padding with view inset (keyboard)
-          physics: widget?.decoration?.scrollPhysics ??
-              const ClampingScrollPhysics(),
+          physics: widget?.decoration?.scrollPhysics ?? const ClampingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             // A regular TextField in flutter 1.x has a top & bottom padding
             // when it has no text. This workaround keeps this line indicato

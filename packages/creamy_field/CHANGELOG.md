@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3
+
+- Made compatible with flutter 1.22
+- Removed onEnterPress & onBackspacePress callbacks in CreamyField
+
 ## 0.3.2
 
 - Flutter 1.20 capability fix
