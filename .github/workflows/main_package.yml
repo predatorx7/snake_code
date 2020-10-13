@@ -43,7 +43,7 @@ jobs:
       - name: Flutter code formatting check
         run: |
           cd $GITHUB_WORKSPACE/packages/creamy_field;
-          flutter format -l 180 --set-exit-if-changed .;
+          flutter format --set-exit-if-changed .;
 
       - name: analyze issues
         run: |
