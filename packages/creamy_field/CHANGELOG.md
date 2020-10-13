@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.3+1
+
+- Removed onEnterPress & onBackspacePress method head from SyntaxHighlighter
+- flutter format
+
+## 0.3.3
+
+- Made compatible with flutter 1.22
+- Removed onEnterPress & onBackspacePress callbacks in CreamyField
+- Removed vertical padding from the Text field
+
 ## 0.3.2
 
 - Flutter 1.20 capability fix

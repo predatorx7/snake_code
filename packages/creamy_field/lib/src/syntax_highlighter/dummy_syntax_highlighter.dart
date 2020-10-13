@@ -7,26 +7,6 @@ import 'package:creamy_field/creamy_field.dart';
 /// Ideally, you would implement the `SyntaxHighlighterBase` interface as per your need of highlighting rules.
 class DummySyntaxHighlighter implements SyntaxHighlighter {
   @override
-  TextEditingValue onBackSpacePress(
-      TextEditingValue oldValue, TextSpan currentSpan) {
-    return null;
-  }
-
-  @override
-  TextEditingValue onEnterPress(TextEditingValue oldValue) {
-    var padding = "    ";
-    var newText = oldValue.text + padding;
-    var newValue = oldValue.copyWith(
-      text: newText,
-      composing: TextRange(start: -1, end: -1),
-      selection: TextSelection.fromPosition(TextPosition(
-          affinity: TextAffinity.upstream, offset: newText.length)),
-    );
-
-    return newValue;
-  }
-
-  @override
   List<TextSpan> parseTextEditingValue(TextEditingValue tev) {
     var texts = tev.text.split(' ');
 

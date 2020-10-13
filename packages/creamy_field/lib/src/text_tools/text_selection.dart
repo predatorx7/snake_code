@@ -1,3 +1,34 @@
+// Copyright (c) 2020, Mushaheed Syed. All rights reserved.
+// Use of this source code is governed by a BSD 3-Clause license that can be
+// found in the LICENSE file.
+//
+// --------------------------------------------------------------------------------
+// Copyright 2014 The Flutter Authors. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above
+//       copyright notice, this list of conditions and the following
+//       disclaimer in the documentation and/or other materials provided
+//       with the distribution.
+//     * Neither the name of Google Inc. nor the names of its
+//       contributors may be used to endorse or promote products derived
+//       from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 import 'dart:ui';
 import 'dart:math' as math;
 
@@ -1098,6 +1129,9 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
 
     final MaterialLocalizations localizations =
         MaterialLocalizations.of(context);
+
+    final bool _showActions = widget.actions?.isNotEmpty ?? false;
+
     final List<_ItemData> itemDatas = <_ItemData>[
       if (widget.handleCut != null)
         _ItemData(widget.handleCut, localizations.cutButtonLabel),
@@ -1107,7 +1141,7 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
         _ItemData(widget.handlePaste, localizations.pasteButtonLabel),
       if (widget.handleSelectAll != null)
         _ItemData(widget.handleSelectAll, localizations.selectAllButtonLabel),
-      if (widget.actions != null) ..._buildActions(widget.actions),
+      if (_showActions) ..._buildActions(widget.actions),
     ];
 
     // If there is no option available, build an empty widget.
@@ -1236,8 +1270,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
       child.size.height,
     ));
 
-    final _ToolbarParentData childParentData =
-        child.parentData as _ToolbarParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     childParentData.offset = Offset(
       size.width - child.size.width,
       0.0,
@@ -1247,8 +1281,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
   // Paint at the offset set in the parent data.
   @override
   void paint(PaintingContext context, Offset offset) {
-    final _ToolbarParentData childParentData =
-        child.parentData as _ToolbarParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     context.paintChild(child, childParentData.offset + offset);
   }
 
@@ -1256,8 +1290,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     // The x, y parameters have the top left of the node's box as the origin.
-    final _ToolbarParentData childParentData =
-        child.parentData as _ToolbarParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     return result.addWithPaintOffset(
       offset: childParentData.offset,
       position: position,
@@ -1270,15 +1304,15 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! _ToolbarParentData) {
-      child.parentData = _ToolbarParentData();
+    if (child.parentData is! ToolbarItemsParentData) {
+      child.parentData = ToolbarItemsParentData();
     }
   }
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    final _ToolbarParentData childParentData =
-        child.parentData as _ToolbarParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     transform.translate(childParentData.offset.dx, childParentData.offset.dy);
     super.applyPaintTransform(child, transform);
   }
@@ -1321,24 +1355,14 @@ class _TextSelectionToolbarItems extends MultiChildRenderObjectWidget {
       _TextSelectionToolbarItemsElement(this);
 }
 
-class _ToolbarParentData extends ContainerBoxParentData<RenderBox> {
-  /// Whether or not this child is painted.
-  ///
-  /// Children in the selection toolbar may be laid out for measurement purposes
-  /// but not painted. This allows these children to be identified.
-  bool shouldPaint;
-
-  @override
-  String toString() => '${super.toString()}; shouldPaint=$shouldPaint';
-}
-
 class _TextSelectionToolbarItemsElement extends MultiChildRenderObjectElement {
   _TextSelectionToolbarItemsElement(
     MultiChildRenderObjectWidget widget,
   ) : super(widget);
 
   static bool _shouldPaint(Element child) {
-    return (child.renderObject.parentData as _ToolbarParentData).shouldPaint;
+    return (child.renderObject.parentData as ToolbarItemsParentData)
+        .shouldPaint;
   }
 
   @override
@@ -1348,7 +1372,7 @@ class _TextSelectionToolbarItemsElement extends MultiChildRenderObjectElement {
 }
 
 class _TextSelectionToolbarItemsRenderBox extends RenderBox
-    with ContainerRenderObjectMixin<RenderBox, _ToolbarParentData> {
+    with ContainerRenderObjectMixin<RenderBox, ToolbarItemsParentData> {
   _TextSelectionToolbarItemsRenderBox({
     @required bool isAbove,
     @required bool overflowOpen,
@@ -1456,8 +1480,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
       i++;
 
       final RenderBox child = renderObjectChild as RenderBox;
-      final _ToolbarParentData childParentData =
-          child.parentData as _ToolbarParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
 
       // Handle placing the navigation button after iterating all children.
       if (renderObjectChild == navButton) {
@@ -1489,8 +1513,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
     });
 
     // Place the navigation button if needed.
-    final _ToolbarParentData navButtonParentData =
-        navButton.parentData as _ToolbarParentData;
+    final ToolbarItemsParentData navButtonParentData =
+        navButton.parentData as ToolbarItemsParentData;
     if (_shouldPaintChild(firstChild, 0)) {
       navButtonParentData.shouldPaint = true;
       if (overflowOpen) {
@@ -1527,8 +1551,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
   void paint(PaintingContext context, Offset offset) {
     visitChildren((RenderObject renderObjectChild) {
       final RenderBox child = renderObjectChild as RenderBox;
-      final _ToolbarParentData childParentData =
-          child.parentData as _ToolbarParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
       if (!childParentData.shouldPaint) {
         return;
       }
@@ -1539,8 +1563,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
 
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! _ToolbarParentData) {
-      child.parentData = _ToolbarParentData();
+    if (child.parentData is! ToolbarItemsParentData) {
+      child.parentData = ToolbarItemsParentData();
     }
   }
 
@@ -1549,8 +1573,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
     // The x, y parameters have the top left of the node's box as the origin.
     RenderBox child = lastChild;
     while (child != null) {
-      final _ToolbarParentData childParentData =
-          child.parentData as _ToolbarParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
 
       // Don't hit test children aren't shown.
       if (!childParentData.shouldPaint) {
@@ -1570,6 +1594,19 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox
       child = childParentData.previousSibling;
     }
     return false;
+  }
+
+  // Visit only the children that should be painted.
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    visitChildren((RenderObject renderObjectChild) {
+      final RenderBox child = renderObjectChild as RenderBox;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
+      if (childParentData.shouldPaint) {
+        visitor(renderObjectChild);
+      }
+    });
   }
 }
 
@@ -1748,12 +1785,17 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
   @override
   Widget buildHandle(
       BuildContext context, TextSelectionHandleType type, double textHeight) {
+    final ThemeData theme = Theme.of(context);
+    final Color handleColor = theme.useTextSelectionTheme
+        ? TextSelectionTheme.of(context).selectionHandleColor ??
+            theme.colorScheme.primary
+        : theme.textSelectionHandleColor;
     final Widget handle = SizedBox(
       width: _kHandleSize,
       height: _kHandleSize,
       child: CustomPaint(
         painter: _TextSelectionHandlePainter(
-          color: Theme.of(context).textSelectionHandleColor,
+          color: handleColor,
         ),
       ),
     );

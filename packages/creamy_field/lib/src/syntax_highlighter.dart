@@ -10,14 +10,4 @@ import 'syntax_highlighter/dummy_syntax_highlighter.dart'
 abstract class SyntaxHighlighter {
   /// Parses text from [value] & generates syntax highlighted text as list of [TextSpan].
   List<TextSpan> parseTextEditingValue(TextEditingValue value);
-
-  /// Handler to support enter press event.
-  /// Can be used to add extra tab indents on enter press.
-  TextEditingValue onEnterPress(TextEditingValue oldValue) => oldValue;
-
-  /// Handler to support backspace press event.
-  /// Can be used to remove extra tab indents on backspace press.
-  TextEditingValue onBackSpacePress(
-          TextEditingValue oldValue, TextSpan currentSpan) =>
-      oldValue;
 }

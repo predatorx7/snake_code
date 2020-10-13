@@ -180,17 +180,4 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
         .parse(_source, language: _language, autoDetection: _language == null)
         .nodes);
   }
-
-  @override
-  TextEditingValue onBackSpacePress(
-      TextEditingValue oldValue, TextSpan currentSpan) {
-    throw UnimplementedError(
-        'This syntax highlighter does not support [onBackSpacePress]');
-  }
-
-  @override
-  TextEditingValue onEnterPress(TextEditingValue oldValue) {
-    throw UnimplementedError(
-        'This syntax highlighter does not support [onEnterPress]');
-  }
 }
