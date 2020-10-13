@@ -46,7 +46,8 @@ import '../syntax_highlighter.dart';
 /// 1. Shows column number of cursor
 ///
 /// Also supports syntax highlighting, and syntax highlight theme type.
-class CreamyEditingController extends ValueNotifier<TextEditingValue> implements TextEditingController {
+class CreamyEditingController extends ValueNotifier<TextEditingValue>
+    implements TextEditingController {
   /// Creates a controller for an editable text field.
   ///
   /// This constructor treats a null [text] argument as if it were an empty
@@ -59,7 +60,9 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue> implements
         assert(tabSize > 0),
         this._syntaxHighlighter = syntaxHighlighter,
         this._enableHighlighting = (syntaxHighlighter != null) ?? false,
-        super(text == null ? TextEditingValue.empty : TextEditingValue(text: __replaceTabsWithSpaces(text, tabSize)));
+        super(text == null
+            ? TextEditingValue.empty
+            : TextEditingValue(text: __replaceTabsWithSpaces(text, tabSize)));
 
   /// Creates a controller for an editable text field from an initial [TextEditingValue].
   ///
@@ -90,7 +93,8 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue> implements
   final int tabSize;
 
   /// syntax highlighting status
-  bool get enableHighlighting => _enableHighlighting ?? (syntaxHighlighter != null) ?? false;
+  bool get enableHighlighting =>
+      _enableHighlighting ?? (syntaxHighlighter != null) ?? false;
 
   /// The syntax highlighter which will parse text from Text Field
   final SyntaxHighlighter syntaxHighlighter;
@@ -235,7 +239,8 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue> implements
   /// in a separate statement. To change both the [text] and the [selection]
   /// change the controller's [value].
   set selection(TextSelection newSelection) {
-    if (!isSelectionWithinTextBounds(newSelection)) throw FlutterError('invalid text selection: $newSelection');
+    if (!isSelectionWithinTextBounds(newSelection))
+      throw FlutterError('invalid text selection: $newSelection');
     value = value.copyWith(selection: newSelection, composing: TextRange.empty);
   }
 
@@ -320,12 +325,14 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue> implements
   }
 }
 
-class RestorableCreamyEditingController extends RestorableListenable<CreamyEditingController> {
+class RestorableCreamyEditingController
+    extends RestorableListenable<CreamyEditingController> {
   /// Creates a [RestorableTextEditingController].
   ///
   /// This constructor treats a null `text` argument as if it were the empty
   /// string.
-  factory RestorableCreamyEditingController({String text}) => RestorableCreamyEditingController.fromValue(
+  factory RestorableCreamyEditingController({String text}) =>
+      RestorableCreamyEditingController.fromValue(
         text == null ? TextEditingValue.empty : TextEditingValue(text: text),
       );
 
@@ -334,7 +341,8 @@ class RestorableCreamyEditingController extends RestorableListenable<CreamyEditi
   ///
   /// This constructor treats a null `value` argument as if it were
   /// [TextEditingValue.empty].
-  RestorableCreamyEditingController.fromValue(TextEditingValue value) : _initialValue = value;
+  RestorableCreamyEditingController.fromValue(TextEditingValue value)
+      : _initialValue = value;
 
   final TextEditingValue _initialValue;
 

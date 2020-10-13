@@ -54,7 +54,8 @@ class CreamyToolbarOptions implements ToolbarOptions {
       selectAll: other.selectAll ?? this.selectAll,
       actions: other.actions ?? this.actions,
       useCamelCaseLabel: other.useCamelCaseLabel ?? this.useCamelCaseLabel,
-      selectionToolbarThemeMode: other.selectionToolbarThemeMode ?? this.selectionToolbarThemeMode,
+      selectionToolbarThemeMode:
+          other.selectionToolbarThemeMode ?? this.selectionToolbarThemeMode,
     );
   }
 

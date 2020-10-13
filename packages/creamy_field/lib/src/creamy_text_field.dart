@@ -46,9 +46,16 @@ import 'text_tools/input.dart';
 import 'text_tools/text_selection.dart';
 import 'text_tools/toolbar_options.dart';
 
-export 'package:flutter/services.dart' show TextInputType, TextInputAction, TextCapitalization, SmartQuotesType, SmartDashesType;
+export 'package:flutter/services.dart'
+    show
+        TextInputType,
+        TextInputAction,
+        TextCapitalization,
+        SmartQuotesType,
+        SmartDashesType;
 
-class _TextFieldSelectionGestureDetectorBuilder extends CreamyTextSelectionGestureDetectorBuilder {
+class _TextFieldSelectionGestureDetectorBuilder
+    extends CreamyTextSelectionGestureDetectorBuilder {
   _TextFieldSelectionGestureDetectorBuilder({
     @required _CreamyFieldState state,
   })  : _state = state,
@@ -223,8 +230,10 @@ class CreamyField extends StatefulWidget {
         assert(obscuringCharacter != null && obscuringCharacter.length == 1),
         assert(obscureText != null),
         assert(autocorrect != null),
-        smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
-        smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+        smartDashesType = smartDashesType ??
+            (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+        smartQuotesType = smartQuotesType ??
+            (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
         assert(enableSuggestions != null),
         assert(enableInteractiveSelection != null),
         assert(maxLengthEnforced != null),
@@ -243,12 +252,19 @@ class CreamyField extends StatefulWidget {
           !expands || (maxLines == null && minLines == null),
           'minLines and maxLines must be null when expands is true.',
         ),
-        assert(!obscureText || maxLines == 1, 'Obscured fields cannot be multiline.'),
-        assert(maxLength == null || maxLength == TextField.noMaxLength || maxLength > 0),
+        assert(!obscureText || maxLines == 1,
+            'Obscured fields cannot be multiline.'),
+        assert(maxLength == null ||
+            maxLength == TextField.noMaxLength ||
+            maxLength > 0),
         // Assert the following instead of setting it directly to avoid surprising the user by silently changing the value they set.
-        assert(!identical(textInputAction, TextInputAction.newline) || maxLines == 1 || !identical(keyboardType, TextInputType.text),
+        assert(
+            !identical(textInputAction, TextInputAction.newline) ||
+                maxLines == 1 ||
+                !identical(keyboardType, TextInputType.text),
             'Use keyboardType TextInputType.multiline when using TextInputAction.newline on a multiline TextField.'),
-        keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
+        keyboardType = keyboardType ??
+            (maxLines == 1 ? TextInputType.text : TextInputType.multiline),
         toolbarOptions = toolbarOptions ??
             (obscureText
                 ? const CreamyToolbarOptions(
@@ -261,9 +277,12 @@ class CreamyField extends StatefulWidget {
                     selectAll: true,
                     paste: true,
                   )),
-        assert(horizontallyScrollable != null, 'horizontallyScrollable should not be null'),
-        assert(horizontalScrollExtent != null, 'horizontalScrollExtent should not be null'),
-        assert(horizontalScrollExtent > 0, 'horizontalScrollExtent should not be less than 1'),
+        assert(horizontallyScrollable != null,
+            'horizontallyScrollable should not be null'),
+        assert(horizontalScrollExtent != null,
+            'horizontalScrollExtent should not be null'),
+        assert(horizontalScrollExtent > 0,
+            'horizontalScrollExtent should not be less than 1'),
         super(key: key);
 
   /// Controls the text being edited.
@@ -665,47 +684,94 @@ class CreamyField extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<CreamyEditingController>('controller', controller, defaultValue: null));
-    properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode, defaultValue: null));
-    properties.add(DiagnosticsProperty<bool>('enabled', enabled, defaultValue: null));
-    properties.add(DiagnosticsProperty<InputDecoration>('decoration', decoration, defaultValue: const InputDecoration()));
-    properties.add(DiagnosticsProperty<TextInputType>('keyboardType', keyboardType, defaultValue: TextInputType.text));
-    properties.add(DiagnosticsProperty<TextStyle>('style', style, defaultValue: null));
-    properties.add(DiagnosticsProperty<bool>('autofocus', autofocus, defaultValue: false));
-    properties.add(DiagnosticsProperty<bool>('obscureText', obscureText, defaultValue: false));
-    properties.add(DiagnosticsProperty<bool>('autocorrect', autocorrect, defaultValue: true));
-    properties.add(DiagnosticsProperty<bool>('enableSuggestions', enableSuggestions, defaultValue: true));
+    properties.add(DiagnosticsProperty<CreamyEditingController>(
+        'controller', controller,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode,
+        defaultValue: null));
+    properties
+        .add(DiagnosticsProperty<bool>('enabled', enabled, defaultValue: null));
+    properties.add(DiagnosticsProperty<InputDecoration>(
+        'decoration', decoration,
+        defaultValue: const InputDecoration()));
+    properties.add(DiagnosticsProperty<TextInputType>(
+        'keyboardType', keyboardType,
+        defaultValue: TextInputType.text));
+    properties.add(
+        DiagnosticsProperty<TextStyle>('style', style, defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<bool>('autofocus', autofocus, defaultValue: false));
+    properties.add(DiagnosticsProperty<bool>('obscureText', obscureText,
+        defaultValue: false));
+    properties.add(DiagnosticsProperty<bool>('autocorrect', autocorrect,
+        defaultValue: true));
+    properties.add(DiagnosticsProperty<bool>(
+        'enableSuggestions', enableSuggestions,
+        defaultValue: true));
     properties.add(IntProperty('maxLines', maxLines, defaultValue: 1));
     properties.add(IntProperty('minLines', minLines, defaultValue: null));
-    properties.add(DiagnosticsProperty<bool>('expands', expands, defaultValue: false));
+    properties.add(
+        DiagnosticsProperty<bool>('expands', expands, defaultValue: false));
     properties.add(IntProperty('maxLength', maxLength, defaultValue: null));
-    properties.add(FlagProperty('maxLengthEnforced', value: maxLengthEnforced, defaultValue: true, ifFalse: 'maxLength not enforced'));
-    properties.add(EnumProperty<TextInputAction>('textInputAction', textInputAction, defaultValue: null));
-    properties.add(EnumProperty<TextCapitalization>('textCapitalization', textCapitalization, defaultValue: TextCapitalization.none));
-    properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: TextAlign.start));
-    properties.add(DiagnosticsProperty<TextAlignVertical>('textAlignVertical', textAlignVertical, defaultValue: null));
-    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
-    properties.add(DoubleProperty('cursorWidth', cursorWidth, defaultValue: 2.0));
-    properties.add(DiagnosticsProperty<Radius>('cursorRadius', cursorRadius, defaultValue: null));
-    properties.add(ColorProperty('cursorColor', cursorColor, defaultValue: null));
-    properties.add(DiagnosticsProperty<Brightness>('keyboardAppearance', keyboardAppearance, defaultValue: null));
-    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('scrollPadding', scrollPadding, defaultValue: const EdgeInsets.all(20.0)));
-    properties.add(FlagProperty('selectionEnabled', value: selectionEnabled, defaultValue: true, ifFalse: 'selection disabled'));
-    properties.add(DiagnosticsProperty<ScrollController>('scrollController', scrollController, defaultValue: null));
-    properties.add(DiagnosticsProperty<ScrollPhysics>('scrollPhysics', scrollPhysics, defaultValue: null));
+    properties.add(FlagProperty('maxLengthEnforced',
+        value: maxLengthEnforced,
+        defaultValue: true,
+        ifFalse: 'maxLength not enforced'));
+    properties.add(EnumProperty<TextInputAction>(
+        'textInputAction', textInputAction,
+        defaultValue: null));
+    properties.add(EnumProperty<TextCapitalization>(
+        'textCapitalization', textCapitalization,
+        defaultValue: TextCapitalization.none));
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign,
+        defaultValue: TextAlign.start));
+    properties.add(DiagnosticsProperty<TextAlignVertical>(
+        'textAlignVertical', textAlignVertical,
+        defaultValue: null));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection,
+        defaultValue: null));
+    properties
+        .add(DoubleProperty('cursorWidth', cursorWidth, defaultValue: 2.0));
+    properties.add(DiagnosticsProperty<Radius>('cursorRadius', cursorRadius,
+        defaultValue: null));
+    properties
+        .add(ColorProperty('cursorColor', cursorColor, defaultValue: null));
+    properties.add(DiagnosticsProperty<Brightness>(
+        'keyboardAppearance', keyboardAppearance,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>(
+        'scrollPadding', scrollPadding,
+        defaultValue: const EdgeInsets.all(20.0)));
+    properties.add(FlagProperty('selectionEnabled',
+        value: selectionEnabled,
+        defaultValue: true,
+        ifFalse: 'selection disabled'));
+    properties.add(DiagnosticsProperty<ScrollController>(
+        'scrollController', scrollController,
+        defaultValue: null));
+    properties.add(DiagnosticsProperty<ScrollPhysics>(
+        'scrollPhysics', scrollPhysics,
+        defaultValue: null));
   }
 }
 
-class _CreamyFieldState extends State<CreamyField> with RestorationMixin implements RichTextSelectionGestureDetectorBuilderDelegate {
+class _CreamyFieldState extends State<CreamyField>
+    with RestorationMixin
+    implements RichTextSelectionGestureDetectorBuilderDelegate {
   RestorableCreamyEditingController _controller;
-  CreamyEditingController get _effectiveController => widget.controller ?? _controller;
+  CreamyEditingController get _effectiveController =>
+      widget.controller ?? _controller;
 
   FocusNode _focusNode;
-  FocusNode get _effectiveFocusNode => widget.focusNode ?? (_focusNode ??= FocusNode());
+  FocusNode get _effectiveFocusNode =>
+      widget.focusNode ?? (_focusNode ??= FocusNode());
 
   bool _isHovering = false;
 
-  bool get needsCounter => widget.maxLength != null && widget.decoration != null && widget.decoration.counterText == null;
+  bool get needsCounter =>
+      widget.maxLength != null &&
+      widget.decoration != null &&
+      widget.decoration.counterText == null;
 
   bool _showSelectionHandles = false;
 
@@ -716,7 +782,8 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
   bool forcePressEnabled;
 
   @override
-  final GlobalKey<RichEditableTextState> editableTextKey = GlobalKey<RichEditableTextState>();
+  final GlobalKey<RichEditableTextState> editableTextKey =
+      GlobalKey<RichEditableTextState>();
 
   @override
   bool get selectionEnabled => widget.selectionEnabled;
@@ -726,25 +793,36 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
 
   int get _currentLength => _effectiveController.value.text.characters.length;
 
-  bool get _hasIntrinsicError => widget.maxLength != null && widget.maxLength > 0 && _effectiveController.value.text.characters.length > widget.maxLength;
+  bool get _hasIntrinsicError =>
+      widget.maxLength != null &&
+      widget.maxLength > 0 &&
+      _effectiveController.value.text.characters.length > widget.maxLength;
 
-  bool get _hasError => widget.decoration?.errorText != null || _hasIntrinsicError;
+  bool get _hasError =>
+      widget.decoration?.errorText != null || _hasIntrinsicError;
 
   InputDecoration _getEffectiveDecoration() {
-    final MaterialLocalizations localizations = MaterialLocalizations.of(context);
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
     final ThemeData themeData = Theme.of(context);
-    final InputDecoration effectiveDecoration = (widget.decoration ?? const InputDecoration()).applyDefaults(themeData.inputDecorationTheme).copyWith(
-          enabled: _isEnabled,
-          hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines,
-        );
+    final InputDecoration effectiveDecoration =
+        (widget.decoration ?? const InputDecoration())
+            .applyDefaults(themeData.inputDecorationTheme)
+            .copyWith(
+              enabled: _isEnabled,
+              hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines,
+            );
 
     // No need to build anything if counter or counterText were given directly.
-    if (effectiveDecoration.counter != null || effectiveDecoration.counterText != null) return effectiveDecoration;
+    if (effectiveDecoration.counter != null ||
+        effectiveDecoration.counterText != null) return effectiveDecoration;
 
     // If buildCounter was provided, use it to generate a counter widget.
     Widget counter;
     final int currentLength = _currentLength;
-    if (effectiveDecoration.counter == null && effectiveDecoration.counterText == null && widget.buildCounter != null) {
+    if (effectiveDecoration.counter == null &&
+        effectiveDecoration.counterText == null &&
+        widget.buildCounter != null) {
       final bool isFocused = _effectiveFocusNode.hasFocus;
       final Widget builtCounter = widget.buildCounter(
         context,
@@ -763,7 +841,8 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
       return effectiveDecoration.copyWith(counter: counter);
     }
 
-    if (widget.maxLength == null) return effectiveDecoration; // No counter widget
+    if (widget.maxLength == null)
+      return effectiveDecoration; // No counter widget
 
     String counterText = '$currentLength';
     String semanticCounterText = '';
@@ -772,14 +851,17 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
     if (widget.maxLength > 0) {
       // Show the maxLength in the counter
       counterText += '/${widget.maxLength}';
-      final int remaining = (widget.maxLength - currentLength).clamp(0, widget.maxLength) as int;
-      semanticCounterText = localizations.remainingTextFieldCharacterCount(remaining);
+      final int remaining =
+          (widget.maxLength - currentLength).clamp(0, widget.maxLength) as int;
+      semanticCounterText =
+          localizations.remainingTextFieldCharacterCount(remaining);
 
       // Handle length exceeds maxLength
       if (_effectiveController.value.text.runes.length > widget.maxLength) {
         return effectiveDecoration.copyWith(
           errorText: effectiveDecoration.errorText ?? '',
-          counterStyle: effectiveDecoration.errorStyle ?? themeData.textTheme.caption.copyWith(color: themeData.errorColor),
+          counterStyle: effectiveDecoration.errorStyle ??
+              themeData.textTheme.caption.copyWith(color: themeData.errorColor),
           counterText: counterText,
           semanticCounterText: semanticCounterText,
         );
@@ -794,12 +876,14 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
 
   ScrollController _scrollController;
 
-  ScrollController get effectiveScrollController => widget.scrollController ?? _scrollController;
+  ScrollController get effectiveScrollController =>
+      widget.scrollController ?? _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _selectionGestureDetectorBuilder = _TextFieldSelectionGestureDetectorBuilder(state: this);
+    _selectionGestureDetectorBuilder =
+        _TextFieldSelectionGestureDetectorBuilder(state: this);
     if (widget.scrollController == null) {
       _scrollController = ScrollController();
     }
@@ -813,7 +897,9 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
   }
 
   bool get _canRequestFocus {
-    final NavigationMode mode = MediaQuery.of(context, nullOk: true)?.navigationMode ?? NavigationMode.traditional;
+    final NavigationMode mode =
+        MediaQuery.of(context, nullOk: true)?.navigationMode ??
+            NavigationMode.traditional;
     switch (mode) {
       case NavigationMode.traditional:
         return _isEnabled;
@@ -841,7 +927,9 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
       _controller = null;
     }
     _effectiveFocusNode.canRequestFocus = _canRequestFocus;
-    if (_effectiveFocusNode.hasFocus && widget.readOnly != oldWidget.readOnly && _isEnabled) {
+    if (_effectiveFocusNode.hasFocus &&
+        widget.readOnly != oldWidget.readOnly &&
+        _isEnabled) {
       if (_effectiveController.selection.isCollapsed) {
         _showSelectionHandles = !widget.readOnly;
       }
@@ -862,7 +950,9 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
 
   void _createLocalController([TextEditingValue value]) {
     assert(_controller == null);
-    _controller = value == null ? RestorableCreamyEditingController() : RestorableCreamyEditingController.fromValue(value);
+    _controller = value == null
+        ? RestorableCreamyEditingController()
+        : RestorableCreamyEditingController.fromValue(value);
     if (!restorePending) {
       _registerController();
     }
@@ -888,11 +978,13 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
   bool _shouldShowSelectionHandles(SelectionChangedCause cause) {
     // When the text field is activated by something that doesn't trigger the
     // selection overlay, we shouldn't show the handles either.
-    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) return false;
+    if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar)
+      return false;
 
     if (cause == SelectionChangedCause.keyboard) return false;
 
-    if (widget.readOnly && _effectiveController.selection.isCollapsed) return false;
+    if (widget.readOnly && _effectiveController.selection.isCollapsed)
+      return false;
 
     if (!_isEnabled) return false;
 
@@ -903,7 +995,8 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
     return false;
   }
 
-  void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
+  void _handleSelectionChanged(
+      TextSelection selection, SelectionChangedCause cause) {
     final bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
     if (willShowSelectionHandles != _showSelectionHandles) {
       setState(() {
@@ -952,18 +1045,24 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
     assert(debugCheckHasMaterialLocalizations(context));
     assert(debugCheckHasDirectionality(context));
     assert(
-      !(widget.style != null && widget.style.inherit == false && (widget.style.fontSize == null || widget.style.textBaseline == null)),
+      !(widget.style != null &&
+          widget.style.inherit == false &&
+          (widget.style.fontSize == null || widget.style.textBaseline == null)),
       'inherit false style must supply fontSize and textBaseline',
     );
 
     final ThemeData theme = Theme.of(context);
-    final TextSelectionThemeData selectionTheme = TextSelectionTheme.of(context);
+    final TextSelectionThemeData selectionTheme =
+        TextSelectionTheme.of(context);
     final TextStyle style = theme.textTheme.subtitle1.merge(widget.style);
-    final Brightness keyboardAppearance = widget.keyboardAppearance ?? theme.primaryColorBrightness;
+    final Brightness keyboardAppearance =
+        widget.keyboardAppearance ?? theme.primaryColorBrightness;
     final CreamyEditingController controller = _effectiveController;
     final FocusNode focusNode = _effectiveFocusNode;
-    final List<TextInputFormatter> formatters = widget.inputFormatters ?? <TextInputFormatter>[];
-    if (widget.maxLength != null && widget.maxLengthEnforced) formatters.add(LengthLimitingTextInputFormatter(widget.maxLength));
+    final List<TextInputFormatter> formatters =
+        widget.inputFormatters ?? <TextInputFormatter>[];
+    if (widget.maxLength != null && widget.maxLengthEnforced)
+      formatters.add(LengthLimitingTextInputFormatter(widget.maxLength));
 
     bool paintCursorAboveText;
     bool cursorOpacityAnimates;
@@ -981,14 +1080,18 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
         paintCursorAboveText = true;
         cursorOpacityAnimates = true;
         if (theme.useTextSelectionTheme) {
-          cursorColor ??= selectionTheme.cursorColor ?? CupertinoTheme.of(context).primaryColor;
-          selectionColor = selectionTheme.selectionColor ?? _defaultSelectionColor(context, CupertinoTheme.of(context).primaryColor);
+          cursorColor ??= selectionTheme.cursorColor ??
+              CupertinoTheme.of(context).primaryColor;
+          selectionColor = selectionTheme.selectionColor ??
+              _defaultSelectionColor(
+                  context, CupertinoTheme.of(context).primaryColor);
         } else {
           cursorColor ??= CupertinoTheme.of(context).primaryColor;
           selectionColor = theme.textSelectionColor;
         }
         cursorRadius ??= const Radius.circular(2.0);
-        cursorOffset = Offset(iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
+        cursorOffset = Offset(
+            iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
         autocorrectionTextRectColor = selectionColor;
         break;
 
@@ -1001,8 +1104,10 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
         paintCursorAboveText = false;
         cursorOpacityAnimates = false;
         if (theme.useTextSelectionTheme) {
-          cursorColor ??= selectionTheme.cursorColor ?? theme.colorScheme.primary;
-          selectionColor = selectionTheme.selectionColor ?? _defaultSelectionColor(context, theme.colorScheme.primary);
+          cursorColor ??=
+              selectionTheme.cursorColor ?? theme.colorScheme.primary;
+          selectionColor = selectionTheme.selectionColor ??
+              _defaultSelectionColor(context, theme.colorScheme.primary);
         } else {
           cursorColor ??= theme.cursorColor;
           selectionColor = theme.textSelectionColor;
@@ -1039,7 +1144,9 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
           minLines: widget.minLines,
           expands: widget.expands,
           selectionColor: selectionColor,
-          selectionControls: widget.selectionEnabled ? (widget.selectionControls ?? creamyTextSelectionControls) : null,
+          selectionControls: widget.selectionEnabled
+              ? (widget.selectionControls ?? creamyTextSelectionControls)
+              : null,
           onChanged: widget.onChanged,
           onSelectionChanged: _handleSelectionChanged,
           onEditingComplete: widget.onEditingComplete,
@@ -1092,7 +1199,8 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
         child: child,
       );
     }
-    final MouseCursor effectiveMouseCursor = MaterialStateProperty.resolveAs<MouseCursor>(
+    final MouseCursor effectiveMouseCursor =
+        MaterialStateProperty.resolveAs<MouseCursor>(
       widget.mouseCursor ?? MaterialStateMouseCursor.textable,
       <MaterialState>{
         if (!_isEnabled) MaterialState.disabled,
@@ -1114,10 +1222,16 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
           animation: controller, // changes the _currentLength
           builder: (BuildContext context, Widget child) {
             return Semantics(
-              maxValueLength: widget.maxLengthEnforced && widget.maxLength != null && widget.maxLength > 0 ? widget.maxLength : null,
+              maxValueLength: widget.maxLengthEnforced &&
+                      widget.maxLength != null &&
+                      widget.maxLength > 0
+                  ? widget.maxLength
+                  : null,
               currentValueLength: _currentLength,
               onTap: () {
-                if (!_effectiveController.selection.isValid) _effectiveController.selection = TextSelection.collapsed(offset: _effectiveController.text.length);
+                if (!_effectiveController.selection.isValid)
+                  _effectiveController.selection = TextSelection.collapsed(
+                      offset: _effectiveController.text.length);
                 _requestKeyboard();
               },
               child: LineCountIndicator(

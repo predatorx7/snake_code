@@ -98,7 +98,8 @@ enum HighlightedThemeType {
 
 /// From a [HighlightedThemeType] enum object, this
 /// returns that theme's map with theme name as keys and it's respective [TextStyle] as values.
-Map<String, TextStyle> getHighlightedThemeStyle(HighlightedThemeType highlighterThemeType) {
+Map<String, TextStyle> getHighlightedThemeStyle(
+    HighlightedThemeType highlighterThemeType) {
   switch (highlighterThemeType) {
     case HighlightedThemeType.a11yDarkTheme:
       return themeMap['a11y-dark'];

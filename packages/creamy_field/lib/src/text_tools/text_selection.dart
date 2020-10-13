@@ -103,7 +103,8 @@ class CreamyTextSelectionGestureDetectorBuilder {
   /// The [State] of the [EditableText] for which the builder will provide a
   /// [CreamyTextSelectionGestureDetector].
   @protected
-  RichEditableTextState get editableText => delegate.editableTextKey.currentState;
+  RichEditableTextState get editableText =>
+      delegate.editableTextKey.currentState;
 
   /// The [RenderObject] of the [EditableText] for which the builder will
   /// provide a [CreamyTextSelectionGestureDetector].
@@ -126,7 +127,9 @@ class CreamyTextSelectionGestureDetectorBuilder {
     // trigger the selection overlay.
     // For backwards-compatibility, we treat a null kind the same as touch.
     final PointerDeviceKind kind = details.kind;
-    _shouldShowSelectionToolbar = kind == null || kind == PointerDeviceKind.touch || kind == PointerDeviceKind.stylus;
+    _shouldShowSelectionToolbar = kind == null ||
+        kind == PointerDeviceKind.touch ||
+        kind == PointerDeviceKind.stylus;
   }
 
   /// Handler for [TextSelectionGestureDetector.onForcePressStart].
@@ -294,7 +297,8 @@ class CreamyTextSelectionGestureDetectorBuilder {
   ///  * [TextSelectionGestureDetector.onDragSelectionUpdate], which triggers
   ///    this callback./lib/src/material/text_field.dart
   @protected
-  void onDragSelectionUpdate(DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+  void onDragSelectionUpdate(
+      DragStartDetails startDetails, DragUpdateDetails updateDetails) {
     renderEditable.selectPositionAt(
       from: startDetails.globalPosition,
       to: updateDetails.globalPosition,
@@ -377,7 +381,8 @@ class CreamyTextSelectionOverlay {
         'No Overlay widget exists above $context.\n'
         'Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your '
         'app content was created above the Navigator with the WidgetsApp builder parameter.');
-    _toolbarController = AnimationController(duration: fadeDuration, vsync: overlay);
+    _toolbarController =
+        AnimationController(duration: fadeDuration, vsync: overlay);
   }
 
   /// The context in which the selection handles should appear.
@@ -488,7 +493,8 @@ class CreamyTextSelectionOverlay {
     _handlesVisible = visible;
     // If we are in build state, it will be too late to update visibility.
     // We will need to schedule the build in next frame.
-    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
       SchedulerBinding.instance.addPostFrameCallback(_markNeedsBuild);
     } else {
       _markNeedsBuild();
@@ -499,11 +505,16 @@ class CreamyTextSelectionOverlay {
   void showHandles() {
     assert(_handles == null);
     _handles = <OverlayEntry>[
-      OverlayEntry(builder: (BuildContext context) => _buildHandle(context, _TextSelectionHandlePosition.start)),
-      OverlayEntry(builder: (BuildContext context) => _buildHandle(context, _TextSelectionHandlePosition.end)),
+      OverlayEntry(
+          builder: (BuildContext context) =>
+              _buildHandle(context, _TextSelectionHandlePosition.start)),
+      OverlayEntry(
+          builder: (BuildContext context) =>
+              _buildHandle(context, _TextSelectionHandlePosition.end)),
     ];
 
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insertAll(_handles);
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
+        .insertAll(_handles);
   }
 
   /// Destroys the handles by removing them from overlay.
@@ -519,7 +530,8 @@ class CreamyTextSelectionOverlay {
   void showToolbar() {
     assert(_toolbar == null);
     _toolbar = OverlayEntry(builder: _buildToolbar);
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insert(_toolbar);
+    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)
+        .insert(_toolbar);
     _toolbarController.forward(from: 0.0);
   }
 
@@ -535,7 +547,8 @@ class CreamyTextSelectionOverlay {
   void update(TextEditingValue newValue) {
     if (_value == newValue) return;
     _value = newValue;
-    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
       SchedulerBinding.instance.addPostFrameCallback(_markNeedsBuild);
     } else {
       _markNeedsBuild();
@@ -592,8 +605,12 @@ class CreamyTextSelectionOverlay {
     _toolbarController.dispose();
   }
 
-  Widget _buildHandle(BuildContext context, _TextSelectionHandlePosition position) {
-    if ((_selection.isCollapsed && position == _TextSelectionHandlePosition.end) || selectionControls == null) return Container(); // hide the second handle when collapsed
+  Widget _buildHandle(
+      BuildContext context, _TextSelectionHandlePosition position) {
+    if ((_selection.isCollapsed &&
+            position == _TextSelectionHandlePosition.end) ||
+        selectionControls == null)
+      return Container(); // hide the second handle when collapsed
     return Visibility(
         visible: handlesVisible,
         child: _TextSelectionHandleOverlay(
@@ -615,18 +632,23 @@ class CreamyTextSelectionOverlay {
     if (selectionControls == null) return Container();
 
     // Find the horizontal midpoint, just above the selected text.
-    final List<TextSelectionPoint> endpoints = renderObject.getEndpointsForSelection(_selection);
+    final List<TextSelectionPoint> endpoints =
+        renderObject.getEndpointsForSelection(_selection);
 
     final Rect editingRegion = Rect.fromPoints(
       renderObject.localToGlobal(Offset.zero),
       renderObject.localToGlobal(renderObject.size.bottomRight(Offset.zero)),
     );
 
-    final bool isMultiline = endpoints.last.point.dy - endpoints.first.point.dy > renderObject.preferredLineHeight / 2;
+    final bool isMultiline =
+        endpoints.last.point.dy - endpoints.first.point.dy >
+            renderObject.preferredLineHeight / 2;
 
     // If the selected text spans more than 1 line, horizontally center the toolbar.
     // Derived from both iOS and Android.
-    final double midX = isMultiline ? editingRegion.width / 2 : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
+    final double midX = isMultiline
+        ? editingRegion.width / 2
+        : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
 
     final Offset midpoint = Offset(
       midX,
@@ -653,7 +675,8 @@ class CreamyTextSelectionOverlay {
     );
   }
 
-  void _handleSelectionHandleChanged(TextSelection newSelection, _TextSelectionHandlePosition position) {
+  void _handleSelectionHandleChanged(
+      TextSelection newSelection, _TextSelectionHandlePosition position) {
     TextPosition textPosition;
     switch (position) {
       case _TextSelectionHandlePosition.start:
@@ -663,7 +686,8 @@ class CreamyTextSelectionOverlay {
         textPosition = newSelection.extent;
         break;
     }
-    selectionDelegate.textEditingValue = _value.copyWith(selection: newSelection, composing: TextRange.empty);
+    selectionDelegate.textEditingValue =
+        _value.copyWith(selection: newSelection, composing: TextRange.empty);
     selectionDelegate.bringIntoView(textPosition);
   }
 }
@@ -694,7 +718,8 @@ class _TextSelectionHandleOverlay extends StatefulWidget {
   final DragStartBehavior dragStartBehavior;
 
   @override
-  _TextSelectionHandleOverlayState createState() => _TextSelectionHandleOverlayState();
+  _TextSelectionHandleOverlayState createState() =>
+      _TextSelectionHandleOverlayState();
 
   ValueListenable<bool> get _visibility {
     switch (position) {
@@ -707,7 +732,9 @@ class _TextSelectionHandleOverlay extends StatefulWidget {
   }
 }
 
-class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay> with SingleTickerProviderStateMixin {
+class _TextSelectionHandleOverlayState
+    extends State<_TextSelectionHandleOverlay>
+    with SingleTickerProviderStateMixin {
   Offset _dragPosition;
 
   AnimationController _controller;
@@ -717,7 +744,8 @@ class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay
   void initState() {
     super.initState();
 
-    _controller = AnimationController(duration: CreamyTextSelectionOverlay.fadeDuration, vsync: this);
+    _controller = AnimationController(
+        duration: CreamyTextSelectionOverlay.fadeDuration, vsync: this);
 
     _handleVisibilityChanged();
     widget._visibility.addListener(_handleVisibilityChanged);
@@ -755,7 +783,8 @@ class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay
 
   void _handleDragUpdate(DragUpdateDetails details) {
     _dragPosition += details.delta;
-    final TextPosition position = widget.renderObject.getPositionForPoint(_dragPosition);
+    final TextPosition position =
+        widget.renderObject.getPositionForPoint(_dragPosition);
 
     if (widget.selection.isCollapsed) {
       widget.onSelectionHandleChanged(TextSelection.fromPosition(position));
@@ -778,13 +807,15 @@ class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay
         break;
     }
 
-    if (newSelection.baseOffset >= newSelection.extentOffset) return; // don't allow order swapping.
+    if (newSelection.baseOffset >= newSelection.extentOffset)
+      return; // don't allow order swapping.
 
     widget.onSelectionHandleChanged(newSelection);
   }
 
   void _handleTap() {
-    if (widget.onSelectionHandleTapped != null) widget.onSelectionHandleTapped();
+    if (widget.onSelectionHandleTapped != null)
+      widget.onSelectionHandleTapped();
   }
 
   @override
@@ -830,7 +861,8 @@ class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay
 
     // Make sure the GestureDetector is big enough to be easily interactive.
     final Rect interactiveRect = handleRect.expandToInclude(
-      Rect.fromCircle(center: handleRect.center, radius: kMinInteractiveDimension / 2),
+      Rect.fromCircle(
+          center: handleRect.center, radius: kMinInteractiveDimension / 2),
     );
     final RelativeRect padding = RelativeRect.fromLTRB(
       math.max((interactiveRect.width - handleRect.width) / 2, 0),
@@ -949,7 +981,8 @@ class _ItemData {
   final String label;
 }
 
-class _TextSelectionToolbarState extends State<_TextSelectionToolbar> with TickerProviderStateMixin {
+class _TextSelectionToolbarState extends State<_TextSelectionToolbar>
+    with TickerProviderStateMixin {
   ClipboardStatusNotifier _clipboardStatus;
   // Whether or not the overflow menu is open. When it is closed, the menu
   // items that don't overflow are shown. When it is open, only the overflowing
@@ -1049,7 +1082,8 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar> with Ticke
     if (((widget.handleCut == null) != (oldWidget.handleCut == null)) ||
         ((widget.handleCopy == null) != (oldWidget.handleCopy == null)) ||
         ((widget.handlePaste == null) != (oldWidget.handlePaste == null)) ||
-        ((widget.handleSelectAll == null) != (oldWidget.handleSelectAll == null))) {
+        ((widget.handleSelectAll == null) !=
+            (oldWidget.handleSelectAll == null))) {
       _reset();
     }
     if (oldWidget.clipboardStatus == null && widget.clipboardStatus != null) {
@@ -1088,19 +1122,25 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar> with Ticke
   @override
   Widget build(BuildContext context) {
     // Don't render the menu until the state of the clipboard is known.
-    if (widget.handlePaste != null && _clipboardStatus.value == ClipboardStatus.unknown) {
+    if (widget.handlePaste != null &&
+        _clipboardStatus.value == ClipboardStatus.unknown) {
       return const SizedBox(width: 0.0, height: 0.0);
     }
 
-    final MaterialLocalizations localizations = MaterialLocalizations.of(context);
+    final MaterialLocalizations localizations =
+        MaterialLocalizations.of(context);
 
     final bool _showActions = widget.actions?.isNotEmpty ?? false;
 
     final List<_ItemData> itemDatas = <_ItemData>[
-      if (widget.handleCut != null) _ItemData(widget.handleCut, localizations.cutButtonLabel),
-      if (widget.handleCopy != null) _ItemData(widget.handleCopy, localizations.copyButtonLabel),
-      if (widget.handlePaste != null) _ItemData(widget.handlePaste, localizations.pasteButtonLabel),
-      if (widget.handleSelectAll != null) _ItemData(widget.handleSelectAll, localizations.selectAllButtonLabel),
+      if (widget.handleCut != null)
+        _ItemData(widget.handleCut, localizations.cutButtonLabel),
+      if (widget.handleCopy != null)
+        _ItemData(widget.handleCopy, localizations.copyButtonLabel),
+      if (widget.handlePaste != null)
+        _ItemData(widget.handlePaste, localizations.pasteButtonLabel),
+      if (widget.handleSelectAll != null)
+        _ItemData(widget.handleSelectAll, localizations.selectAllButtonLabel),
       if (_showActions) ..._buildActions(widget.actions),
     ];
 
@@ -1136,16 +1176,20 @@ class _TextSelectionToolbarState extends State<_TextSelectionToolbar> with Ticke
                   // TODO(justinmc): This should be an AnimatedIcon, but
                   // AnimatedIcons doesn't yet support arrow_back to more_vert.
                   // https://github.com/flutter/flutter/issues/51209
-                  icon: Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
+                  icon:
+                      Icon(_overflowOpen ? Icons.arrow_back : Icons.more_vert),
                   onPressed: () {
                     setState(() {
                       _overflowOpen = !_overflowOpen;
                     });
                   },
-                  tooltip: _overflowOpen ? localizations.backButtonTooltip : localizations.moreButtonTooltip,
+                  tooltip: _overflowOpen
+                      ? localizations.backButtonTooltip
+                      : localizations.moreButtonTooltip,
                 ),
               ),
-              for (int i = 0; i < itemDatas.length; i++) _getItem(itemDatas[i], i == 0, i == itemDatas.length - 1)
+              for (int i = 0; i < itemDatas.length; i++)
+                _getItem(itemDatas[i], i == 0, i == itemDatas.length - 1)
             ],
           ),
         ),
@@ -1169,12 +1213,14 @@ class _TextSelectionToolbarContainer extends SingleChildRenderObjectWidget {
   final bool overflowOpen;
 
   @override
-  _TextSelectionToolbarContainerRenderBox createRenderObject(BuildContext context) {
+  _TextSelectionToolbarContainerRenderBox createRenderObject(
+      BuildContext context) {
     return _TextSelectionToolbarContainerRenderBox(overflowOpen: overflowOpen);
   }
 
   @override
-  void updateRenderObject(BuildContext context, _TextSelectionToolbarContainerRenderBox renderObject) {
+  void updateRenderObject(BuildContext context,
+      _TextSelectionToolbarContainerRenderBox renderObject) {
     renderObject.overflowOpen = overflowOpen;
   }
 }
@@ -1218,11 +1264,14 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
       // and don't worry about aligning the right edges.
       // _closedWidth is used even when the menu is closed to allow it to
       // animate its size while keeping the same right alignment.
-      _closedWidth == null || child.size.width > _closedWidth ? child.size.width : _closedWidth,
+      _closedWidth == null || child.size.width > _closedWidth
+          ? child.size.width
+          : _closedWidth,
       child.size.height,
     ));
 
-    final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     childParentData.offset = Offset(
       size.width - child.size.width,
       0.0,
@@ -1232,7 +1281,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
   // Paint at the offset set in the parent data.
   @override
   void paint(PaintingContext context, Offset offset) {
-    final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     context.paintChild(child, childParentData.offset + offset);
   }
 
@@ -1240,7 +1290,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
   @override
   bool hitTestChildren(BoxHitTestResult result, {Offset position}) {
     // The x, y parameters have the top left of the node's box as the origin.
-    final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     return result.addWithPaintOffset(
       offset: childParentData.offset,
       position: position,
@@ -1260,7 +1311,8 @@ class _TextSelectionToolbarContainerRenderBox extends RenderProxyBox {
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+    final ToolbarItemsParentData childParentData =
+        child.parentData as ToolbarItemsParentData;
     transform.translate(childParentData.offset.dx, childParentData.offset.dy);
     super.applyPaintTransform(child, transform);
   }
@@ -1291,14 +1343,16 @@ class _TextSelectionToolbarItems extends MultiChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(BuildContext context, _TextSelectionToolbarItemsRenderBox renderObject) {
+  void updateRenderObject(
+      BuildContext context, _TextSelectionToolbarItemsRenderBox renderObject) {
     renderObject
       ..isAbove = isAbove
       ..overflowOpen = overflowOpen;
   }
 
   @override
-  _TextSelectionToolbarItemsElement createElement() => _TextSelectionToolbarItemsElement(this);
+  _TextSelectionToolbarItemsElement createElement() =>
+      _TextSelectionToolbarItemsElement(this);
 }
 
 class _TextSelectionToolbarItemsElement extends MultiChildRenderObjectElement {
@@ -1307,7 +1361,8 @@ class _TextSelectionToolbarItemsElement extends MultiChildRenderObjectElement {
   ) : super(widget);
 
   static bool _shouldPaint(Element child) {
-    return (child.renderObject.parentData as ToolbarItemsParentData).shouldPaint;
+    return (child.renderObject.parentData as ToolbarItemsParentData)
+        .shouldPaint;
   }
 
   @override
@@ -1316,7 +1371,8 @@ class _TextSelectionToolbarItemsElement extends MultiChildRenderObjectElement {
   }
 }
 
-class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRenderObjectMixin<RenderBox, ToolbarItemsParentData> {
+class _TextSelectionToolbarItemsRenderBox extends RenderBox
+    with ContainerRenderObjectMixin<RenderBox, ToolbarItemsParentData> {
   _TextSelectionToolbarItemsRenderBox({
     @required bool isAbove,
     @required bool overflowOpen,
@@ -1385,7 +1441,9 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
     // If the last child overflows, but only because of the width of the
     // overflow button, then just show it and hide the overflow button.
     final RenderBox navButton = firstChild;
-    if (_lastIndexThatFits != -1 && _lastIndexThatFits == childCount - 2 && width - navButton.size.width <= sizedConstraints.maxWidth) {
+    if (_lastIndexThatFits != -1 &&
+        _lastIndexThatFits == childCount - 2 &&
+        width - navButton.size.width <= sizedConstraints.maxWidth) {
       _lastIndexThatFits = -1;
     }
   }
@@ -1416,12 +1474,14 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
     Size nextSize = const Size(0.0, 0.0);
     double fitWidth = 0.0;
     final RenderBox navButton = firstChild;
-    double overflowHeight = overflowOpen && !isAbove ? navButton.size.height : 0.0;
+    double overflowHeight =
+        overflowOpen && !isAbove ? navButton.size.height : 0.0;
     visitChildren((RenderObject renderObjectChild) {
       i++;
 
       final RenderBox child = renderObjectChild as RenderBox;
-      final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
 
       // Handle placing the navigation button after iterating all children.
       if (renderObjectChild == navButton) {
@@ -1453,11 +1513,13 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
     });
 
     // Place the navigation button if needed.
-    final ToolbarItemsParentData navButtonParentData = navButton.parentData as ToolbarItemsParentData;
+    final ToolbarItemsParentData navButtonParentData =
+        navButton.parentData as ToolbarItemsParentData;
     if (_shouldPaintChild(firstChild, 0)) {
       navButtonParentData.shouldPaint = true;
       if (overflowOpen) {
-        navButtonParentData.offset = isAbove ? Offset(0.0, overflowHeight) : Offset.zero;
+        navButtonParentData.offset =
+            isAbove ? Offset(0.0, overflowHeight) : Offset.zero;
         nextSize = Size(
           nextSize.width,
           isAbove ? nextSize.height + navButton.size.height : nextSize.height,
@@ -1489,7 +1551,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
   void paint(PaintingContext context, Offset offset) {
     visitChildren((RenderObject renderObjectChild) {
       final RenderBox child = renderObjectChild as RenderBox;
-      final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
       if (!childParentData.shouldPaint) {
         return;
       }
@@ -1510,7 +1573,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
     // The x, y parameters have the top left of the node's box as the origin.
     RenderBox child = lastChild;
     while (child != null) {
-      final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
 
       // Don't hit test children aren't shown.
       if (!childParentData.shouldPaint) {
@@ -1537,7 +1601,8 @@ class _TextSelectionToolbarItemsRenderBox extends RenderBox with ContainerRender
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {
     visitChildren((RenderObject renderObjectChild) {
       final RenderBox child = renderObjectChild as RenderBox;
-      final ToolbarItemsParentData childParentData = child.parentData as ToolbarItemsParentData;
+      final ToolbarItemsParentData childParentData =
+          child.parentData as ToolbarItemsParentData;
       if (childParentData.shouldPaint) {
         visitor(renderObjectChild);
       }
@@ -1569,7 +1634,8 @@ class _TextSelectionToolbarLayout extends SingleChildLayoutDelegate {
 
   // Return the value that centers width as closely as possible to position
   // while fitting inside of min and max.
-  static double _centerOn(double position, double width, double min, double max) {
+  static double _centerOn(
+      double position, double width, double min, double max) {
     // If it overflows on the left, put it as far left as possible.
     if (position - width / 2.0 < min) {
       return min;
@@ -1598,7 +1664,9 @@ class _TextSelectionToolbarLayout extends SingleChildLayoutDelegate {
         _kToolbarScreenPadding,
         size.width - _kToolbarScreenPadding,
       ),
-      fitsAbove ? math.max(upperBounds, anchor.dy - childSize.height) : anchor.dy,
+      fitsAbove
+          ? math.max(upperBounds, anchor.dy - childSize.height)
+          : anchor.dy,
     );
   }
 
@@ -1618,7 +1686,8 @@ class _TextSelectionHandlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()..color = color;
     final double radius = size.width / 2.0;
-    final Rect circle = Rect.fromCircle(center: Offset(radius, radius), radius: radius);
+    final Rect circle =
+        Rect.fromCircle(center: Offset(radius, radius), radius: radius);
     final Rect point = Rect.fromLTWH(0.0, 0.0, radius, radius);
     final Path path = Path()
       ..addOval(circle)
@@ -1640,7 +1709,8 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
 
   /// Returns the size of the Material handle.
   @override
-  Size getHandleSize(double textLineHeight) => const Size(_kHandleSize, _kHandleSize);
+  Size getHandleSize(double textLineHeight) =>
+      const Size(_kHandleSize, _kHandleSize);
 
   /// Builder for material-style copy/paste text selection toolbar.
   @override
@@ -1661,16 +1731,26 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
     // The toolbar should appear below the TextField when there is not enough
     // space above the TextField to show it.
     final TextSelectionPoint startTextSelectionPoint = endpoints[0];
-    final TextSelectionPoint endTextSelectionPoint = endpoints.length > 1 ? endpoints[1] : endpoints[0];
-    const double closedToolbarHeightNeeded = _kToolbarScreenPadding + _kToolbarHeight + _kToolbarContentDistance;
+    final TextSelectionPoint endTextSelectionPoint =
+        endpoints.length > 1 ? endpoints[1] : endpoints[0];
+    const double closedToolbarHeightNeeded =
+        _kToolbarScreenPadding + _kToolbarHeight + _kToolbarContentDistance;
     final double paddingTop = MediaQuery.of(context).padding.top;
-    final double availableHeight = globalEditableRegion.top + startTextSelectionPoint.point.dy - textLineHeight - paddingTop;
+    final double availableHeight = globalEditableRegion.top +
+        startTextSelectionPoint.point.dy -
+        textLineHeight -
+        paddingTop;
     final bool fitsAbove = closedToolbarHeightNeeded <= availableHeight;
     final Offset anchor = Offset(
       globalEditableRegion.left + selectionMidpoint.dx,
       fitsAbove
-          ? globalEditableRegion.top + startTextSelectionPoint.point.dy - textLineHeight - _kToolbarContentDistance
-          : globalEditableRegion.top + endTextSelectionPoint.point.dy + _kToolbarContentDistanceBelow,
+          ? globalEditableRegion.top +
+              startTextSelectionPoint.point.dy -
+              textLineHeight -
+              _kToolbarContentDistance
+          : globalEditableRegion.top +
+              endTextSelectionPoint.point.dy +
+              _kToolbarContentDistanceBelow,
     );
 
     return Stack(
@@ -1683,9 +1763,13 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
           ),
           child: _TextSelectionToolbar(
             handleCut: canCut(delegate) ? () => handleCut(delegate) : null,
-            handleCopy: canCopy(delegate) ? () => handleCopy(delegate, clipboardStatus) : null,
-            handlePaste: canPaste(delegate) ? () => handlePaste(delegate) : null,
-            handleSelectAll: canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
+            handleCopy: canCopy(delegate)
+                ? () => handleCopy(delegate, clipboardStatus)
+                : null,
+            handlePaste:
+                canPaste(delegate) ? () => handlePaste(delegate) : null,
+            handleSelectAll:
+                canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
             isAbove: fitsAbove,
             brightness: brightness,
             actions: delegate.actions,
@@ -1699,9 +1783,13 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
 
   /// Builder for material-style text selection handles.
   @override
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type, double textHeight) {
+  Widget buildHandle(
+      BuildContext context, TextSelectionHandleType type, double textHeight) {
     final ThemeData theme = Theme.of(context);
-    final Color handleColor = theme.useTextSelectionTheme ? TextSelectionTheme.of(context).selectionHandleColor ?? theme.colorScheme.primary : theme.textSelectionHandleColor;
+    final Color handleColor = theme.useTextSelectionTheme
+        ? TextSelectionTheme.of(context).selectionHandleColor ??
+            theme.colorScheme.primary
+        : theme.textSelectionHandleColor;
     final Widget handle = SizedBox(
       width: _kHandleSize,
       height: _kHandleSize,
@@ -1753,9 +1841,13 @@ class _CreamyTextSelectionControls extends CreamyTextSelectionControls {
     // Android allows SelectAll when selection is not collapsed, unless
     // everything has already been selected.
     final TextEditingValue value = delegate.textEditingValue;
-    return delegate.selectAllEnabled && value.text.isNotEmpty && !(value.selection.start == 0 && value.selection.end == value.text.length);
+    return delegate.selectAllEnabled &&
+        value.text.isNotEmpty &&
+        !(value.selection.start == 0 &&
+            value.selection.end == value.text.length);
   }
 }
 
 /// Text selection controls that follow the Material Design specification.
-final CreamyTextSelectionControls creamyTextSelectionControls = _CreamyTextSelectionControls();
+final CreamyTextSelectionControls creamyTextSelectionControls =
+    _CreamyTextSelectionControls();
