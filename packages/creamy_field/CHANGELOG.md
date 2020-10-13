@@ -4,6 +4,7 @@
 
 - Made compatible with flutter 1.22
 - Removed onEnterPress & onBackspacePress callbacks in CreamyField
+- Removed vertical padding from the Text field
 
 ## 0.3.2
 

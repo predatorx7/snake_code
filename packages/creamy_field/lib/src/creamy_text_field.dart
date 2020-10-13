@@ -1076,6 +1076,9 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
         if (_hasError) MaterialState.error,
       },
     );
+
+    final bool _showLineCountIndicator = widget?.showLineIndicator ?? false;
+
     return MouseRegion(
       cursor: effectiveMouseCursor,
       onEnter: (PointerEnterEvent event) => _handleHover(true),
@@ -1093,7 +1096,7 @@ class _CreamyFieldState extends State<CreamyField> with RestorationMixin impleme
                 _requestKeyboard();
               },
               child: LineCountIndicator(
-                visible: widget?.showLineIndicator ?? false,
+                visible: _showLineCountIndicator,
                 // Required to keep it in sync with text field
                 scrollControllerOfTextField: effectiveScrollController,
                 textController: _effectiveController,

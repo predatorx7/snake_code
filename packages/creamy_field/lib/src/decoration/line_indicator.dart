@@ -129,12 +129,6 @@ class _LineCountIndicatorState extends State<LineCountIndicator> with WidgetsBin
     }
   }
 
-  static double calculateTopBottomPadding(int lineCount) {
-    if (lineCount == 1) return 14;
-    if (lineCount == 2) return 4;
-    return 0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool _visible = widget?.visible ?? true;
@@ -155,8 +149,8 @@ class _LineCountIndicatorState extends State<LineCountIndicator> with WidgetsBin
     );
     final int totalLineCount = widget.textController.value.text?.split('\n')?.length ?? 0;
     final int digitsOfMaxLineCount = totalLineCount.toString().length;
-    final double _widthConstraints = widget?.decoration?.width ?? (14 * digitsOfMaxLineCount) + 2.0;
-    final double topBottomPadding = calculateTopBottomPadding(totalLineCount);
+    final double _approxWidthOfDigit = (_style.fontSize / 1.6);
+    final double _widthConstraints = widget?.decoration?.width ?? (_approxWidthOfDigit * digitsOfMaxLineCount) + 2.0;
     final Alignment _alignment = widget.decoration.alignment ?? Alignment.centerRight;
     final Widget lineIndicator = IgnorePointer(
       ignoring: true,
@@ -180,15 +174,11 @@ class _LineCountIndicatorState extends State<LineCountIndicator> with WidgetsBin
           controller: lineScrollController,
           itemCount: totalLineCount,
           padding: EdgeInsets.only(
-            top: topBottomPadding,
-            bottom: (latestBottomViewInset ?? 0) + topBottomPadding,
-          ), // Adjust bottom padding with view inset (keyboard)
+            // Adjusts bottom padding with view inset (keyboard)
+            bottom: (latestBottomViewInset ?? 0),
+          ),
           physics: widget?.decoration?.scrollPhysics ?? const ClampingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            // A regular TextField in flutter 1.x has a top & bottom padding
-            // when it has no text. This workaround keeps this line indicato
-            // follow that behaviour.
-
             final String lineCountText = (index + 1).toString();
             return Container(
               alignment: _alignment,
