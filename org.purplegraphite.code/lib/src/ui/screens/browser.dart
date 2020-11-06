@@ -1,20 +1,22 @@
 import 'dart:io';
 
-import 'package:code/src/common/routing_const.dart';
-import 'package:code/src/models/plain_model/entity.dart';
-import 'package:code/src/models/view_model/browser_controller.dart';
-import 'package:code/src/ui/components/newfolder_dialog.dart';
-import 'package:code/src/utils/fileutils.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
+import '../../common/routing_const.dart';
+import '../../models/plain_model/entity.dart';
+import '../../models/view_model/browser_controller.dart';
+import '../../utils/fileutils.dart';
+import '../components/newfolder_dialog.dart';
+
 /// Local files & directories browser
 class BrowserScreen extends StatefulWidget {
+  /// THe directory whose content will be shown in this widget.
   final Directory dir;
-
+  /// THe browser widget which shows files and directories of [dir] directory.
   const BrowserScreen({Key key, this.dir}) : super(key: key);
   @override
   _BrowserScreenState createState() => _BrowserScreenState();
@@ -44,9 +46,10 @@ class _BrowserScreenState extends State<BrowserScreen> {
 
   Icon getFileTypeIcon(Entity object, bool isDark) {
     // TODO: Save computation here
-    FileStat stat = object?.stat;
+    final stat = object?.stat;
     IconData data;
-    final bool isHidden = object?.basename[0] == '.';
+    // In UNIX, hidden files are files whose name starts with `.`
+    final isHidden = object?.basename[0] == '.';
     Color color;
     switch (stat?.type) {
       case FileSystemEntityType.directory:
@@ -71,8 +74,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color foregroundInDarkness = isDark ? Colors.white : Colors.black;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foregroundInDarkness = isDark ? Colors.white : Colors.black;
     Widget _selectFolderButton = Tooltip(
       message: 'Select this folder',
       child: Center(
@@ -123,12 +126,14 @@ class _BrowserScreenState extends State<BrowserScreen> {
         child: ListView.builder(
           key: ValueKey(_view.current.path),
           itemCount: _view.currentEntities.length,
-          itemBuilder: (BuildContext context, int index) {
-            Entity object = _view.currentEntities[index];
+          itemBuilder: (context, index) {
+            final object = _view.currentEntities[index];
             Widget child = ListTile(
               key: ValueKey(object.id),
               onTap: () {
                 if (object.entity is Directory) {
+                  /// If the tapped tile is a directory, open it in a new
+                  /// browser screen route
                   var x = Directory.fromUri(
                     Uri(path: object.absolutePath),
                   );
@@ -169,7 +174,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           ),
           replacement: Builder(
             builder: (context) {
-              Color _itemColor = Theme.of(context).accentColor.withAlpha(0xCC);
+              final _itemColor = Theme.of(context).accentColor.withAlpha(0xCC);
               Widget warning = Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -196,7 +201,6 @@ class _BrowserScreenState extends State<BrowserScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          print('Create file');
           newFolderDialog(context, (textController) {
             _view.createFolderAndAddToRecent(context, textController.text);
           });

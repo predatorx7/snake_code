@@ -1,28 +1,30 @@
 import 'package:code/src/common/routing_const.dart';
 import 'package:code/src/utils/fileutils.dart';
+import 'package:code/src/utils/logman.dart';
+import 'package:code/src/utils/theme.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 /// The main screen displayed when the user opens app
 class StartScreen extends StatelessWidget {
+  /// The start screen displayed when the app is launched.
+  /// Shows recent projects, an option to browser files in device, and tips.
   const StartScreen({Key key}) : super(key: key);
-  bool isDarkTheme(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final bool _isDarkMode = isDarkTheme(context);
-    final Color _accentColor = _isDarkMode
+    final _isDarkMode = isDarkTheme(context);
+    final _accentColor = _isDarkMode
         ? Color.lerp(Colors.black, Colors.white, 0.80)
         : Theme.of(context).accentColor;
-    // final darkOnDark = _isDarkMode ? Color(0xEE212121) : Colors.white;
-    final whiteOnDark =
+
+    final foregroundColorOnDarkBackground =
         _isDarkMode ? Colors.white.withOpacity(1) : Color(0xEE212121);
+
     final physics =
         BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
-    // TODO: implement build
+
     return Theme(
       data: Theme.of(context).copyWith(
         scaffoldBackgroundColor: _isDarkMode
@@ -45,7 +47,7 @@ class StartScreen extends StatelessWidget {
             IconButton(
               tooltip: 'Open settings',
               icon: Icon(
-                EvaIcons.settings2Outline,
+                Icons.settings_outlined,
               ),
               onPressed: () {
                 Navigator.of(context).pushNamed(SettingsScreenRoute);
@@ -70,7 +72,7 @@ class StartScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.w900,
-                          color: whiteOnDark,
+                          color: foregroundColorOnDarkBackground,
                         ),
                       ),
                     ),
@@ -83,7 +85,7 @@ class StartScreen extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
-                            color: whiteOnDark),
+                            color: foregroundColorOnDarkBackground),
                       ),
                     ),
                   ),
@@ -111,7 +113,7 @@ class StartScreen extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w900,
-                                color: whiteOnDark),
+                                color: foregroundColorOnDarkBackground),
                           ),
                         ),
                       ),
@@ -128,7 +130,32 @@ class StartScreen extends StatelessWidget {
                             highlightedBorderColor:
                                 _accentColor.withOpacity(0.75),
                             child: Text(
-                              'Open from phone',
+                              'New file',
+                              style: TextStyle(
+                                color: _accentColor,
+                              ),
+                            ),
+                            onPressed: () async {
+                              logman.d(
+                                  'Using a temporary workspace path and opening it in editor..');
+                              var emptyWorkspace =
+                                  await FileUtils.getTemporaryWorkspace();
+                              Navigator.of(context).pushReplacementNamed(
+                                EditorScreenRoute,
+                                arguments: emptyWorkspace,
+                              );
+                            },
+                          ),
+                          OutlineButton(
+                            splashColor: _accentColor.withOpacity(0.45),
+                            borderSide: BorderSide(
+                              width: 1.6,
+                              color: _accentColor.withOpacity(0.50),
+                            ),
+                            highlightedBorderColor:
+                                _accentColor.withOpacity(0.75),
+                            child: Text(
+                              'Open folder',
                               style: TextStyle(
                                 color: _accentColor,
                               ),
@@ -168,7 +195,7 @@ class StartScreen extends StatelessWidget {
                               children: <Widget>[
                                 Icon(
                                   Icons.help_outline,
-                                  color: whiteOnDark,
+                                  color: foregroundColorOnDarkBackground,
                                 ),
                                 Divider(
                                   indent: 5,
@@ -178,7 +205,7 @@ class StartScreen extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
-                                    color: whiteOnDark,
+                                    color: foregroundColorOnDarkBackground,
                                   ),
                                 ),
                               ],
@@ -203,7 +230,7 @@ class StartScreen extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w900,
-                                    color: whiteOnDark),
+                                    color: foregroundColorOnDarkBackground),
                               ),
                             ),
                           ),
@@ -226,7 +253,7 @@ class StartScreen extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w900,
-                                  color: whiteOnDark,
+                                  color: foregroundColorOnDarkBackground,
                                 ),
                               ),
                             ),
@@ -241,20 +268,6 @@ class StartScreen extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            var emptyWorkspace = await FileUtils.createTemporaryWorkspace();
-            Navigator.of(context).pushReplacementNamed(EditorScreenRoute,
-                arguments: emptyWorkspace);
-          },
-          icon: Icon(
-            EvaIcons.editOutline,
-          ),
-          backgroundColor: _isDarkMode ? Colors.grey[800] : null,
-          label: Text(
-            'Create new',
           ),
         ),
       ),

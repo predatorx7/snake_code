@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,9 +38,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case StartScreenRoute:
       return wrapPageRoute<StartScreen>(StartScreen());
     case EditorScreenRoute:
+      final _workspaceDirectory = settings.arguments;
+      assert(_workspaceDirectory is Directory);
       return wrapPageRoute<EditorScreen>(
         ChangeNotifierProvider(
-          create: (context) => EditorController(settings.arguments),
+          create: (context) => EditorController(_workspaceDirectory),
           child: EditorScreen(),
         ),
       );

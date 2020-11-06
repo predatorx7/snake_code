@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:code/src/models/plain_model/entity.dart';
+import 'package:code/src/utils/logman.dart';
 import 'package:code/src/utils/permissions.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -27,14 +28,21 @@ class FileUtils {
     return completer.future;
   }
 
-  static Future<Directory> createTemporaryWorkspace() async {
+  /// Get a new temporary workspace. This does not create the temporary directory.
+  /// 
+  /// Create the directory with [createDirectory].
+  static Future<Directory> getTemporaryWorkspace() async {
     var _docdir = await getApplicationDocumentsDirectory();
     List<FileSystemEntity> _docdirls = _docdir.listSync();
     String tempPath =
         p.join(_docdir.path, 'workspace', 'workspace_${_docdirls.length}');
-    print('Creating temporary workspace with path $tempPath');
+    logman.d('A possible temporary workspace path can be $tempPath');
     var _tempWDir = Directory(tempPath);
-    return await _tempWDir.create(recursive: true);
+    return _tempWDir;
+  }
+
+  static Future<Directory> createDirectory(Directory directory) async {
+    return await directory.create(recursive: true);
   }
 
   static Future<List<Entity>> listEntities(Directory path) async {

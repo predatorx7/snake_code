@@ -1,6 +1,7 @@
 import 'package:code/src/models/hive/repository.dart';
 import 'package:code/src/models/hive/settings/themeSettings.dart';
 import 'package:code/src/models/plain_model/ThemeColors.dart';
+import 'package:code/src/utils/logman.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,19 +16,28 @@ class ThemeProvider with ChangeNotifier {
 
   int _themeChoice;
 
-  /// List of primary [ThemeStyles] which will be used in app based on [themeChoice]
+  /// List of primary [ThemeStyles] which will be used in app based on [themeChoice].
+  ///
+  /// NOTE: CHANGES HERE CAN BE BREAKING
   final List<ThemeStyle> _themeStyles = const <ThemeStyle>[
     ThemeStyle(Colors.deepPurple, 'Purple'),
-    ThemeStyle(Colors.blue, 'Blue'),
-    ThemeStyle(Colors.amber, 'Amber'),
-    ThemeStyle(Colors.green, 'Green'),
-    ThemeStyle(Colors.red, 'Red'),
+    ThemeStyle(Colors.indigo, 'Indigo'),
+    ThemeStyle(Colors.blueGrey, 'Blue Grey'),
+    ThemeStyle(Colors.teal, 'Teal'),
+    ThemeStyle(Colors.green, 'Green'), // Needs to be a little dark
   ];
 
   List<ThemeStyle> get themeStyles => _themeStyles;
 
   /// Current choice of [ThemeStyle]
-  ThemeStyle get currentThemeStyle => themeStyles[themeChoice];
+  ThemeStyle get currentThemeStyle {
+    try {
+      return themeStyles[themeChoice];
+    } catch (e, r) {
+      logman.e('Falling back to first theme in _themeStyles.', e, r);
+      return _themeStyles?.first;
+    }
+  }
 
   /// The navigator state key which will be used by this theme provider to
   /// obtain current context
@@ -47,14 +57,14 @@ class ThemeProvider with ChangeNotifier {
       );
 
   /// Returns the [Brightness] used by this application
-  Brightness effectiveBrightness() {
+  Brightness get effectiveBrightness {
     BuildContext _context = navigatorKey.currentContext;
     return Theme.of(_context).brightness ?? Brightness.light;
   }
 
   bool get isDarkThemeEnabled {
     if (themeMode == ThemeMode.system)
-      return effectiveBrightness() == Brightness.dark;
+      return effectiveBrightness == Brightness.dark;
     return (themeMode == ThemeMode.dark);
   }
 
