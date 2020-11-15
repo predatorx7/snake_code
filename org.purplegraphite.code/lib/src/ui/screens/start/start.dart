@@ -1,9 +1,14 @@
+import 'package:code/src/ui/components/about/about.dart';
+import 'package:code/src/ui/components/app_title.dart';
+import 'package:code/src/ui/components/start_tips/tips.dart';
+import 'package:code/src/utils/string.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../common/routing_const.dart';
+import '../../../common/strings.dart';
 import '../../../utils/theme.dart';
 import '../../components/buttons/popup_menu.dart';
 import '../../components/popup_menu_tile.dart';
@@ -37,14 +42,8 @@ class StartScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Snake code',
-          style: GoogleFonts.openSans(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: _isDarkMode ? Colors.black : Colors.white,
-            letterSpacing: 0.15,
-          ),
+        title: ApplicationTitle(
+          showDark: _isDarkMode,
         ),
         actions: <Widget>[
           Padding(
@@ -67,6 +66,14 @@ class StartScreen extends StatelessWidget {
                   case 'open settings':
                     Navigator.of(context).pushNamed(SettingsScreenRoute);
                     break;
+                  case 'open about':
+                    showAboutDialog(
+                      context: context,
+                      applicationName: Strings.applicationTitle,
+                      applicationVersion: Strings.applicationVersion,
+                      applicationLegalese: Strings.applicationLegalese,
+                    );
+                    break;
                   default:
                 }
               },
@@ -79,10 +86,15 @@ class StartScreen extends StatelessWidget {
                     'Settings',
                     style: TextStyle(color: foregroundColorOnDarkBackground),
                   ),
-                  onTap: () {
-                    Navigator.of(context).pushNamed(SettingsScreenRoute);
-                  },
                 ),
+                PopupMenuTile(
+                    value: 'open about',
+                    leading: EvaIcons.questionMark,
+                    color: foregroundColorOnDarkBackground,
+                    title: Text(
+                      'Licenses',
+                      style: TextStyle(color: foregroundColorOnDarkBackground),
+                    )),
               ],
             ),
           ),
@@ -103,12 +115,13 @@ class StartScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, bottom: 16),
             child: Text(
-              'Modify source-code on effortlessly.\n\nFiles are good for writing code snippets, general programs & short scripts. Opening a directory as a project will allow working with multiple files.',
+              'Modify source-code on effortlessly.',
               style: _theme.textTheme.subtitle1.copyWith(
                 color: foregroundColorOnDarkBackground,
               ),
             ),
           ),
+          StartTips(),
           StartCard(
             title: 'Open from',
             description:
@@ -172,6 +185,20 @@ class StartScreen extends StatelessWidget {
                 keepDark: !_isDarkMode,
               ),
             ],
+          ),
+          InkWell(
+            onTap: () => showMyAboutDialog(
+              context: context,
+              applicationIcon: ApplicationTitle(
+                showDark: !_isDarkMode,
+              ),
+              applicationLegalese: Strings.applicationLegalese,
+              applicationVersion: Strings.applicationVersion,
+            ),
+            child: StartCard(
+              title: 'About',
+              description: 'Check Release notes, changelog & app information',
+            ),
           ),
         ],
       ),
@@ -280,13 +307,14 @@ class StartCard extends StatelessWidget {
               ),
             ),
             if (more != null) more,
-            ConstrainedBox(
-              constraints: BoxConstraints.tightFor(height: 60),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: buttons,
+            if (buttons != null)
+              ConstrainedBox(
+                constraints: BoxConstraints.tightFor(height: 60),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: buttons,
+                ),
               ),
-            ),
           ],
         ),
       ),

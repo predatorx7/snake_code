@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'src/common/routes.dart';
 import 'src/models/provider/theme.dart';
-import 'src/ui/screens/start.dart';
 import 'src/ui/screens/start/start.dart';
 import 'src/utils/permissions.dart';
 

@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:code/src/models/view_model/editor_controller.dart';
+import 'package:code/src/ui/components/start_tips/tips.dart';
+import 'package:code/src/ui/screens/start/controller.dart';
 import 'package:code/src/ui/screens/start/start.dart';
 import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
@@ -74,8 +76,18 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case RootRoute:
     default:
       return wrapPageRoute<Root>(
-        Root(
-          key: RootRouteKey,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<StartTipsController>(
+              create: (context) => StartTipsController(),
+            ),
+            ChangeNotifierProvider<StartScreenController>(
+              create: (context) => StartScreenController(),
+            ),
+          ],
+          child: Root(
+            key: RootRouteKey,
+          ),
         ),
       );
   }
