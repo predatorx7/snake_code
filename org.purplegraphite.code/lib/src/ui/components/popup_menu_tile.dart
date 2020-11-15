@@ -4,9 +4,17 @@ class PopupMenuTile extends PopupMenuEntry<dynamic> {
   final String value;
   final IconData leading;
   final Widget title;
+  final Color color;
+  final void Function() onTap;
 
-  const PopupMenuTile({Key key, this.value, this.leading, this.title})
-      : super(key: key);
+  const PopupMenuTile({
+    Key key,
+    this.value,
+    this.leading,
+    this.title,
+    this.onTap,
+    this.color,
+  }) : super(key: key);
 
   @override
   _PopupMenuTileState createState() => _PopupMenuTileState();
@@ -34,6 +42,7 @@ class _PopupMenuTileState extends State<PopupMenuTile> {
             padding: EdgeInsets.only(right: 8, left: 8),
             child: Icon(
               widget.leading,
+              color: widget.color,
             ),
           ),
           widget.title,

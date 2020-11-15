@@ -98,7 +98,8 @@ class SettingsScreen extends StatelessWidget {
                               width: 30,
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
                               child: new Text(
                                 _toUppercaseFirstChar(describeEnum(value)),
                                 style: TextStyle(

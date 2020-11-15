@@ -29,7 +29,7 @@ class FileUtils {
   }
 
   /// Get a new temporary workspace. This does not create the temporary directory.
-  /// 
+  ///
   /// Create the directory with [createDirectory].
   static Future<Directory> getTemporaryWorkspace() async {
     var _docdir = await getApplicationDocumentsDirectory();

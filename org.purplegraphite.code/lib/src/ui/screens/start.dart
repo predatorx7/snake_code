@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 /// The main screen displayed when the user opens app
-class StartScreen extends StatelessWidget {
+class _StartScreen extends StatelessWidget {
   /// The start screen displayed when the app is launched.
   /// Shows recent projects, an option to browser files in device, and tips.
-  const StartScreen({Key key}) : super(key: key);
+  const _StartScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

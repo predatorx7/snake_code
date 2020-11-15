@@ -16,6 +16,7 @@ import '../components/newfolder_dialog.dart';
 class BrowserScreen extends StatefulWidget {
   /// THe directory whose content will be shown in this widget.
   final Directory dir;
+
   /// THe browser widget which shows files and directories of [dir] directory.
   const BrowserScreen({Key key, this.dir}) : super(key: key);
   @override

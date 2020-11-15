@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'src/common/routes.dart';
 import 'src/models/provider/theme.dart';
 import 'src/ui/screens/start.dart';
+import 'src/ui/screens/start/start.dart';
 import 'src/utils/permissions.dart';
 
 void main() async {
@@ -12,7 +13,7 @@ void main() async {
 
 /// Starting point for our app
 class App extends StatelessWidget {
-  // Usually, without keys widgets unmounts and then mounts again and rebuilds. 
+  // Usually, without keys widgets unmounts and then mounts again and rebuilds.
   // This behaviour may creates performance issues.
   // Thus, using keys below may cause widgets to update instead of remounting.
   // Using keys isn't neccessary as Flutter is fast but we don't want to remount
@@ -27,7 +28,7 @@ class App extends StatelessWidget {
       providers: [
         // Provides instance of class initiated at the create parameter
         ChangeNotifierProvider<ThemeProvider>(
-          // Provides theme to the descendant widgets. 
+          // Provides theme to the descendant widgets.
           // Use Provider.of<ThemeProvider>(context) to get it's instance.
           create: (_) => ThemeProvider(
             navigatorKey: _navigatorKey,
@@ -39,7 +40,7 @@ class App extends StatelessWidget {
           return MaterialApp(
             key: _appKey,
 
-            /// Will be used to catch intents, and to hanle Routes 
+            /// Will be used to catch intents, and to hanle Routes
             /// without context
             navigatorKey: _navigatorKey,
             title: 'Snake editor',
@@ -59,7 +60,7 @@ class App extends StatelessWidget {
 /// on load
 class Root extends StatefulWidget {
   /// This root will show notifications and check storage access permissions.
-  /// If the permissions have been aapproved, bg widget will replace itself 
+  /// If the permissions have been aapproved, bg widget will replace itself
   /// with [StartScreen]
   const Root({Key key}) : super(key: key);
   @override

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:code/src/models/view_model/editor_controller.dart';
+import 'package:code/src/ui/screens/start/start.dart';
 import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import '../../main.dart';
 import '../ui/screens/browser.dart';
 import '../ui/screens/editor.dart';
 import '../ui/screens/settings.dart';
-import '../ui/screens/start.dart';
 import '../ui/screens/terminal.dart';
 
 // Models

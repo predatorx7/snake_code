@@ -37,6 +37,9 @@ dependencies:
     path: ../packages/creamy_field
   crypto: ^2.1.4
   logger_flutter: ^0.7.1
+  google_fonts: ^1.1.1
+  file_picker: ^2.0.13
+
 
 dev_dependencies:
   lint: ^1.0.0
