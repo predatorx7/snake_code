@@ -1,7 +1,4 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
-import 'package:logger/logger.dart';
 
 enum PreviousProjectLoadingStatus { loading, empty, done }
 

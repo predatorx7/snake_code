@@ -128,7 +128,9 @@ class StartScreen extends StatelessWidget {
                 'Open a file or directory from the in-built browser or import from other app.',
             buttons: [
               StartCardButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushNamed(BrowserScreenRoute);
+                },
                 iconData: EvaIcons.folderOutline,
                 label: 'Browse',
                 keepDark: !_isDarkMode,
@@ -137,7 +139,9 @@ class StartScreen extends StatelessWidget {
                 onPressed: () async {
                   final String result =
                       await FilePicker.platform.getDirectoryPath();
-                  print('PATH: $result');
+                  if (result.isNotEmpty) {
+                    // Open in editor
+                  }
                 },
                 iconData: EvaIcons.download,
                 label: 'Import',
@@ -153,12 +157,16 @@ class StartScreen extends StatelessWidget {
               StartCardButton(
                 iconData: EvaIcons.folderAddOutline,
                 label: 'New project',
-                onPressed: () {},
+                onPressed: () {
+                  // open a pseudo project workspace in editor.
+                },
                 keepDark: _isDarkMode,
                 keepOutlines: true,
               ),
               StartCardButton(
-                onPressed: () {},
+                onPressed: () {
+                  // open a pseudo file in editor.
+                },
                 iconData: EvaIcons.fileAddOutline,
                 label: 'New file',
                 keepDark: !_isDarkMode,

@@ -1,6 +1,5 @@
 import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/models/provider/theme.dart';
-import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/components/acrylic.dart';
 import 'package:code/src/ui/components/buttons/action_tabs_button.dart';
 import 'package:code/src/ui/components/buttons/popup_menu.dart';
@@ -21,13 +20,6 @@ class EditorScreenState extends State<EditorScreen>
     with TickerProviderStateMixin {
   ScrollController _scrollController;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final key1 = GlobalKey();
-  final key2 = GlobalKey();
-  final key3 = GlobalKey();
-  final key4 = GlobalKey();
-  final key5 = GlobalKey();
-  final key6 = GlobalKey();
-  EditorController controller;
   ThemeProvider _themeProvider;
   FocusNode _focusNode;
 
@@ -35,7 +27,6 @@ class EditorScreenState extends State<EditorScreen>
   void initState() {
     _scrollController = ScrollController();
     _focusNode = FocusNode();
-    Provider.of<EditorController>(context, listen: false).initialize(this);
     super.initState();
   }
 
@@ -48,7 +39,6 @@ class EditorScreenState extends State<EditorScreen>
 
   @override
   void didChangeDependencies() {
-    controller = Provider.of<EditorController>(context);
     _themeProvider = Provider.of<ThemeProvider>(context);
     super.didChangeDependencies();
   }

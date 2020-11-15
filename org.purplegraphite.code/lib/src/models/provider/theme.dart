@@ -35,7 +35,7 @@ class ThemeProvider with ChangeNotifier {
     try {
       return themeStyles[themeChoice];
     } catch (e, r) {
-      logman.e('Falling back to first theme in _themeStyles.', e, r);
+      logger.e('Falling back to first theme in _themeStyles', e, r);
       return _themeStyles?.first;
     }
   }
