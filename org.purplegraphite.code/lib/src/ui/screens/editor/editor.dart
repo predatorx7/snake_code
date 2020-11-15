@@ -7,33 +7,7 @@ import '../../../models/plain_model/entity.dart';
 import '../../../utils/logman.dart';
 
 class EditorScreen extends StatefulWidget {
-  factory EditorScreen.fromEntity(Entity entity) {
-    if (entity.entity is File) {
-      return EditorScreen.fromFileEntity(entity);
-    } else if (entity.entity is Directory) {
-      return EditorScreen.fromDirectoryEntity(entity);
-    } else {
-      logger.e(
-          'Entity type "${entity.runtimeType}" is not supported by EditorScreen');
-      return null;
-    }
-  }
-
-  factory EditorScreen.fromDirectory(String path) {}
-
-  EditorScreen.fromDirectoryEntity(Entity entity) {
-    // Full functionality
-  }
-
-  factory EditorScreen.fromFile(String path) {
-    // Single file mode
-  }
-
-  EditorScreen.fromFileEntity(Entity entity);
-
-  EditorScreen.noDirectory();
-
-  EditorScreen.noFile();
+  
 
   @override
   _EditorScreenState createState() => _EditorScreenState();
