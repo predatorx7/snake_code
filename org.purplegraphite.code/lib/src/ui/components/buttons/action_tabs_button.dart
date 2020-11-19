@@ -1,4 +1,4 @@
-import 'package:code/src/models/view_model/editor_controller.dart';
+import 'package:code/src/ui/screens/editor/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

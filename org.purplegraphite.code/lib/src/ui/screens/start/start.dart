@@ -1,11 +1,13 @@
 import 'package:code/src/ui/components/about/about.dart';
 import 'package:code/src/ui/components/app_title.dart';
 import 'package:code/src/ui/components/start_tips/tips.dart';
+import 'package:code/src/ui/screens/editor/controller.dart';
 import 'package:code/src/utils/string.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import '../../../common/routing_const.dart';
 import '../../../common/strings.dart';
@@ -115,7 +117,7 @@ class StartScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, bottom: 16),
             child: Text(
-              'Modify source-code on effortlessly.',
+              'Work on source-code effortlessly.',
               style: _theme.textTheme.subtitle1.copyWith(
                 color: foregroundColorOnDarkBackground,
               ),
@@ -159,6 +161,8 @@ class StartScreen extends StatelessWidget {
                 label: 'New project',
                 onPressed: () {
                   // open a pseudo project workspace in editor.
+                  Provider.of<EditorController>(context, listen: false).updateSettings(EditorSettings.noDirectory());
+                  Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
                 },
                 keepDark: _isDarkMode,
                 keepOutlines: true,
@@ -166,6 +170,8 @@ class StartScreen extends StatelessWidget {
               StartCardButton(
                 onPressed: () {
                   // open a pseudo file in editor.
+                  Provider.of<EditorController>(context, listen: false).updateSettings(EditorSettings.noFile());
+                  Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
                 },
                 iconData: EvaIcons.fileAddOutline,
                 label: 'New file',

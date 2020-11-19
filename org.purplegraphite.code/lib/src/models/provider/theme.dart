@@ -3,6 +3,7 @@ import 'package:code/src/models/hive/settings/themeSettings.dart';
 import 'package:code/src/models/plain_model/ThemeColors.dart';
 import 'package:code/src/utils/logman.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 

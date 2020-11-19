@@ -1,10 +1,7 @@
-import 'dart:io';
-
-import 'package:code/src/models/view_model/editor_controller.dart';
 import 'package:code/src/ui/components/start_tips/tips.dart';
+import 'package:code/src/ui/screens/editor/editor.dart';
 import 'package:code/src/ui/screens/start/controller.dart';
 import 'package:code/src/ui/screens/start/start.dart';
-import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +12,6 @@ import '../common/routing_const.dart';
 // Screens
 import '../../main.dart';
 import '../ui/screens/browser.dart';
-import '../ui/screens/editor.dart';
 import '../ui/screens/settings.dart';
 import '../ui/screens/terminal.dart';
 
@@ -38,16 +34,21 @@ PageRoute<T> wrapPageRoute<T>(Widget screen,
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {
     case StartScreenRoute:
-      return wrapPageRoute<StartScreen>(StartScreen());
-    case EditorScreenRoute:
-      final _workspaceDirectory = settings.arguments;
-      assert(_workspaceDirectory is Directory);
-      return wrapPageRoute<EditorScreen>(
-        ChangeNotifierProvider(
-          create: (context) => EditorController(_workspaceDirectory),
-          child: EditorScreen(),
+      return wrapPageRoute<StartScreen>(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<StartTipsController>(
+              create: (context) => StartTipsController(),
+            ),
+            ChangeNotifierProvider<StartScreenController>(
+              create: (context) => StartScreenController(),
+            ),
+          ],
+          child: StartScreen(),
         ),
       );
+    case EditorScreenRoute:
+      return wrapPageRoute<EditorScreen>(EditorScreen());
     case BrowserScreenRoute:
       return wrapPageRoute<BrowserScreen>(
         ChangeNotifierProvider(
@@ -59,13 +60,13 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
     case SettingsScreenRoute:
       return wrapPageRoute<SettingsScreen>(SettingsScreen());
-    case WorkspaceExplorerScreenRoute:
-      return wrapPageRoute<WorkspaceExplorerScreen>(
-        ChangeNotifierProvider(
-          create: (context) => BrowserController(),
-          child: WorkspaceExplorerScreen(),
-        ),
-      );
+    // case WorkspaceExplorerScreenRoute:
+    //   return wrapPageRoute<WorkspaceExplorerScreen>(
+    //     ChangeNotifierProvider(
+    //       create: (context) => BrowserController(),
+    //       child: WorkspaceExplorerScreen(),
+    //     ),
+    //   );
     case TerminalScreenRoute:
       return wrapPageRoute<TerminalScreen>(
         ChangeNotifierProvider(
@@ -75,6 +76,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
     case RootRoute:
     default:
+      // TODO(mushaheedx): Reroute from Root to Start instead of replacing a widget in Root with Start
       return wrapPageRoute<Root>(
         MultiProvider(
           providers: [

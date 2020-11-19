@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'src/common/routes.dart';
 import 'src/models/provider/theme.dart';
+import 'src/ui/screens/editor/controller.dart';
 import 'src/ui/screens/start/start.dart';
 import 'src/utils/permissions.dart';
 
@@ -32,6 +33,9 @@ class App extends StatelessWidget {
           create: (_) => ThemeProvider(
             navigatorKey: _navigatorKey,
           ),
+        ),
+        ChangeNotifierProvider<EditorController>(
+          create: (_) => EditorController(),
         ),
       ],
       child: Consumer<ThemeProvider>(
