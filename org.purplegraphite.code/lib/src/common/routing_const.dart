@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart' show ValueKey;
 
 const String StartScreenRoute = '/start';
-/// Update settings with `Provider.of<EditorController>(context, listen: false).updateSettings` 
+
+/// Update settings with `Provider.of<EditorController>(context, listen: false).updateSettings`
 /// before pushing this route
 const String EditorScreenRoute = '/editor';
 const String WorkspaceExplorerScreenRoute =

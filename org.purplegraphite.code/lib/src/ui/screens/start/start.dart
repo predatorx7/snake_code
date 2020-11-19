@@ -161,7 +161,8 @@ class StartScreen extends StatelessWidget {
                 label: 'New project',
                 onPressed: () {
                   // open a pseudo project workspace in editor.
-                  Provider.of<EditorController>(context, listen: false).updateSettings(EditorSettings.noDirectory());
+                  Provider.of<EditorController>(context, listen: false)
+                      .updateSettings(EditorSettings.noDirectory());
                   Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
                 },
                 keepDark: _isDarkMode,
@@ -170,7 +171,8 @@ class StartScreen extends StatelessWidget {
               StartCardButton(
                 onPressed: () {
                   // open a pseudo file in editor.
-                  Provider.of<EditorController>(context, listen: false).updateSettings(EditorSettings.noFile());
+                  Provider.of<EditorController>(context, listen: false)
+                      .updateSettings(EditorSettings.noFile());
                   Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
                 },
                 iconData: EvaIcons.fileAddOutline,
