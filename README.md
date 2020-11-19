@@ -4,9 +4,9 @@ _Effortlessly programming_ on mobile
 
 [![Flutter analysis](https://github.com/predatorx7/snake_code/workflows/Flutter%20analysis/badge.svg)](https://github.com/predatorx7/snake_code/actions?query=workflow%3A%22Flutter+analysis%22)
 
-Snake Code is just a simple source code editor. This project's main target platfrom is Android.
+Snake Code is just a simple source code editor. This project's main target platform is Android.
 
-The application is written in dart (uses flutter framework).
+The application is written in dart (uses Flutter UI Toolkit).
 
 ## Objective
 

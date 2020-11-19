@@ -2,11 +2,9 @@ import 'package:code/src/ui/components/about/about.dart';
 import 'package:code/src/ui/components/app_title.dart';
 import 'package:code/src/ui/components/start_tips/tips.dart';
 import 'package:code/src/ui/screens/editor/controller.dart';
-import 'package:code/src/utils/string.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/routing_const.dart';
@@ -117,7 +115,7 @@ class StartScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 16.0, bottom: 16),
             child: Text(
-              'Work on source-code effortlessly.',
+              'Do programming effortlessly',
               style: _theme.textTheme.subtitle1.copyWith(
                 color: foregroundColorOnDarkBackground,
               ),

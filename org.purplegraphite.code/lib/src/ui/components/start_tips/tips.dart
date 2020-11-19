@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'dart:math';
 
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 class StartTipsController with ChangeNotifier {
