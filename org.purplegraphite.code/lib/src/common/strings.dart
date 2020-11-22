@@ -14,6 +14,14 @@ class Strings {
   static String viewLicenses = 'View licenses';
 }
 
+class StorageBoxNames {
+  StorageBoxNames._();
+
+  static const _base = 'org.purplegraphite.code';
+  static const HISTORY = '$_base-history';
+  static const THEME_SETTINGS = '$_base-themesettings';
+}
+
 const _legalese = """BSD 3-Clause License
 
 Copyright (c) 2020, Mushaheed Syed

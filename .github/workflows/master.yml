@@ -31,6 +31,9 @@ jobs:
           flutter-version: 1.22.4 # optional
           # The Flutter build release channel
           channel: stable # optional, default is stable
+      
+      - name: Install NDK
+        run: echo "y" | sudo /usr/local/lib/android/sdk/tools/bin/sdkmanager --install "ndk;21.0.6113669" --sdk_root=${ANDROID_SDK_ROOT}
 
       - name: Building debug apk
         run: |

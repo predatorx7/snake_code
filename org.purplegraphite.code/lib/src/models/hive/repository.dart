@@ -18,10 +18,18 @@ class Repository<M> {
   /// Creates a [Repository] to wrap an open [box] of [adapter] with name [boxName]
   Repository(this.boxName, this.adapter, this.box);
 
-  /// Initiates Hive for flutter and returns a Hive [Box] wrapped with [Repository]
-  static Future<Repository<M>> create<M>(
+  static bool _hadHiveInitialized = false;
+
+  /// Initiates Hive for flutter and returns a Hive [Box] wrapped with [Repository].
+  ///
+  /// Registers M's [adapter] and opens [M] box of name [boxName]. (Creates if doesn't exist)
+  static Future<Repository<M>> get<M>(
       String boxName, TypeAdapter<M> adapter) async {
-    await Hive.initFlutter();
+    if (!_hadHiveInitialized) {
+      await Hive.initFlutter();
+      _hadHiveInitialized = true;
+    }
+
     Hive.registerAdapter<M>(adapter);
     final Box box = await Hive.openBox<M>(boxName);
     return Repository<M>(boxName, adapter, box);

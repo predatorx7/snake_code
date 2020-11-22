@@ -1,3 +1,4 @@
+import 'package:code/src/common/strings.dart';
 import 'package:code/src/models/hive/repository.dart';
 import 'package:code/src/models/hive/settings/themeSettings.dart';
 import 'package:code/src/models/plain_model/ThemeColors.dart';
@@ -93,8 +94,8 @@ class ThemeProvider with ChangeNotifier {
 
   /// Sets up & Initializes preferences.
   Future _setup() async {
-    _themeSettingsR = await Repository.create<ThemeSettings>(
-        'themeSettings', ThemeSettingsAdapter());
+    _themeSettingsR = await Repository.get<ThemeSettings>(
+        StorageBoxNames.THEME_SETTINGS, ThemeSettingsAdapter());
     if (_themeSettingsR.isRepositoryEmpty) {
       print("Creating theme settings for the first time");
       _themeSettingsR.box.add(ThemeSettings.manual(0, ThemeMode.system));
