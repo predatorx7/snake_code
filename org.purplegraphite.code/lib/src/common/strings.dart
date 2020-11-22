@@ -20,6 +20,7 @@ class StorageBoxNames {
   static const _base = 'org.purplegraphite.code';
   static const HISTORY = '$_base-history';
   static const THEME_SETTINGS = '$_base-themesettings';
+  static const FILE_MODIFICATION_HISTORY = '$_base-fileModificationHistory';
 }
 
 const _legalese = """BSD 3-Clause License

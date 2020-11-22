@@ -19,7 +19,7 @@ class FileModificationHistoryAdapter
     };
     return FileModificationHistory()
       ..absolutePath = fields[1] as String
-      ..lastModified = fields[2] as DateTime
+      .._lastModified = fields[2] as DateTime
       ..scrollOffset = fields[3] as double
       ..cursorOffset = fields[4] as int;
   }
@@ -31,7 +31,7 @@ class FileModificationHistoryAdapter
       ..writeByte(1)
       ..write(obj.absolutePath)
       ..writeByte(2)
-      ..write(obj.lastModified)
+      ..write(obj._lastModified)
       ..writeByte(3)
       ..write(obj.scrollOffset)
       ..writeByte(4)
@@ -59,10 +59,11 @@ class HistoryAdapter extends TypeAdapter<History> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return History()
-      ..workspacePath = fields[1] as String
+    return History(
+      fields[1] as String,
+    )
       ..lastModifiedFileDetails = fields[2] as FileModificationHistory
-      ..lastModified = fields[3] as DateTime;
+      .._lastModified = fields[3] as DateTime;
   }
 
   @override
@@ -70,11 +71,11 @@ class HistoryAdapter extends TypeAdapter<History> {
     writer
       ..writeByte(3)
       ..writeByte(1)
-      ..write(obj.workspacePath)
+      ..write(obj.absolutePathOfEntity)
       ..writeByte(2)
       ..write(obj.lastModifiedFileDetails)
       ..writeByte(3)
-      ..write(obj.lastModified);
+      ..write(obj._lastModified);
   }
 
   @override

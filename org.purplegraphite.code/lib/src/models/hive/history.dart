@@ -7,8 +7,16 @@ part 'history.g.dart';
 class FileModificationHistory extends HiveObject {
   @HiveField(1)
   String absolutePath;
+
   @HiveField(2)
-  DateTime lastModified;
+  DateTime _lastModified;
+
+  DateTime get lastModified => _lastModified;
+
+  void updateLastModified() {
+    _lastModified = DateTime.now();
+  }
+
   @HiveField(3)
   double scrollOffset;
   @HiveField(4)
@@ -17,22 +25,26 @@ class FileModificationHistory extends HiveObject {
 
 @HiveType(typeId: 5)
 class History extends HiveObject {
+  History(this.absolutePathOfEntity) : super();
+
   @HiveField(1)
-  String workspacePath;
+  final String absolutePathOfEntity;
 
   @HiveField(2)
   FileModificationHistory lastModifiedFileDetails;
 
   @HiveField(3)
-  DateTime lastModified;
+  DateTime _lastModified;
 
-  void setlatestModified() {
-    lastModified = DateTime.now();
+  DateTime get lastModified => _lastModified;
+
+  void _updateLastModified() {
+    _lastModified = DateTime.now();
   }
 
   @override
   Future<void> save() {
-    setlatestModified();
+    _updateLastModified();
     return super.save();
   }
 }

@@ -98,7 +98,7 @@ class ThemeProvider with ChangeNotifier {
         StorageBoxNames.THEME_SETTINGS, ThemeSettingsAdapter());
     if (_themeSettingsR.isRepositoryEmpty) {
       print("Creating theme settings for the first time");
-      _themeSettingsR.box.add(ThemeSettings.manual(0, ThemeMode.system));
+      await _themeSettingsR.box.add(ThemeSettings.manual(0, ThemeMode.system));
     }
     _themeChoice = _themeSettingsR.first.themeChoice;
     _themeMode = _themeSettingsR.first.themeMode;
