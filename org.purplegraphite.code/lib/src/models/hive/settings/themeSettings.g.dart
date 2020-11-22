@@ -8,13 +8,13 @@ part of 'themeSettings.dart';
 
 class ThemeSettingsAdapter extends TypeAdapter<ThemeSettings> {
   @override
-  final typeId = 2;
+  final int typeId = 2;
 
   @override
   ThemeSettings read(BinaryReader reader) {
-    var numOfFields = reader.readByte();
-    var fields = <int, dynamic>{
-      for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ThemeSettings(
       fields[1] as int,
@@ -31,4 +31,14 @@ class ThemeSettingsAdapter extends TypeAdapter<ThemeSettings> {
       ..writeByte(2)
       ..write(obj.themeModeS);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ThemeSettingsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }
