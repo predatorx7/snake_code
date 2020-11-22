@@ -247,9 +247,12 @@ class _EditorScreenState extends State<EditorScreen> {
       final CreamyEditingController _textController =
           activePage.textEditingController;
       final ScrollController _scrollController = activePage.scrollController;
-      body = CreamyField(
-        controller: _textController,
-        scrollController: _scrollController,
+      body = Scrollbar(
+        radius: Radius.circular(15),
+        child: CreamyField(
+          controller: _textController,
+          scrollController: _scrollController,
+        ),
       );
     }
 

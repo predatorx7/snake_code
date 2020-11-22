@@ -19,8 +19,8 @@ class StartTipsController with ChangeNotifier {
   int _tipIndex = 0;
 
   void _generateRandomIndexForTip() {
-    DateTime time = DateTime.now();
-    Random rand = Random(time.millisecond);
+    final DateTime time = DateTime.now();
+    final Random rand = Random(time.millisecond);
     _tipIndex = rand.nextInt(_tips.length);
   }
 
@@ -52,7 +52,8 @@ class StartTipsController with ChangeNotifier {
 
   final List<String> _tips = [
     'Files are good for writing code snippets, general programs & short scripts. Opening a directory as a project will allow working with multiple files.',
-    'You can open directory from Termux app storage if you tap on import while keeping Termux app open in background!'
+    'You can open directory from Termux app storage if you tap on import while keeping Termux app open in background!',
+    'Your duration of work in a folder or on a file with last modified time will be used to offer suggestions later'
   ];
 
   List<String> get tips => _tips ?? [];

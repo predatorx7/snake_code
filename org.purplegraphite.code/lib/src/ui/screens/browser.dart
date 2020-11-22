@@ -11,14 +11,18 @@ import '../../models/plain_model/entity.dart';
 import '../../models/view_model/browser_controller.dart';
 import '../../utils/fileutils.dart';
 import '../components/newfolder_dialog.dart';
+import 'editor/controller.dart';
 
 /// Local files & directories browser
 class BrowserScreen extends StatefulWidget {
   /// THe directory whose content will be shown in this widget.
   final Directory dir;
 
+  final String title;
+
   /// THe browser widget which shows files and directories of [dir] directory.
-  const BrowserScreen({Key key, this.dir}) : super(key: key);
+  const BrowserScreen({Key key, @required this.dir, this.title})
+      : super(key: key);
   @override
   _BrowserScreenState createState() => _BrowserScreenState();
 }
@@ -73,12 +77,49 @@ class _BrowserScreenState extends State<BrowserScreen> {
     return Icon(data, color: color);
   }
 
+  String _idOfSelectedFile = '';
+
+  bool _isFileSelected(String id) {
+    return _idOfSelectedFile == id;
+  }
+
+  bool _isAFileSelected() {
+    return _idOfSelectedFile?.isNotEmpty ?? false;
+  }
+
+  void _selectFileOnTap(String id) {
+    assert(id != null);
+
+    _idOfSelectedFile = id;
+  }
+
+  void _clearSelection() {
+    _idOfSelectedFile = '';
+  }
+
+  void _toggleSelection(String id) {
+    if (_isFileSelected(id)) {
+      _clearSelection();
+    } else {
+      _selectFileOnTap(id);
+    }
+    setState(() {
+      // update selection state on tap
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ThemeData _theme = Theme.of(context);
+    final isDark = _theme.brightness == Brightness.dark;
     final foregroundInDarkness = isDark ? Colors.white : Colors.black;
+    final _whiterAccentColor =
+        Color.lerp(_theme.accentColor, Colors.white, 0.3);
+    final _tooltipMessage =
+        _isAFileSelected() ? 'Select file' : 'Select this folder';
+
     Widget _selectFolderButton = Tooltip(
-      message: 'Select this folder',
+      message: _tooltipMessage,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(right: 8.0),
@@ -90,19 +131,29 @@ class _BrowserScreenState extends State<BrowserScreen> {
               onPressed: widget?.dir == null
                   ? null
                   : () {
+                      // TODO(mushaheedx): Ask with a dialog before opening editor with a don't ask again tick box.
+
+                      EditorSettings _settings;
+
+                      if (_isAFileSelected()) {
+                        EditorSettings.fromFile(_idOfSelectedFile);
+                      } else {
+                        EditorSettings.fromDirectory(widget.dir.absolute.path);
+                      }
+
+                      Provider.of<EditorController>(context, listen: false)
+                          .updateSettings(_settings);
+
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                          EditorScreenRoute, (Route<dynamic> route) => false,
-                          arguments: widget.dir);
+                          EditorScreenRoute, (Route<dynamic> route) => false);
                     },
               borderSide: BorderSide(
                 width: 1.6,
-                color: Color.lerp(
-                    Theme.of(context).accentColor, Colors.white, 0.3),
+                color: _whiterAccentColor,
               ),
               highlightedBorderColor:
-                  Color.lerp(Theme.of(context).accentColor, Colors.white, 0.5),
-              disabledTextColor:
-                  Color.lerp(Theme.of(context).accentColor, Colors.white, 0.3),
+                  Color.lerp(_theme.accentColor, Colors.white, 0.5),
+              disabledTextColor: _whiterAccentColor,
               textColor: Colors.white,
               // child: Text('Select'),
               child: Row(
@@ -117,9 +168,12 @@ class _BrowserScreenState extends State<BrowserScreen> {
         ),
       ),
     );
+
+    final String _title =
+        widget?.title ?? path.basename(widget.dir?.path ?? '');
     return Scaffold(
       appBar: AppBar(
-        title: Text(path.basename(widget.dir?.path ?? '')),
+        title: Text(_title),
         actions: <Widget>[_selectFolderButton],
       ),
       body: Visibility(
@@ -129,10 +183,18 @@ class _BrowserScreenState extends State<BrowserScreen> {
           itemCount: _view.currentEntities.length,
           itemBuilder: (context, index) {
             final object = _view.currentEntities[index];
+            final bool _isSelected = _isFileSelected(object.id);
+            final bool _wasRecentlyCreated =
+                _view.recentlyCreatedFolder.contains(object.absolutePath);
+
             Widget child = ListTile(
               key: ValueKey(object.id),
               onTap: () {
                 if (object.entity is Directory) {
+                  setState(() {
+                    _clearSelection();
+                  });
+
                   /// If the tapped tile is a directory, open it in a new
                   /// browser screen route
                   var x = Directory.fromUri(
@@ -140,6 +202,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
                   );
                   Navigator.pushNamed(context, BrowserScreenRoute,
                       arguments: x);
+                } else if (object.entity is File) {
+                  _toggleSelection(object.id);
                 }
               },
               leading: getFileTypeIcon(object, isDark),
@@ -150,8 +214,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
                 ),
               ),
               trailing: Visibility(
-                visible:
-                    _view.recentlyCreatedFolder.contains(object.absolutePath),
+                visible: _wasRecentlyCreated,
                 child: Icon(
                   Icons.fiber_new,
                   color: Colors.red,
@@ -159,12 +222,14 @@ class _BrowserScreenState extends State<BrowserScreen> {
                 ),
               ),
             );
-            if (_view.recentlyCreatedFolder.contains(object.absolutePath)) {
+
+            if (_wasRecentlyCreated || _isSelected) {
               child = Container(
-                color: Theme.of(context).primaryColor.withAlpha(0x22),
+                color: _theme.primaryColor.withAlpha(_isSelected ? 0x33 : 0x22),
                 child: child,
               );
             }
+
             return child;
           },
         ),
@@ -175,7 +240,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
           ),
           replacement: Builder(
             builder: (context) {
-              final _itemColor = Theme.of(context).accentColor.withAlpha(0xCC);
+              final _itemColor = _theme.accentColor.withAlpha(0xCC);
               Widget warning = Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

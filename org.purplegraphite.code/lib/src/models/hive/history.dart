@@ -2,26 +2,32 @@ import 'package:hive/hive.dart';
 
 part 'history.g.dart';
 
+/// UNIMPLEMENTED for a list of open files
+@HiveType(typeId: 6)
+class FileModificationHistory extends HiveObject {
+  @HiveField(1)
+  String absolutePath;
+  @HiveField(2)
+  DateTime lastModified;
+  @HiveField(3)
+  double scrollOffset;
+  @HiveField(4)
+  int cursorOffset;
+}
+
 @HiveType(typeId: 5)
 class History extends HiveObject {
   @HiveField(1)
   String workspacePath;
 
   @HiveField(2)
-  String lastOpenFile;
+  FileModificationHistory lastModifiedFileDetails;
 
   @HiveField(3)
-  int lineNumber;
-
-  @HiveField(4)
-  int columnNumber;
-
-  /// Last Modified time in milliseconds since unix epoch.
-  @HiveField(5)
-  int lastModified;
+  DateTime lastModified;
 
   void setlatestModified() {
-    lastModified = DateTime.now().millisecondsSinceEpoch;
+    lastModified = DateTime.now();
   }
 
   @override
