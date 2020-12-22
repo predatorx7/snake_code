@@ -17,11 +17,11 @@ class FileModificationHistoryAdapter
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return FileModificationHistory()
-      ..absolutePath = fields[1] as String
-      ..lastModified = fields[2] as DateTime
-      ..scrollOffset = fields[3] as double
-      ..cursorOffset = fields[4] as int;
+    return FileModificationHistory(
+      absolutePath: fields[1] as String,
+      scrollOffset: fields[3] as double,
+      cursorOffset: fields[4] as int,
+    )..lastModified = fields[2] as DateTime;
   }
 
   @override
@@ -59,8 +59,9 @@ class HistoryAdapter extends TypeAdapter<History> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return History()
-      ..workspacePath = fields[1] as String
+    return History(
+      workspacePath: fields[1] as String,
+    )
       ..lastModifiedFileDetails = fields[2] as FileModificationHistory
       ..lastModified = fields[3] as DateTime;
   }

@@ -9,11 +9,12 @@ class _Consts {
 }
 
 Future<dynamic> newFolderDialog(BuildContext context,
-    void Function(TextEditingController controller) onButtonPress) {
+    void Function(TextEditingController controller) onButtonPress,
+    [bool file]) {
   return showDialog<dynamic>(
     context: context,
     builder: (BuildContext context) => CustomDialog(
-      title: "Enter folder name",
+      title: "Enter ${file ? 'file' : 'folder'} name",
       buttonText: "Create",
       onPressed: onButtonPress,
     ),

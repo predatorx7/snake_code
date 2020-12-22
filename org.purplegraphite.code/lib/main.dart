@@ -1,3 +1,4 @@
+import 'package:code/src/models/provider/history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,9 @@ class App extends StatelessWidget {
   // heavy widgets hence the usage
   final _appKey = GlobalKey();
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  final _recents = RecentHistoryProvider();
+
   @override
   Widget build(BuildContext context) {
     // The [MultiProvider] builds providers which instances of object throughout
@@ -35,8 +39,11 @@ class App extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider<EditorController>(
-          create: (_) => EditorController(),
+          create: (_) => EditorController(_recents),
         ),
+        ChangeNotifierProvider<RecentHistoryProvider>(
+          create: (_) => _recents,
+        )
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, th, child) {

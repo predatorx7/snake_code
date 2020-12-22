@@ -15,4 +15,5 @@ else
     echo "Release keystore file \"org.purplegraphite.code/release.jks\" doesn't exist."
     exit 1
 fi
+cd org.purplegraphite.code;
 flutter build apk --release --split-per-abi --split-debug-info=output/symbols;

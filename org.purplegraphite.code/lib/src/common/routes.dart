@@ -1,7 +1,9 @@
 import 'package:code/src/ui/components/start_tips/tips.dart';
 import 'package:code/src/ui/screens/editor/editor.dart';
+import 'package:code/src/ui/screens/history.dart';
 import 'package:code/src/ui/screens/start/controller.dart';
 import 'package:code/src/ui/screens/start/start.dart';
+import 'package:code/src/ui/screens/workspace_explorer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -60,13 +62,13 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       );
     case SettingsScreenRoute:
       return wrapPageRoute<SettingsScreen>(SettingsScreen());
-    // case WorkspaceExplorerScreenRoute:
-    //   return wrapPageRoute<WorkspaceExplorerScreen>(
-    //     ChangeNotifierProvider(
-    //       create: (context) => BrowserController(),
-    //       child: WorkspaceExplorerScreen(),
-    //     ),
-    //   );
+    case WorkspaceExplorerScreenRoute:
+      return wrapPageRoute<WorkspaceExplorerScreen>(
+        ChangeNotifierProvider(
+          create: (context) => BrowserController(),
+          child: WorkspaceExplorerScreen(dir: settings.arguments),
+        ),
+      );
     case TerminalScreenRoute:
       return wrapPageRoute<TerminalScreen>(
         ChangeNotifierProvider(
@@ -74,6 +76,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           child: TerminalScreen(),
         ),
       );
+    case HistoryScreenRoute:
+      return wrapPageRoute<HistoryScreen>(HistoryScreen());
     case RootRoute:
     default:
       // TODO(mushaheedx): Reroute from Root to Start instead of replacing a widget in Root with Start

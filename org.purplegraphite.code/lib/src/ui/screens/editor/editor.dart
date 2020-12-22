@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:code/src/common/routing_const.dart';
 import 'package:code/src/ui/components/acrylic.dart';
 import 'package:code/src/ui/components/buttons/action_tabs_button.dart';
 import 'package:code/src/ui/components/buttons/popup_menu.dart';
@@ -234,7 +237,12 @@ class _EditorScreenState extends State<EditorScreen> {
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: OutlineButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushNamed(
+                  WorkspaceExplorerScreenRoute,
+                  arguments: controller.entity.entity as Directory,
+                );
+              },
               child: Text('Select a file from workspace'),
               highlightedBorderColor: foregroundInDark,
               textColor: foregroundInDark,
@@ -252,6 +260,9 @@ class _EditorScreenState extends State<EditorScreen> {
         child: CreamyField(
           controller: _textController,
           scrollController: _scrollController,
+          showLineIndicator: true,
+          showCursor: true,
+          keyboardType: TextInputType.multiline,
         ),
       );
     }
@@ -263,7 +274,7 @@ class _EditorScreenState extends State<EditorScreen> {
       //   actions: [_popupActionsButton],
       // ),
       key: _scaffoldKey,
-      drawer: EditorDrawer(),
+      drawer: EditorDrawer(folder: controller.entity.entity as Directory),
       endDrawer: _endDrawer,
       body: SafeArea(
         child: Container(

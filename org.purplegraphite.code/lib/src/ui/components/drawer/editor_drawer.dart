@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:code/src/common/routing_const.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,10 @@ class ColoredListTile extends StatelessWidget {
 }
 
 class EditorDrawer extends StatelessWidget {
+  final Directory folder;
+
+  const EditorDrawer({Key key, this.folder}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final ThemeData _theme = Theme.of(context);
@@ -65,7 +71,10 @@ class EditorDrawer extends StatelessWidget {
                 title: const Text("Explorer"),
                 leading: Icon(EvaIcons.compassOutline),
                 onTap: () {
-                  Navigator.pushNamed(context, WorkspaceExplorerScreenRoute);
+                  Navigator.of(context).pushNamed(
+                    WorkspaceExplorerScreenRoute,
+                    arguments: folder,
+                  );
                 },
               ),
             ),

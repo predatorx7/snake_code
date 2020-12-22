@@ -2,6 +2,7 @@ import 'package:code/src/common/strings.dart';
 import 'package:code/src/models/hive/history.dart';
 import 'package:code/src/models/hive/repository.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart' show Box, Hive;
 
 class RecentHistoryProvider extends ChangeNotifier {
   RecentHistoryProvider() {
@@ -10,42 +11,73 @@ class RecentHistoryProvider extends ChangeNotifier {
 
   Repository<History> _history;
 
+  Box<History> get box => _history.box;
+
   bool get hasHistory {
     return !(_history?.isRepositoryEmpty ?? true);
   }
 
   /// Sets up & Initializes preferences.
   Future _setup() async {
+    Hive.registerAdapter<FileModificationHistory>(
+        FileModificationHistoryAdapter());
     _history = await Repository.get<History>(
         StorageBoxNames.HISTORY, HistoryAdapter());
 
+    _history.listenStream((_) {
+      notifyListeners();
+    });
     notifyListeners();
-    // _themeSettingsR.listenStream(_onThemeChange); // No current use
   }
 
-  History searchFor(String path) {
-    for (History i in _history.iterable()) {
-      if (i.workspacePath == path) {
-        return i;
+  History get(String path) {
+    return _history.box.get(path);
+  }
+
+  List<History> searchFor(String key) {
+    final _histories = <History>[];
+    for (var item in _history.box.values) {
+      final _itemID = item.workspacePath;
+      if (key == _itemID) {
+        _histories.insert(0, item);
+        return _histories;
+      } else if (_itemID.contains(key)) {
+        _histories.add(item);
       }
     }
-
-    return null;
+    return _histories;
   }
 
-  void add(String path) {
-    
+  List<History> getHistories() {
+    final _result = _history?.box?.values?.toList() ?? [];
+    _result.sort();
+    return _result;
   }
 
-  void remove() {
-
+  void add(
+    String path, [
+    FileModificationHistory lastModifiedFileDetails,
+  ]) async {
+    final _projectHistory = History(workspacePath: path);
+    _projectHistory.lastModifiedFileDetails = lastModifiedFileDetails;
+    _projectHistory.updateLastModifiedDateTime();
+    await _history.box.put(_projectHistory.workspacePath, _projectHistory);
+    print(
+        'SAVED: ${_history.box.get(_projectHistory.workspacePath).workspacePath}');
+    if (_projectHistory.isInBox) await _projectHistory.save();
   }
 
-  void update() {
-
+  Future<bool> remove(String path) async {
+    if (box.containsKey(path)) {
+      await box.delete(path);
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  void get() {
-    
+  Future<void> update(History history) async {
+    await box.put(history.workspacePath, history);
+    await history.save();
   }
 }
