@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // import 'package:code/src/models/plain_model/entity.dart';
 // import 'package:code/src/models/provider/theme.dart';
 // import 'package:code/src/ui/components/acrylic.dart';
@@ -9,6 +10,18 @@
 // import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 // import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
+=======
+import 'package:code/src/models/plain_model/entity.dart';
+import 'package:code/src/models/provider/theme.dart';
+import 'package:code/src/models/view_model/editor_controller.dart';
+import 'package:code/src/ui/components/acrylic.dart';
+import 'package:code/src/ui/components/buttons/action_tabs_button.dart';
+import 'package:code/src/ui/components/buttons/popup_menu.dart';
+import 'package:code/src/ui/components/drawer/editor_drawer.dart';
+import 'package:code/src/ui/components/popup_menu_tile.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+>>>>>>> Stashed changes
 
 // class EditorScreen extends StatefulWidget {
 //   final Entity entity;

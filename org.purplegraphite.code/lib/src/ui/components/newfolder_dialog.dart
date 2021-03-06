@@ -1,4 +1,4 @@
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 
 class _Consts {
@@ -91,7 +91,7 @@ class CustomDialog extends StatelessWidget {
             backgroundColor: Theme.of(context).accentColor,
             radius: _Consts.avatarRadius,
             child: Icon(
-              EvaIcons.folderAddOutline,
+              FluentIcons.folder_add_28_regular,
               size: 28,
             ),
           ),
