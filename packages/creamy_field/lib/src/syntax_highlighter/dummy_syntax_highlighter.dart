@@ -7,10 +7,10 @@ import 'package:creamy_field/creamy_field.dart';
 /// Ideally, you would implement the `SyntaxHighlighterBase` interface as per your need of highlighting rules.
 class DummySyntaxHighlighter implements SyntaxHighlighter {
   @override
-  List<TextSpan> parseTextEditingValue(TextEditingValue tev) {
-    var texts = tev.text.split(' ');
+  List<TextSpan> parseTextEditingValue(TextEditingValue? tev) {
+    var texts = tev!.text.split(' ');
 
-    var lsSpans = List<TextSpan>();
+    var lsSpans = <TextSpan>[];
     texts.forEach((text) {
       if (text == 'class') {
         lsSpans

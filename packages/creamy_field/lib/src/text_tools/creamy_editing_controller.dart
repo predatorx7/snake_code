@@ -53,13 +53,11 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// This constructor treats a null [text] argument as if it were an empty
   /// string.
   CreamyEditingController({
-    String text,
+    String? text,
     this.syntaxHighlighter,
     this.tabSize = 1,
-  })  : assert(tabSize != null),
-        assert(tabSize > 0),
+  })  : assert(tabSize > 0),
         this._syntaxHighlighter = syntaxHighlighter,
-        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
         super(text == null
             ? TextEditingValue.empty
             : TextEditingValue(text: __replaceTabsWithSpaces(text, tabSize)));
@@ -69,54 +67,23 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// This constructor treats a null [value] argument as if it were
   /// [TextEditingValue.empty].
   CreamyEditingController.fromValue(
-    TextEditingValue value, {
+    TextEditingValue? value, {
     this.syntaxHighlighter,
     this.tabSize = 1,
-  })  : assert(tabSize != null),
-        assert(tabSize > 0),
+  })  : assert(tabSize > 0),
         this._syntaxHighlighter = syntaxHighlighter,
-        this._enableHighlighting = (syntaxHighlighter != null) ?? false,
+        assert(
+          value == null ||
+              !value.composing.isValid ||
+              value.isComposingRangeValid,
+          'New TextEditingValue $value has an invalid non-empty composing range '
+          '${value.composing}. It is recommended to use a valid composing range, '
+          'even for readonly text fields',
+        ),
         super(value ?? TextEditingValue.empty);
 
   /// The current string the user is editing.
   String get text => value.text;
-
-  /// Enable syntax highlighting
-  bool _enableHighlighting;
-
-  /// The [tabSize] number of spaces which will be used instead of `\t`.
-  /// Defaults to 1.
-  ///
-  /// Note: Flutter currently doesn't support tabSize.
-  /// Check this issue for more information
-  /// https://github.com/flutter/flutter/issues/50087
-  final int tabSize;
-
-  /// syntax highlighting status
-  bool get enableHighlighting =>
-      _enableHighlighting ?? (syntaxHighlighter != null) ?? false;
-
-  /// The syntax highlighter which will parse text from Text Field
-  final SyntaxHighlighter syntaxHighlighter;
-
-  /// The syntax highlighter which will parse text from Text Field
-  SyntaxHighlighter _syntaxHighlighter;
-
-  // Observed that \t renders as a single space in flutter.
-  // int tabSize = 4;
-
-  /// Use your own implementation of [SyntaxHighlighter].
-  ///
-  /// Using this will override built-in syntax highlighting based on
-  /// [languageType] & [highlightedThemeType]
-  void changeSyntaxHighlighting(SyntaxHighlighter syntaxHighlighter) {
-    _syntaxHighlighter = syntaxHighlighter;
-  }
-
-  /// Toggle text's syntax highlighting.
-  void toggleHighlighting(bool value) {
-    this._enableHighlighting = value;
-  }
 
   /// Setting this will notify all the listeners of this [TextEditingController]
   /// that they need to update (it calls [notifyListeners]). For this reason,
@@ -135,6 +102,47 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
     );
   }
 
+  @override
+  set value(TextEditingValue newValue) {
+    assert(
+      !newValue.composing.isValid || newValue.isComposingRangeValid,
+      'New TextEditingValue $newValue has an invalid non-empty composing range '
+      '${newValue.composing}. It is recommended to use a valid composing range, '
+      'even for readonly text fields',
+    );
+    super.value = newValue;
+  }
+
+  /// The [tabSize] number of spaces which will be used instead of `\t`.
+  /// Defaults to 1.
+  ///
+  /// Note: Flutter currently doesn't support tabSize.
+  /// Check this issue for more information
+  /// https://github.com/flutter/flutter/issues/50087
+  final int tabSize;
+
+  /// Whether the controller will highlight syntax
+  ///
+  /// Highlighting is disabled if [syntaxHighlighter] is null
+  bool get highlightingEnabled => syntaxHighlighter != null;
+
+  /// The syntax highlighter which will parse text from Text Field
+  final SyntaxHighlighter? syntaxHighlighter;
+
+  /// The syntax highlighter which will parse text from Text Field
+  SyntaxHighlighter? _syntaxHighlighter;
+
+  // Observed that \t renders as a single space in flutter.
+  // int tabSize = 4;
+
+  /// Use your own implementation of [SyntaxHighlighter].
+  ///
+  /// Using this will override built-in syntax highlighting based on
+  /// [languageType] & [highlightedThemeType]
+  void changeSyntaxHighlighting(SyntaxHighlighter syntaxHighlighter) {
+    _syntaxHighlighter = syntaxHighlighter;
+  }
+
   static const _defaultFontColor = Color(0xff000000);
 
   // TODO: dart:io is not available at web platform currently
@@ -142,7 +150,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   // So we just use monospace here for now
   static const _defaultFontFamily = 'monospace';
 
-  TextSpan _buildSyntaxHighlightedTextSpan(TextStyle textStyle) {
+  TextSpan _buildSyntaxHighlightedTextSpan(TextStyle? textStyle) {
     var _textStyle = TextStyle(
       fontFamily: _defaultFontFamily,
       color: _defaultFontColor,
@@ -154,7 +162,7 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
 
     return TextSpan(
       style: _textStyle,
-      children: _syntaxHighlighter.parseTextEditingValue(value),
+      children: _syntaxHighlighter!.parseTextEditingValue(value),
     );
   }
 
@@ -198,29 +206,38 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   ///
   /// By default makes text in composing range appear as underlined.
   /// Descendants can override this method to customize appearance of text.
-  TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
+  TextSpan buildTextSpan({TextStyle? style, required bool withComposing}) {
+    assert(!value.composing.isValid ||
+        !withComposing ||
+        value.isComposingRangeValid);
+
     _replaceTabsWithSpaces();
     // This is where the magic happens
-    if (_syntaxHighlighter != null && enableHighlighting) {
+    if (_syntaxHighlighter != null && highlightingEnabled) {
       // custom syntax highlighter is used.
       return _buildSyntaxHighlightedTextSpan(style);
     }
 
     // No syntax highlighting is applied
-    if (!value.composing.isValid || !withComposing) {
+    if (!value.isComposingRangeValid || !withComposing) {
       return TextSpan(style: style, text: text);
     }
-    final TextStyle composingStyle = style.merge(
+    final TextStyle composingStyle = style!.merge(
       const TextStyle(decoration: TextDecoration.underline),
     );
-    return TextSpan(style: style, children: <TextSpan>[
-      TextSpan(text: value.composing.textBefore(value.text)),
-      TextSpan(
-        style: composingStyle,
-        text: value.composing.textInside(value.text),
-      ),
-      TextSpan(text: value.composing.textAfter(value.text)),
-    ]);
+    return TextSpan(
+      style: style,
+      children: <TextSpan>[
+        TextSpan(text: value.composing.textBefore(value.text)),
+        TextSpan(
+          style: composingStyle,
+          text: value.composing.textInside(value.text),
+        ),
+        TextSpan(
+          text: value.composing.textAfter(value.text),
+        ),
+      ],
+    );
   }
 
   /// The currently selected [text].
@@ -238,71 +255,31 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   /// [TextEditingController]; however, one should not also set [text]
   /// in a separate statement. To change both the [text] and the [selection]
   /// change the controller's [value].
+  ///
+  /// If the new selection if of non-zero length, or is outside the composing
+  /// range, the composing composing range is cleared.
   set selection(TextSelection newSelection) {
     if (!isSelectionWithinTextBounds(newSelection))
       throw FlutterError('invalid text selection: $newSelection');
-    value = value.copyWith(selection: newSelection, composing: TextRange.empty);
+    final TextRange newComposing = newSelection.isCollapsed &&
+            _isSelectionWithinComposingRange(newSelection)
+        ? value.composing
+        : TextRange.empty;
+    value = value.copyWith(selection: newSelection, composing: newComposing);
   }
-
-  /// The text currently under selection
-  String get selectedText => value.selection.textInside(text);
-
-  /// The text before the current text selection
-  String get beforeSelectedText => value.selection.textBefore(text);
-
-  /// The text after the current text selection
-  String get afterSelectedText => value.selection.textAfter(text);
-
-  /// Total number of lines in the [text]
-  int get totalLineCount => value.text?.split('\n')?.length ?? 0;
-
-  /// The line at which end cursor lies
-  int get atLine => beforeSelectedText?.split('\n')?.length ?? 1;
-
-  /// The column at which the end cursor is at.
-  int get atColumn {
-    int _extent = value?.selection?.extentOffset ?? 0;
-    String precursorText = text?.substring(0, _extent) ?? '';
-    return (_extent - (precursorText?.lastIndexOf('\n') ?? 0));
-  }
-
-  /// The column index where the selection extent ends.
-  /// Same as [atColumn].
-  int get extentColumn {
-    return atColumn;
-  }
-
-  /// The column index at which the selection (base) begins.
-  int get baseColumn {
-    int _base = value?.selection?.baseOffset ?? 0;
-    String precursorText = text?.substring(0, _base) ?? '';
-    return (_base - (precursorText?.lastIndexOf('\n') ?? 0));
-  }
-
-  // TODO: add extensions to TextEditingValue
-  Map<String, dynamic> get textDescriptionMap => <String, dynamic>{
-        'text': text,
-        'beforeSelectedText': beforeSelectedText,
-        'afterSelectedText': afterSelectedText,
-        'selectedText': selectedText,
-        'totalLines': totalLineCount,
-        'atLine': atLine,
-        'atColumn': atColumn,
-        'baseColumn': baseColumn,
-        'extentColumn': extentColumn,
-      };
 
   /// Set the [value] to empty.
   ///
   /// After calling this function, [text] will be the empty string and the
-  /// selection will be invalid.
+  /// selection will be collapsed at zero offset.
   ///
   /// Calling this will notify all the listeners of this [TextEditingController]
   /// that they need to update (it calls [notifyListeners]). For this reason,
   /// this method should only be called between frames, e.g. in response to user
   /// actions, not during the build, layout, or paint phases.
   void clear() {
-    value = TextEditingValue.empty;
+    value =
+        const TextEditingValue(selection: TextSelection.collapsed(offset: 0));
   }
 
   /// Set the composing region to an empty range.
@@ -323,6 +300,12 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   bool isSelectionWithinTextBounds(TextSelection selection) {
     return selection.start <= text.length && selection.end <= text.length;
   }
+
+  /// Check that the [selection] is inside of the composing range.
+  bool _isSelectionWithinComposingRange(TextSelection selection) {
+    return selection.start >= value.composing.start &&
+        selection.end <= value.composing.end;
+  }
 }
 
 class RestorableCreamyEditingController
@@ -331,7 +314,7 @@ class RestorableCreamyEditingController
   ///
   /// This constructor treats a null `text` argument as if it were the empty
   /// string.
-  factory RestorableCreamyEditingController({String text}) =>
+  factory RestorableCreamyEditingController({String? text}) =>
       RestorableCreamyEditingController.fromValue(
         text == null ? TextEditingValue.empty : TextEditingValue(text: text),
       );
@@ -352,8 +335,8 @@ class RestorableCreamyEditingController
   }
 
   @override
-  CreamyEditingController fromPrimitives(Object data) {
-    return CreamyEditingController(text: data as String);
+  CreamyEditingController fromPrimitives(Object? data) {
+    return CreamyEditingController(text: data as String?);
   }
 
   @override
@@ -361,13 +344,13 @@ class RestorableCreamyEditingController
     return value.text;
   }
 
-  TextEditingController _controller;
+  TextEditingController? _controller;
 
   @override
   void initWithValue(TextEditingController value) {
     _disposeControllerIfNecessary();
     _controller = value;
-    super.initWithValue(value);
+    super.initWithValue(value as CreamyEditingController);
   }
 
   @override
@@ -380,7 +363,7 @@ class RestorableCreamyEditingController
     if (_controller != null) {
       // Scheduling a microtask for dispose to give other entities a chance
       // to remove their listeners first.
-      scheduleMicrotask(_controller.dispose);
+      scheduleMicrotask(_controller!.dispose);
     }
   }
 }
