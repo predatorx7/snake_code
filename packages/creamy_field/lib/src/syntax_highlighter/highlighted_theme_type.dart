@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart' show TextStyle;
-import 'package:flutter_highlight/theme_map.dart';
+import 'package:flutter_highlighter/theme_map.dart';
+import 'package:flutter_highlighter/themes/default.dart' as default_theme;
 
 /// A theme which will be used
 /// in syntax highlighting
@@ -99,6 +100,15 @@ enum HighlightedThemeType {
 /// From a [HighlightedThemeType] enum object, this
 /// returns that theme's map with theme name as keys and it's respective [TextStyle] as values.
 Map<String, TextStyle> getHighlightedThemeStyle(
+  HighlightedThemeType highlighterThemeType,
+) {
+  final _result = _getHighlightedThemeStyle(highlighterThemeType);
+
+  if (_result == null) return default_theme.defaultTheme;
+  return _result;
+}
+
+Map<String, TextStyle>? _getHighlightedThemeStyle(
     HighlightedThemeType highlighterThemeType) {
   switch (highlighterThemeType) {
     case HighlightedThemeType.a11yDarkTheme:

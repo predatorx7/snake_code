@@ -202,7 +202,10 @@ enum LanguageType {
 /// returns a proper name for the syntax highlighter's parser.
 String toLanguageName(LanguageType enumEntry) {
   final String language = describeEnum(enumEntry);
+
   // handle exceptionals
+  if (language.isEmpty) return 'all';
+
   switch (language) {
     case "language_1c":
       return "1c";

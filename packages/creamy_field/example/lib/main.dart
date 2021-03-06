@@ -19,13 +19,14 @@ class MyEditorApp extends StatefulWidget {
 
 class _MyEditorAppState extends State<MyEditorApp> {
   // Declared a regular syntax controller.
-  CreamyEditingController controller;
+  late CreamyEditingController controller;
+  late ScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
 
-    // The below example shows [CreamyEditingController], a text editing controller.
+    // The below example shows [CreamyEditingController], a text editing controller with RichText highlighting support
     controller = CreamyEditingController(
       // This is the CreamySyntaxHighlighter which will be used by the controller
       // to generate list of RichText for syntax highlighting
@@ -38,10 +39,13 @@ class _MyEditorAppState extends State<MyEditorApp> {
       // throws assertion error.
       tabSize: 4,
     );
+    scrollController = ScrollController();
   }
 
   @override
   void dispose() {
+    controller.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -62,40 +66,45 @@ class _MyEditorAppState extends State<MyEditorApp> {
           )
         ],
       ),
-      body: CreamyField(
-        autofocus: true,
-        // Our controller should be up casted as CreamyEditingController
-        // Note: Declare controller as CreamyEditingController if this fails.
-        controller: controller,
-        textCapitalization: TextCapitalization.none,
-        decoration: InputDecoration.collapsed(hintText: 'Start writing'),
-        lineCountIndicatorDecoration: LineCountIndicatorDecoration(
+      // Shows line indicator column adjacent to this widget
+      body: LineCountIndicator(
+        textControllerOfTextField: controller,
+        scrollControllerOfTextField: scrollController,
+        decoration: LineCountIndicatorDecoration(
           backgroundColor: Colors.grey,
         ),
-        maxLines: null,
-        // Shows line indicator column adjacent to this widget
-        showLineIndicator: true,
         // Allow this Text field to be horizontally scrollable
-        horizontallyScrollable: true,
-        // Additional options for text selection widget
-        toolbarOptions: CreamyToolbarOptions.allTrue(
-          // Below line enables dark mode in selection widget
-          selectionToolbarThemeMode: ThemeMode.dark,
-          useCamelCaseLabel: true,
-          actions: [
-            CreamyToolbarItem(
-              label: 'Button1',
-              callback: () {
-                print('Button2');
+        child: HorizontalScrollable(
+          // Additional options for text selection widget
+          child: TextField(
+            autofocus: true,
+            // Our controller should be up casted as CreamyEditingController
+            // Note: Declare controller as CreamyEditingController if this fails.
+            controller: controller,
+            scrollController: scrollController,
+            textCapitalization: TextCapitalization.none,
+            decoration: InputDecoration.collapsed(hintText: 'Start writing'),
+            maxLines: null,
+            selectionControls: CreamyTextSelectionControlsProvider(
+              type: TextSelectionControlsType.material,
+              actionsBuilder: (_, __, ___) {
+                return [
+                  CreamyTextSelectionToolbarAction(
+                    label: 'Button1',
+                    onPressed: () {
+                      print('Button2');
+                    },
+                  ),
+                  CreamyTextSelectionToolbarAction(
+                    label: 'Button2',
+                    onPressed: () {
+                      print('Button2');
+                    },
+                  ),
+                ];
               },
             ),
-            CreamyToolbarItem(
-              label: 'Button2',
-              callback: () {
-                print('Button2');
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

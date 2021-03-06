@@ -83,9 +83,9 @@ class _EditorTabState extends State<EditorTab> {
     final foregroundInDark = (Theme.of(context).brightness == Brightness.dark)
         ? Colors.white
         : Colors.black;
-    return CreamyField(
+    return TextField(
       key: key,
-      controller: widget.controller.textController,
+      controller: widget.controller.textController as TextEditingController,
       keyboardType: TextInputType.multiline,
       textInputAction: TextInputAction.newline,
       textCapitalization: TextCapitalization.none,

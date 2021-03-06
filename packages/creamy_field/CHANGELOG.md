@@ -1,9 +1,11 @@
 # Changelog
 
-## 0.3.3+1
+## 0.4.0
 
+- Modified style-usage of public APIs
+- Migrate to null-safety
+- Removed CreamyField & the classes it depended
 - Removed onEnterPress & onBackspacePress method head from SyntaxHighlighter
-- flutter format
 
 ## 0.3.3
 
