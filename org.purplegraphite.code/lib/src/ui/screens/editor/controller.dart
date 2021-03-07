@@ -46,7 +46,7 @@ class EditorSettings {
     } else if (entity.entity is Directory) {
       return EditorSettings.fromDirectoryEntity(entity);
     } else {
-      logger.e(
+      logger.info(
           'Entity type "${entity.runtimeType}" is not supported by EditorScreen');
       return null;
     }

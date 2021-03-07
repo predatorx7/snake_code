@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;

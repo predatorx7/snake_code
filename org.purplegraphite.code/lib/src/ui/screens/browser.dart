@@ -1,15 +1,11 @@
 import 'dart:io';
 
-<<<<<<< Updated upstream
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-=======
 import 'package:code/src/common/routing_const.dart';
 import 'package:code/src/models/plain_model/entity.dart';
 import 'package:code/src/models/view_model/browser_controller.dart';
 import 'package:code/src/ui/components/newfolder_dialog.dart';
 import 'package:code/src/utils/fileutils.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
->>>>>>> Stashed changes
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
