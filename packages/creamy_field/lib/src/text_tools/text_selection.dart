@@ -30,7 +30,6 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import 'dart:ui';
-import 'dart:math' as math;
 
 import 'package:creamy_field/src/text_tools/toolbar_options.dart';
 import 'package:flutter/foundation.dart';

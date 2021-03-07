@@ -145,7 +145,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
                       if (_isAFileSelected()) {
                         _settings = EditorSettings.fromFile(_idOfSelectedFile);
                       } else {
-                        _settings = EditorSettings.fromDirectory(widget.dir.absolute.path);
+                        _settings = EditorSettings.fromDirectory(
+                            widget.dir.absolute.path);
                       }
 
                       Provider.of<EditorController>(context, listen: false)
