@@ -1,6 +1,11 @@
 import 'dart:io';
 
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:code/src/common/routing_const.dart';
+import 'package:code/src/models/plain_model/entity.dart';
+import 'package:code/src/models/view_model/browser_controller.dart';
+import 'package:code/src/ui/components/newfolder_dialog.dart';
+import 'package:code/src/utils/fileutils.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
@@ -58,17 +63,19 @@ class _BrowserScreenState extends State<BrowserScreen> {
     Color color;
     switch (stat?.type) {
       case FileSystemEntityType.directory:
-        data = EvaIcons.folder;
+        data = FluentIcons.folder_20_regular;
         color = isDark
             ? Color.lerp(Theme.of(context).accentColor, Colors.white, 0.25)
             : Theme.of(context).accentColor;
         break;
       case FileSystemEntityType.file:
-        data = isHidden ? EvaIcons.fileOutline : EvaIcons.file;
+        data = isHidden
+            ? FluentIcons.folder_20_regular
+            : FluentIcons.document_24_filled;
         color = isDark ? Colors.white : Colors.grey;
         break;
       default:
-        data = EvaIcons.alertCircleOutline;
+        data = FluentIcons.error_circle_20_regular;
     }
     if (isHidden) {
       // File represents a hidden entity
@@ -136,9 +143,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
                       EditorSettings _settings;
 
                       if (_isAFileSelected()) {
-                        EditorSettings.fromFile(_idOfSelectedFile);
+                        _settings = EditorSettings.fromFile(_idOfSelectedFile);
                       } else {
-                        EditorSettings.fromDirectory(widget.dir.absolute.path);
+                        _settings = EditorSettings.fromDirectory(widget.dir.absolute.path);
                       }
 
                       Provider.of<EditorController>(context, listen: false)
@@ -159,7 +166,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Icon(EvaIcons.checkmarkOutline),
+                  Icon(FluentIcons.checkmark_20_regular),
                   Text(' OK '),
                 ],
               ),
@@ -247,7 +254,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Icon(
-                    EvaIcons.infoOutline,
+                    FluentIcons.info_20_regular,
                     color: _itemColor,
                   ),
                   SizedBox(width: 10),
@@ -273,7 +280,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
         },
         heroTag: _createNewHero,
         icon: Icon(
-          EvaIcons.folderAddOutline,
+          FluentIcons.folder_add_20_regular,
         ),
         label: Text('Create folder'),
       ),

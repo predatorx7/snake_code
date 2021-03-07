@@ -13,8 +13,8 @@ class Perms {
   static Future<bool> askOnce() async {
     WidgetsFlutterBinding.ensureInitialized();
     var status = await _storageAccessPerm.status;
-    if (status.isUndetermined) {
-      // We didn't ask for permission yet.
+    if (!status.isGranted) {
+      // We didn't have permissions yet.
       await ask();
     }
     // async completed

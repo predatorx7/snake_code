@@ -139,7 +139,6 @@ class _CustomPopupMenuButtonState<T> extends State<CustomPopupMenuButton<T>> {
         position: position,
         shape: widget.shape ?? popupMenuTheme.shape,
         color: widget.color ?? popupMenuTheme.color,
-        captureInheritedThemes: widget.captureInheritedThemes,
       ).then<void>((T newValue) {
         if (!mounted) return null;
         if (newValue == null) {

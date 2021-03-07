@@ -35,6 +35,20 @@ class BrowserController extends ChangeNotifier {
     await updateEntityList(context);
   }
 
+  void createFileAndAddToRecent(
+      BuildContext context, String recentlyCreatedFolderBasename) async {
+    var recentlyCreatedFolderPath =
+        path.join(current.path, recentlyCreatedFolderBasename);
+    await File.fromUri(
+      Uri(
+        path: recentlyCreatedFolderPath,
+      ),
+    ).create();
+    _recentlyCreatedFolder.add(recentlyCreatedFolderPath);
+    notifyListeners();
+    await updateEntityList(context);
+  }
+
   Future setCurrent(Directory dir) async {
     _current = dir;
     _currentEntities = await FileUtils.listEntities(_current);

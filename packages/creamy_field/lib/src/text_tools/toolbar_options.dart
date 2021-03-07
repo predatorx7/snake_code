@@ -1,94 +1,197 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart' show TextSelectionPoint;
 import 'package:flutter/widgets.dart';
 
-class CreamyToolbarItem {
+import '../../creamy_field.dart';
+
+// Intermediate data used for building menu items with the _getItems method.
+class CreamyTextSelectionToolbarAction {
   final String label;
   final bool visible;
-  final void Function() callback;
+  final void Function() onPressed;
 
-  CreamyToolbarItem({
-    @required this.label,
+  const CreamyTextSelectionToolbarAction({
+    required this.label,
+    required this.onPressed,
     this.visible = true,
-    @required this.callback,
   });
 }
 
-class CreamyToolbarOptions implements ToolbarOptions {
-  /// Create a toolbar configuration with given options.
-  ///
-  /// All options default to false if they are not explicitly set.
-  const CreamyToolbarOptions({
-    this.copy = false,
-    this.cut = false,
-    this.paste = false,
-    this.selectAll = false,
-    this.actions,
-    this.useCamelCaseLabel = true,
-    this.selectionToolbarThemeMode = ThemeMode.system,
-  })  : assert(copy != null),
-        assert(cut != null),
-        assert(paste != null),
-        assert(selectAll != null);
+enum TextSelectionControlsType {
+  material,
+}
 
-  /// Create a toolbar configuration with given options.
-  ///
-  /// All options default to true if they are not explicitly set.
-  const CreamyToolbarOptions.allTrue({
-    this.copy = true,
-    this.cut = true,
-    this.paste = true,
-    this.selectAll = true,
-    this.actions,
-    this.useCamelCaseLabel = true,
-    this.selectionToolbarThemeMode = ThemeMode.system,
-  })  : assert(copy != null),
-        assert(cut != null),
-        assert(paste != null),
-        assert(selectAll != null);
-
-  CreamyToolbarOptions merge(CreamyToolbarOptions other) {
-    return CreamyToolbarOptions(
-      copy: other.copy ?? this.copy,
-      cut: other.cut ?? this.cut,
-      paste: other.paste ?? this.paste,
-      selectAll: other.selectAll ?? this.selectAll,
-      actions: other.actions ?? this.actions,
-      useCamelCaseLabel: other.useCamelCaseLabel ?? this.useCamelCaseLabel,
-      selectionToolbarThemeMode:
-          other.selectionToolbarThemeMode ?? this.selectionToolbarThemeMode,
+/// Normally, when a [TextSelectionControls] calls [buildToolbar], the UI for the toolbar is painted.
+/// By default, this doesn't support additional actions other than copy, cut, select all & paste.
+mixin CreamyTextSelectionControls implements TextSelectionControls {
+  /// Builds a toolbar without additional actions
+  @nonVirtual
+  @override
+  Widget buildToolbar(
+    BuildContext context,
+    Rect globalEditableRegion,
+    double textLineHeight,
+    Offset selectionMidpoint,
+    List<TextSelectionPoint> endpoints,
+    TextSelectionDelegate delegate,
+    ClipboardStatusNotifier clipboardStatus,
+    Offset? lastSecondaryTapDownPosition,
+  ) {
+    return this.buildToolbarWithActions(
+      context,
+      globalEditableRegion,
+      textLineHeight,
+      selectionMidpoint,
+      endpoints,
+      delegate,
+      clipboardStatus,
+      lastSecondaryTapDownPosition,
     );
   }
 
-  /// Format label in camelcase
-  final bool useCamelCaseLabel;
-
-  /// Whether to show copy option in toolbar.
+  /// Build a toolbar which supports actions.
   ///
-  /// Defaults to false. Must not be null.
-  final bool copy;
-
-  /// Whether to show cut option in toolbar.
+  /// [CreamyTextSelectionControlsProvider] uses this to create toolbar with actions.
   ///
-  /// If [EditableText.readOnly] is set to true, cut will be disabled regardless.
-  ///
-  /// Defaults to false. Must not be null.
-  final bool cut;
+  /// This callback is also called by the [buildToolbar] to create a toolbar without actions.
+  Widget buildToolbarWithActions(
+    BuildContext context,
+    Rect globalEditableRegion,
+    double textLineHeight,
+    Offset position,
+    List<TextSelectionPoint> endpoints,
+    TextSelectionDelegate delegate,
+    ClipboardStatusNotifier clipboardStatus,
+    Offset? lastSecondaryTapDownPosition, {
+    List<CreamyTextSelectionToolbarAction> actions,
+  });
+}
 
-  /// Whether to show paste option in toolbar.
-  ///
-  /// If [EditableText.readOnly] is set to true, paste will be disabled regardless.
-  ///
-  /// Defaults to false. Must not be null.
-  final bool paste;
+typedef List<CreamyTextSelectionToolbarAction> ActionsBuilderCallback(
+  BuildContext context,
+  TextSelectionDelegate delegate,
+  ClipboardStatusNotifier clipboardStatus,
+);
 
-  /// Whether to show select all option in toolbar.
+/// A [TextSelectionControls] provider with actions.
+///
+/// Provide additional options to the text selection toolbar.
+///
+/// This delegates methods from [controls] to allow compatiblity with Material Text input fields.
+class CreamyTextSelectionControlsProvider implements TextSelectionControls {
+  final CreamyTextSelectionControls controls;
+
+  /// More actions the selection toolbar should offer.
+  ActionsBuilderCallback actionsBuilder;
+
+  /// A Provider of a custom [CreamyTextSelectionControls] with actions.
+  CreamyTextSelectionControlsProvider.custom({
+    required this.controls,
+    required this.actionsBuilder,
+  });
+
+  /// Provide text selection controls from this package,
   ///
-  /// Defaults to false. Must not be null.
-  final bool selectAll;
+  /// Describe the type of selections controls with [type].
+  /// Use [actionsBuilder] to build actions for the selection controls.
+  factory CreamyTextSelectionControlsProvider({
+    required TextSelectionControlsType type,
+    required ActionsBuilderCallback actionsBuilder,
+  }) {
+    TextSelectionControls textSelectionControls;
 
-  /// More actions the selection toolbar should offer
-  final List<CreamyToolbarItem> actions;
+    switch (type) {
+      case TextSelectionControlsType.material:
+      default:
+        textSelectionControls = creamyMaterialTextSelectionControls;
+    }
 
-  /// The brightness mode selection toolbar will follow
-  final ThemeMode selectionToolbarThemeMode;
+    return CreamyTextSelectionControlsProvider.custom(
+      controls: textSelectionControls as CreamyTextSelectionControls,
+      actionsBuilder: actionsBuilder,
+    );
+  }
+
+  @override
+  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
+          double textLineHeight) =>
+      controls.buildHandle(
+        context,
+        type,
+        textLineHeight,
+      );
+
+  @override
+  Widget buildToolbar(
+      BuildContext context,
+      Rect globalEditableRegion,
+      double textLineHeight,
+      Offset position,
+      List<TextSelectionPoint> endpoints,
+      TextSelectionDelegate delegate,
+      ClipboardStatusNotifier clipboardStatus,
+      Offset? lastSecondaryTapDownPosition) {
+    return controls.buildToolbarWithActions(
+      context,
+      globalEditableRegion,
+      textLineHeight,
+      position,
+      endpoints,
+      delegate,
+      clipboardStatus,
+      lastSecondaryTapDownPosition,
+      actions: actionsBuilder(
+        context,
+        delegate,
+        clipboardStatus,
+      ),
+    );
+  }
+
+  @override
+  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) =>
+      controls.getHandleAnchor(
+        type,
+        textLineHeight,
+      );
+
+  @override
+  Size getHandleSize(double textLineHeight) => controls.getHandleSize(
+        textLineHeight,
+      );
+
+  @override
+  bool canCopy(TextSelectionDelegate delegate) => controls.canCopy(delegate);
+
+  @override
+  bool canCut(TextSelectionDelegate delegate) => controls.canCut(delegate);
+
+  @override
+  bool canPaste(TextSelectionDelegate delegate) => controls.canPaste(delegate);
+
+  @override
+  bool canSelectAll(TextSelectionDelegate delegate) =>
+      controls.canSelectAll(delegate);
+
+  @override
+  void handleCopy(
+    TextSelectionDelegate delegate,
+    ClipboardStatusNotifier? clipboardStatus,
+  ) =>
+      controls.handleCopy(
+        delegate,
+        clipboardStatus,
+      );
+
+  @override
+  void handleCut(TextSelectionDelegate delegate) =>
+      controls.handleCut(delegate);
+
+  @override
+  Future<void> handlePaste(TextSelectionDelegate delegate) =>
+      controls.handlePaste(delegate);
+
+  @override
+  void handleSelectAll(TextSelectionDelegate delegate) =>
+      controls.handleSelectAll(delegate);
 }

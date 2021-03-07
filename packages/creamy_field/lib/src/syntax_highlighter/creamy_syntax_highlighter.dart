@@ -27,10 +27,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_highlight/themes/dark.dart' as dark_theme_highlight;
-import 'package:flutter_highlight/themes/default.dart'
-    as default_theme_highlight;
-import 'package:highlight/highlight.dart' show highlight, Node;
+import 'package:flutter_highlighter/themes/dark.dart' as dark_theme_highlight;
+import 'package:highlighter/highlighter.dart' show highlight, Node;
 
 import './highlighted_theme_type.dart';
 import './language_type.dart';
@@ -38,45 +36,45 @@ import '../syntax_highlighter.dart';
 
 /// Highlights a source code's syntax based on language type & theme type.
 ///
-/// This highlighter internally uses [flutter_highlight](https://pub.dev/packages/flutter_highlight)
-/// & [highlight](https://pub.dev/packages/highlight)
+/// This highlighter internally uses [flutter_highlight](https://pub.dev/packages/flutter_highlighter)
+/// & [highlight](https://pub.dev/packages/highlighter)
 class CreamySyntaxHighlighter implements SyntaxHighlighter {
   // The original code to be highlighted
-  String _source;
+  late String _source;
 
   /// Highlight language
   ///
   /// If null then no syntax highlighting will be done.
   ///
-  /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
+  /// [All available languages](https://github.com/Purple-Graphite/highlighter/tree/master/highlighter/lib/languages)
   final LanguageType language;
 
-  final String _language;
+  final String? _language;
 
   /// Highlight theme
   ///
   /// Defaults to a light theme.
   ///
-  /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
+  /// [All available themes](https://github.com/Purple-Graphite/highlighter/blob/master/flutter_highlighter/lib/themes)
   final HighlightedThemeType theme;
 
-  Map<String, TextStyle> _theme;
+  Map<String, TextStyle>? _theme;
 
   /// The dark theme used by this highlighter when [brightness] is [Brightness.dark]
   ///
-  /// Defaults to a dark theme.
-  final HighlightedThemeType darkTheme;
+  /// Defaults to [dark_theme_highlight.darkTheme].
+  final HighlightedThemeType? darkTheme;
 
-  Map<String, TextStyle> _darkTheme;
+  Map<String, TextStyle>? _darkTheme;
 
   /// The theme used by this syntax highlighter.
   /// If brightness is dark, [darkTheme] is used and when it's light or null, [theme] is used.
-  final ThemeMode themeMode;
+  final ThemeMode? themeMode;
 
-  Brightness _brightness;
+  Brightness? _brightness;
 
   /// The Theme brightness of the syntax highlight
-  Brightness get brightness => _brightness;
+  Brightness? get brightness => _brightness;
 
   /// Provide the context to this highligher. This method will be used to update
   /// the brighness based on context in [RichEditableText]
@@ -102,10 +100,9 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   // The effective theme brighness of this syntax highlighter.
   Brightness get _effectiveBrightness => _brightness ?? Brightness.light;
 
-  bool get _isThemeDark => (_effectiveBrightness == Brightness.dark) ?? false;
+  bool get _isThemeDark => _effectiveBrightness == Brightness.dark;
 
-  Map<String, TextStyle> get _effectiveTheme {
-    if (language == null) return const {};
+  Map<String, TextStyle>? get _effectiveTheme {
     // Returning the regular theme as dark theme is null.
     if (_darkTheme == null) return _theme;
     // If theme mode is dark returns a dark theme, else returns the regular theme
@@ -117,22 +114,19 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   /// You can specify the language mode & theme type with [language], [theme], [darkTheme], [brightness] respectively.
   ///
   /// For the highlight language, it is recommended to give [language] a value for performance
-  /// [All available languages](https://github.com/pd4d10/highlight/tree/master/highlight/lib/languages)
+  /// [All available languages](https://github.com/Purple-Graphite/highlight/tree/master/highlighter/lib/languages)
   ///
   /// The supported highlight themes are
-  /// [All available themes](https://github.com/pd4d10/highlight/blob/master/flutter_highlight/lib/themes)
+  /// [All available themes](https://github.com/Purple-Graphite/highlight/blob/master/flutter_highlighter/lib/themes)
   ///
   /// syntax will not be highlighted if language is null.
   CreamySyntaxHighlighter({
-    @required this.language,
-    @required this.theme,
+    required this.language,
+    required this.theme,
     this.darkTheme,
     this.themeMode,
-  })  : this._language =
-            (language != null) ? (toLanguageName(language) ?? 'all') : null,
-        this._theme = theme != null
-            ? getHighlightedThemeStyle(theme)
-            : default_theme_highlight.defaultTheme,
+  })  : this._language = toLanguageName(language),
+        this._theme = getHighlightedThemeStyle(theme),
         this._darkTheme = darkTheme != null
             ? getHighlightedThemeStyle(darkTheme)
             : dark_theme_highlight.darkTheme;
@@ -143,23 +137,23 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
     List<List<TextSpan>> stack = [];
 
     void _traverse(Node node) {
-      final TextStyle _all =
+      final TextStyle? _all =
           _isThemeDark ? TextStyle(color: Colors.white) : null;
       if (node.value != null) {
         currentSpans.add(node.className == null
             ? TextSpan(text: node.value, style: _all)
             : TextSpan(
-                text: node.value, style: _effectiveTheme[node.className]));
+                text: node.value, style: _effectiveTheme![node.className!]));
       } else if (node.children != null) {
         List<TextSpan> tmp = [];
         currentSpans.add(
-            TextSpan(children: tmp, style: _effectiveTheme[node.className]));
+            TextSpan(children: tmp, style: _effectiveTheme![node.className!]));
         stack.add(currentSpans);
         currentSpans = tmp;
 
-        node.children.forEach((n) {
+        node.children!.forEach((n) {
           _traverse(n);
-          if (n == node.children.last) {
+          if (n == node.children!.last) {
             currentSpans = stack.isEmpty ? spans : stack.removeLast();
           }
         });
@@ -174,10 +168,10 @@ class CreamySyntaxHighlighter implements SyntaxHighlighter {
   }
 
   @override
-  List<TextSpan> parseTextEditingValue(TextEditingValue value) {
-    _source = value.text;
+  List<TextSpan> parseTextEditingValue(TextEditingValue? value) {
+    _source = value!.text;
     return _convert(highlight
         .parse(_source, language: _language, autoDetection: _language == null)
-        .nodes);
+        .nodes!);
   }
 }

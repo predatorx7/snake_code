@@ -195,7 +195,9 @@ class StartScreen extends StatelessWidget {
               StartCardButton(
                 iconData: Icons.access_time,
                 label: 'Previous',
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pushNamed(HistoryScreenRoute);
+                },
                 keepDark: !_isDarkMode,
               ),
             ],

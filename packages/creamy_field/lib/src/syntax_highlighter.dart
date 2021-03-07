@@ -9,5 +9,5 @@ import 'syntax_highlighter/dummy_syntax_highlighter.dart'
 /// like [CreamySyntaxHighlighter] & [DummySyntaxHighlighter]
 abstract class SyntaxHighlighter {
   /// Parses text from [value] & generates syntax highlighted text as list of [TextSpan].
-  List<TextSpan> parseTextEditingValue(TextEditingValue value);
+  List<TextSpan> parseTextEditingValue(TextEditingValue? value);
 }

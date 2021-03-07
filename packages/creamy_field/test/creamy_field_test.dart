@@ -79,7 +79,7 @@ void main() {
   group(
       'When using CreamyEditingController, are \\t getting replaced with spaces when',
       () {
-    CreamyEditingController controller;
+    late CreamyEditingController controller;
     final int tabSize = 4;
     final String textWithSpaces = 'hello${' ' * tabSize}world';
     final String textWithTabs = 'hello\tworld';

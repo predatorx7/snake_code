@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 part 'history.g.dart';
@@ -6,8 +7,7 @@ part 'history.g.dart';
 @HiveType(typeId: 6)
 class FileModificationHistory extends HiveObject {
   @HiveField(1)
-  String absolutePath;
-
+  final String absolutePath;
   @HiveField(2)
   DateTime _lastModified;
 
@@ -18,17 +18,25 @@ class FileModificationHistory extends HiveObject {
   }
 
   @HiveField(3)
-  double scrollOffset;
+  final double scrollOffset;
   @HiveField(4)
-  int cursorOffset;
+  final int cursorOffset;
+
+  FileModificationHistory({
+    this.absolutePath,
+    this.scrollOffset,
+    this.cursorOffset,
+  });
+
+  void setlatestModified() {
+    _lastModified = DateTime.now();
+  }
 }
 
 @HiveType(typeId: 5)
-class History extends HiveObject {
-  History(this.absolutePathOfEntity) : super();
-
+class History extends HiveObject with Comparable<History> {
   @HiveField(1)
-  final String absolutePathOfEntity;
+  final String workspacePath;
 
   @HiveField(2)
   FileModificationHistory lastModifiedFileDetails;
@@ -38,13 +46,27 @@ class History extends HiveObject {
 
   DateTime get lastModified => _lastModified;
 
-  void _updateLastModified() {
+  History({@required this.workspacePath});
+
+  void updateLastModifiedDateTime() {
     _lastModified = DateTime.now();
   }
 
   @override
-  Future<void> save() {
-    _updateLastModified();
-    return super.save();
+  Future<void> save() async {
+    updateLastModifiedDateTime();
+    if (lastModifiedFileDetails != null) await lastModifiedFileDetails.save();
+    return await super.save();
+  }
+
+  static bool compareByDate = true;
+
+  @override
+  int compareTo(History other) {
+    if (compareByDate ?? true) {
+      return this.lastModified.compareTo(other.lastModified);
+    } else {
+      return this.workspacePath.compareTo(other.workspacePath);
+    }
   }
 }

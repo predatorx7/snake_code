@@ -83,32 +83,41 @@ class _EditorTabState extends State<EditorTab> {
     final foregroundInDark = (Theme.of(context).brightness == Brightness.dark)
         ? Colors.white
         : Colors.black;
-    return CreamyField(
-      key: key,
-      controller: widget.controller.textController,
-      keyboardType: TextInputType.multiline,
-      textInputAction: TextInputAction.newline,
-      textCapitalization: TextCapitalization.none,
-      textAlign: TextAlign.left,
-      textDirection: TextDirection.ltr,
-      obscureText: false,
-      focusNode: widget.controller.focusNode,
-      style: ThemeProvider.monospaceTextStyle.copyWith(color: foregroundInDark),
-      autocorrect: true,
-      enableSuggestions: true,
-      maxLines: null,
-      scrollPadding: const EdgeInsets.all(20.0),
-      smartDashesType: SmartDashesType.enabled,
-      smartQuotesType: SmartQuotesType.enabled,
-      textAlignVertical: TextAlignVertical.top,
-      decoration: InputDecoration.collapsed(
-        hintText: 'Start writing..',
-        hintStyle: ThemeProvider.monospaceTextStyle.copyWith(
-          color: foregroundInDark.withOpacity(0.5),
+    return LineCountIndicator(
+      textControllerOfTextField: widget.controller.textController,
+      scrollControllerOfTextField: widget.controller.scrollController,
+      decoration: LineCountIndicatorDecoration(
+        textStyle: ThemeProvider.monospaceTextStyle,
+      ),
+      child: HorizontalScrollable(
+        child: TextField(
+          key: key,
+          controller: widget.controller.textController,
+          keyboardType: TextInputType.multiline,
+          textInputAction: TextInputAction.newline,
+          textCapitalization: TextCapitalization.none,
+          textAlign: TextAlign.left,
+          textDirection: TextDirection.ltr,
+          obscureText: false,
+          focusNode: widget.controller.focusNode,
+          style: ThemeProvider.monospaceTextStyle
+              .copyWith(color: foregroundInDark),
+          autocorrect: true,
+          enableSuggestions: true,
+          maxLines: null,
+          scrollPadding: const EdgeInsets.all(20.0),
+          smartDashesType: SmartDashesType.enabled,
+          smartQuotesType: SmartQuotesType.enabled,
+          textAlignVertical: TextAlignVertical.top,
+          scrollController: widget.controller.scrollController,
+          decoration: InputDecoration.collapsed(
+            hintText: 'Start writing..',
+            hintStyle: ThemeProvider.monospaceTextStyle.copyWith(
+              color: foregroundInDark.withOpacity(0.5),
+            ),
+          ),
         ),
       ),
-      showLineIndicator: true,
-      horizontallyScrollable: true,
     );
   }
 }

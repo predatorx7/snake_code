@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:code/src/models/hive/history.dart';
+import 'package:code/src/models/provider/history.dart';
 import 'package:creamy_field/creamy_field.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -44,7 +46,7 @@ class EditorSettings {
     } else if (entity.entity is Directory) {
       return EditorSettings.fromDirectoryEntity(entity);
     } else {
-      logger.e(
+      logger.info(
           'Entity type "${entity.runtimeType}" is not supported by EditorScreen');
       return null;
     }
@@ -63,7 +65,13 @@ class EditorSettings {
   /// The controller using this setting will handle Editor in a Project based mode.
   EditorSettings.fromDirectoryEntity(this.entity)
       : isDirectory = true,
-        editorMode = EditorMode.Directory;
+        editorMode = EditorMode.Directory {
+    _echo();
+  }
+
+  _echo() {
+    print('Settings created in $editorMode');
+  }
 
   /// Create a setting from a [path] to a File.
   ///
@@ -82,17 +90,23 @@ class EditorSettings {
   /// Symbolic links are not supported.
   EditorSettings.fromFileEntity(this.entity)
       : isDirectory = false,
-        editorMode = EditorMode.SingleFile;
+        editorMode = EditorMode.SingleFile {
+    _echo();
+  }
 
   EditorSettings.noDirectory()
       : entity = null,
         isDirectory = true,
-        editorMode = EditorMode.NoDirectory;
+        editorMode = EditorMode.NoDirectory {
+    _echo();
+  }
 
   EditorSettings.noFile()
       : entity = null,
         isDirectory = false,
-        editorMode = EditorMode.NoFile;
+        editorMode = EditorMode.NoFile {
+    _echo();
+  }
 }
 
 class EditorTabPage with EquatableMixin {
@@ -154,6 +168,10 @@ class EditorTabPage with EquatableMixin {
 }
 
 class EditorController with ChangeNotifier {
+  final RecentHistoryProvider historyProvider;
+
+  EditorController(RecentHistoryProvider this.historyProvider);
+
   EditorSettings _settings;
 
   Entity get entity => _settings.entity;
@@ -204,8 +222,10 @@ class EditorController with ChangeNotifier {
   }
 
   void updateSettings(EditorSettings settings) {
+    assert(settings != null);
+
     _settings = settings;
-    switch (mode) {
+    switch (settings.editorMode) {
       case EditorMode.SingleFile:
         final page = EditorTabPage(entity);
         _addPage(page);
@@ -220,6 +240,10 @@ class EditorController with ChangeNotifier {
       default:
     }
     notifyListeners();
+    historyProvider.add(
+      settings.entity.absolutePath,
+      FileModificationHistory(),
+    );
   }
 
   void removePage(EditorTabPage page) {
