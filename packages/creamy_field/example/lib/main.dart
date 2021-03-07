@@ -57,7 +57,7 @@ class _MyEditorAppState extends State<MyEditorApp> {
       appBar: new AppBar(
         title: new Text("Rich Code Editor"),
         actions: <Widget>[
-          FlatButton(
+          TextButton(
             child: Text('Add tab'),
             onPressed: () {
               // Adds a tab at the selection's base base-offet
