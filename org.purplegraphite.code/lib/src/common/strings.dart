@@ -1,7 +1,7 @@
 class Strings {
   /// Application's version.
   /// Don't edit manually, use `<project-dir>/tools/update_version.sh`.
-  static const String applicationVersion = '0.0.9-alpha+01';
+  static const String applicationVersion = '0.5.0-aplha+2104101';
 
   static const String applicationTitle = 'Snake code';
 

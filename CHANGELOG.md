@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.0-aplha+2104101
+
+- Feature complete for phase 1
+
 ## Upcoming
 
 ## v0.1.0
