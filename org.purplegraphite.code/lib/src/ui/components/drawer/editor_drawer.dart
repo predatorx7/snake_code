@@ -61,10 +61,10 @@ class EditorDrawer extends StatelessWidget {
       child: Drawer(
         child: ListView(
           children: <Widget>[
-            ListTile(
-              title: const Text("Finder"),
-              leading: Icon(Icons.find_in_page),
-            ),
+            // ListTile(
+            //   title: const Text("Finder"),
+            //   leading: Icon(Icons.find_in_page),
+            // ),
             Tooltip(
               message: 'Browse workspace',
               child: ListTile(
@@ -72,30 +72,31 @@ class EditorDrawer extends StatelessWidget {
                 leading: Icon(
                   FluentIcons.compass_northwest_20_regular,
                 ),
-                onTap: () {
-                  Navigator.of(context).pushNamed(
+                onTap: () async {
+                  await Navigator.of(context).pushNamed(
                     WorkspaceExplorerScreenRoute,
                     arguments: folder,
                   );
+                  await Navigator.of(context).pop();
                 },
               ),
             ),
-            ListTile(
-              title: const Text("Search"),
-              leading: Icon(
-                FluentIcons.search_20_regular,
-              ),
-            ),
-            ListTile(
-              title: const Text("Source control"),
-              leading: Icon(Icons.timeline),
-            ),
-            ListTile(
-              title: const Text("Run"),
-              leading: Icon(
-                FluentIcons.arrow_right_circle_24_regular,
-              ),
-            ),
+            // ListTile(
+            //   title: const Text("Search"),
+            //   leading: Icon(
+            //     FluentIcons.search_20_regular,
+            //   ),
+            // ),
+            // ListTile(
+            //   title: const Text("Source control"),
+            //   leading: Icon(Icons.timeline),
+            // ),
+            // ListTile(
+            //   title: const Text("Run"),
+            //   leading: Icon(
+            //     FluentIcons.arrow_right_circle_24_regular,
+            //   ),
+            // ),
             ListTile(
               title: const Text("Terminal"),
               leading: Icon(

@@ -8,9 +8,11 @@ class _Consts {
   static const double avatarRadius = 40.0;
 }
 
-Future<dynamic> newFolderDialog(BuildContext context,
-    void Function(TextEditingController controller) onButtonPress,
-    [bool file]) {
+Future<dynamic> newFolderDialog(
+  BuildContext context,
+  void Function(TextEditingController controller) onButtonPress, [
+  bool file = false,
+]) {
   return showDialog<dynamic>(
     context: context,
     builder: (BuildContext context) => CustomDialog(

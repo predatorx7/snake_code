@@ -141,6 +141,13 @@ class StartScreen extends StatelessWidget {
                       await FilePicker.platform.getDirectoryPath();
                   if (result.isNotEmpty) {
                     // Open in editor
+                    final _settings = EditorSettings.fromDirectory(result);
+
+                    await Provider.of<EditorController>(context, listen: false)
+                        .updateSettings(_settings);
+
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        EditorScreenRoute, (Route<dynamic> route) => false);
                   }
                 },
                 iconData: EvaIcons.download,
@@ -150,36 +157,36 @@ class StartScreen extends StatelessWidget {
               ),
             ],
           ),
-          StartCard(
-            title: 'Start fresh',
-            description: 'Create a new file or project.',
-            buttons: [
-              StartCardButton(
-                iconData: EvaIcons.folderAddOutline,
-                label: 'New project',
-                onPressed: () {
-                  // open a pseudo project workspace in editor.
-                  Provider.of<EditorController>(context, listen: false)
-                      .updateSettings(EditorSettings.noDirectory());
-                  Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
-                },
-                keepDark: _isDarkMode,
-                keepOutlines: true,
-              ),
-              StartCardButton(
-                onPressed: () {
-                  // open a pseudo file in editor.
-                  Provider.of<EditorController>(context, listen: false)
-                      .updateSettings(EditorSettings.noFile());
-                  Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
-                },
-                iconData: EvaIcons.fileAddOutline,
-                label: 'New file',
-                keepDark: !_isDarkMode,
-                keepOutlines: true,
-              ),
-            ],
-          ),
+          // StartCard(
+          //   title: 'Start fresh',
+          //   description: 'Create a new file or project.',
+          //   buttons: [
+          //     StartCardButton(
+          //       iconData: EvaIcons.folderAddOutline,
+          //       label: 'New project',
+          //       onPressed: () async {
+          //         // open a pseudo project workspace in editor.
+          //         await Provider.of<EditorController>(context, listen: false)
+          //             .updateSettings(EditorSettings.noDirectory());
+          //         Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
+          //       },
+          //       keepDark: _isDarkMode,
+          //       keepOutlines: true,
+          //     ),
+          //     StartCardButton(
+          //       onPressed: () async {
+          //         // open a pseudo file in editor.
+          //         await Provider.of<EditorController>(context, listen: false)
+          //             .updateSettings(EditorSettings.noFile());
+          //         Navigator.of(context).pushReplacementNamed(EditorScreenRoute);
+          //       },
+          //       iconData: EvaIcons.fileAddOutline,
+          //       label: 'New file',
+          //       keepDark: !_isDarkMode,
+          //       keepOutlines: true,
+          //     ),
+          //   ],
+          // ),
           StartCard(
             title: 'Recent',
             description:

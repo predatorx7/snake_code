@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
@@ -140,7 +141,7 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
 
             Widget child = ListTile(
               key: ValueKey(object.id),
-              onTap: () {
+              onTap: () async {
                 if (object.entity is Directory) {
                   setState(() {
                     _clearSelection();
@@ -155,9 +156,9 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
                       arguments: x);
                 } else if (object.entity is File) {
                   final page = EditorTabPage(object);
-                  controller.addPage(page);
+                  await controller.addPage(page);
                   _toggleSelection(object.id);
-                  Navigator.canPop(context);
+                  Navigator.pop(context);
                 }
               },
               leading: getFileTypeIcon(object, isDark),
@@ -220,12 +221,20 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
         ),
       ),
       floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           FloatingActionButton.extended(
             onPressed: () {
-              newFolderDialog(context, (textController) {
-                _view.createFileAndAddToRecent(context, textController.text);
+              newFolderDialog(context, (textController) async {
+                final _file = await _view.createFileAndAddToRecent(
+                    context, textController.text);
+                final object = Entity(_file);
+                final page = EditorTabPage(object);
+                await controller.addPage(page);
+                _toggleSelection(object.id);
+                await Navigator.of(context).pop();
               }, true);
             },
             heroTag: _createNewHero,

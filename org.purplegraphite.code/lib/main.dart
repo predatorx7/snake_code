@@ -26,20 +26,22 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _themeProvider = ThemeProvider(
+      navigatorKey: _navigatorKey,
+    );
+
     // The [MultiProvider] builds providers which instances of object throughout
     // the widget tree with a search complexity of O(1)
     return MultiProvider(
       providers: [
         // Provides instance of class initiated at the create parameter
-        ChangeNotifierProvider<ThemeProvider>(
+        ChangeNotifierProvider<ThemeProvider>.value(
           // Provides theme to the descendant widgets.
           // Use Provider.of<ThemeProvider>(context) to get it's instance.
-          create: (_) => ThemeProvider(
-            navigatorKey: _navigatorKey,
-          ),
+          value: _themeProvider,
         ),
         ChangeNotifierProvider<EditorController>(
-          create: (_) => EditorController(_recents),
+          create: (_) => EditorController(_recents, _themeProvider),
         ),
         ChangeNotifierProvider<RecentHistoryProvider>(
           create: (_) => _recents,
@@ -49,7 +51,6 @@ class App extends StatelessWidget {
         builder: (context, th, child) {
           return MaterialApp(
             key: _appKey,
-
             /// Will be used to catch intents, and to hanle Routes
             /// without context
             navigatorKey: _navigatorKey,

@@ -36,7 +36,14 @@ class TerminalController extends ChangeNotifier {
   Map<String, String> environment = {};
   // List<ConsoleOutput> _cache = [];
   List<ConsoleOutput> _outList = [];
-  ConsoleOutput get lastConsoleLog => _outList[_outList.length - 1];
+
+  ConsoleOutput get lastConsoleLog {
+    if (_outList.isEmpty) {
+      return ConsoleOutput('');
+    }
+    return _outList.last;
+  }
+
   List<ConsoleOutput> get outputs => _outList;
   final String prefix = '/data/data/org.basil.code';
   IOSink ios;

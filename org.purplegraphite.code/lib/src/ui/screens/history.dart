@@ -56,10 +56,10 @@ class HistoryScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            onTap: () {
+            onTap: () async {
               final settings =
                   EditorSettings.fromDirectory(_history.workspacePath);
-              Provider.of<EditorController>(context, listen: false)
+              await Provider.of<EditorController>(context, listen: false)
                   .updateSettings(settings);
               Navigator.of(context).pushNamedAndRemoveUntil(
                   EditorScreenRoute, (Route<dynamic> route) => false);

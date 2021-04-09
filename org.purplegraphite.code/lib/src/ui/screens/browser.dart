@@ -137,7 +137,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
             child: OutlineButton(
               onPressed: widget?.dir == null
                   ? null
-                  : () {
+                  : () async {
                       // TODO(mushaheedx): Ask with a dialog before opening editor with a don't ask again tick box.
 
                       EditorSettings _settings;
@@ -149,7 +149,8 @@ class _BrowserScreenState extends State<BrowserScreen> {
                             widget.dir.absolute.path);
                       }
 
-                      Provider.of<EditorController>(context, listen: false)
+                      await Provider.of<EditorController>(context,
+                              listen: false)
                           .updateSettings(_settings);
 
                       Navigator.of(context).pushNamedAndRemoveUntil(

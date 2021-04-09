@@ -3,10 +3,13 @@ import 'package:code/src/models/hive/repository.dart';
 import 'package:code/src/models/hive/settings/themeSettings.dart';
 import 'package:code/src/models/plain_model/ThemeColors.dart';
 import 'package:code/src/utils/logman.dart';
+import 'package:creamy_field/creamy_field.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path/path.dart';
 
 class ThemeProvider with ChangeNotifier {
   final GlobalKey<NavigatorState> _navigatorKey;
@@ -37,7 +40,7 @@ class ThemeProvider with ChangeNotifier {
     try {
       return themeStyles[themeChoice];
     } catch (e, r) {
-      logger.e('Falling back to first theme in _themeStyles', e, r);
+      logger.warning('Falling back to first theme in _themeStyles', e, r);
       return _themeStyles?.first;
     }
   }
@@ -79,6 +82,43 @@ class ThemeProvider with ChangeNotifier {
     fontFamily: 'SourceCodePro',
     fontWeight: FontWeight.w400,
   );
+
+  static LanguageType fromFilePath(String filename) {
+    final fileBasename = basename(filename);
+    final int indexOfDot = fileBasename.lastIndexOf('.');
+
+    final language = fileBasename.substring(indexOfDot + 1);
+
+    if (language.isEmpty) return LanguageType.all;
+
+    switch (language) {
+      case 'py':
+        return LanguageType.python;
+        break;
+      case 'sh':
+        return LanguageType.bash;
+      case 'js':
+        return LanguageType.javascript;
+      default:
+    }
+
+    for (var languageType in LanguageType.values) {
+      final String typeName = describeEnum(languageType);
+      if (language == typeName) {
+        return languageType;
+      }
+    }
+    // TODO: handle exceptions
+    return LanguageType.all;
+  }
+
+  CreamySyntaxHighlighter createSyntaxHighlighter(String filename) {
+    return CreamySyntaxHighlighter(
+      language: fromFilePath(filename),
+      theme: HighlightedThemeType.vsTheme,
+      themeMode: isDarkThemeEnabled ? ThemeMode.light : ThemeMode.dark,
+    );
+  }
 
   /// User's choice of theme. defaults to 0. Updated later with User's preference.
   int get themeChoice => _themeChoice ?? 0;

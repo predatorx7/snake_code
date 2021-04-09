@@ -26,6 +26,7 @@ dependencies:
   
   provider: ^5.0.0
   fluentui_system_icons: ^1.1.104
+  eva_icons_flutter: ^3.0.0
   shared_preferences: ^2.0.3
   path_provider: ^2.0.1
   path: ^1.8.0
@@ -38,6 +39,7 @@ dependencies:
   google_fonts: ^2.0.0
   file_picker: ^3.0.0
   equatable: ^2.0.0
+  share: ^2.0.1
 
 dev_dependencies:
   lint: ^1.5.3
@@ -46,7 +48,7 @@ dev_dependencies:
     sdk: flutter
   # hive_generator fails version resolving
   # hive_generator: ^1.0.0
-  build_runner: ^1.11.5
+  build_runner: ^1.12.2
 
 
 # For information on the generic Dart part of this file, see the

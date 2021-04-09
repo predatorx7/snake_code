@@ -35,11 +35,11 @@ class BrowserController extends ChangeNotifier {
     await updateEntityList(context);
   }
 
-  void createFileAndAddToRecent(
+  Future<File> createFileAndAddToRecent(
       BuildContext context, String recentlyCreatedFolderBasename) async {
     var recentlyCreatedFolderPath =
         path.join(current.path, recentlyCreatedFolderBasename);
-    await File.fromUri(
+    final _file = await File.fromUri(
       Uri(
         path: recentlyCreatedFolderPath,
       ),
@@ -47,6 +47,7 @@ class BrowserController extends ChangeNotifier {
     _recentlyCreatedFolder.add(recentlyCreatedFolderPath);
     notifyListeners();
     await updateEntityList(context);
+    return _file;
   }
 
   Future setCurrent(Directory dir) async {

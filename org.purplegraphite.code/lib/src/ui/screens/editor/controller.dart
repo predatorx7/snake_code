@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:code/service/saver.dart';
 import 'package:code/src/models/hive/history.dart';
 import 'package:code/src/models/provider/history.dart';
+import 'package:code/src/models/provider/theme.dart';
 import 'package:creamy_field/creamy_field.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 
@@ -125,11 +128,20 @@ class EditorTabPage with EquatableMixin {
 
   String get absolutePath => _entity.absolutePath;
 
+  ValueKey _key;
+
+  ValueKey get valueKey {
+    if (_key == null) _key = ValueKey(_entity.absolutePath);
+    return _key;
+  }
+
   String get basename => _entity != null ? _entity.basename : 'untitled';
 
   String _openTimeInText;
 
   Entity get entity => _entity;
+
+  File get fileEntity => entity.entity;
 
   String get restorationID {
     assert(_openTimeInText != null);
@@ -143,9 +155,16 @@ class EditorTabPage with EquatableMixin {
 
   bool get isInitialized => _isInitialized ?? false;
 
-  void open() {
+  Future<void> open(CreamySyntaxHighlighter syntaxHighlighter) async {
     if (isInitialized) return;
-    textEditingController = CreamyEditingController();
+    textEditingController = CreamyEditingController(
+      syntaxHighlighter: syntaxHighlighter,
+    );
+    final exists = await fileEntity.exists();
+    if (exists) {
+      final content = await fileEntity.readAsString();
+      textEditingController.text = content;
+    }
     scrollController = ScrollController();
     _openTimeInText = DateTime.now().toIso8601String();
     _isInitialized = true;
@@ -169,8 +188,9 @@ class EditorTabPage with EquatableMixin {
 
 class EditorController with ChangeNotifier {
   final RecentHistoryProvider historyProvider;
+  final ThemeProvider themeProvider;
 
-  EditorController(RecentHistoryProvider this.historyProvider);
+  EditorController(this.historyProvider, this.themeProvider);
 
   EditorSettings _settings;
 
@@ -195,46 +215,62 @@ class EditorController with ChangeNotifier {
   /// list of tabs user opened
   List<EditorTabPage> get tabs => _tabs;
 
-  int _indexOfActivePage = 0;
+  /// page which is shown in  Editor
+  EditorTabPage _activePage;
 
-  /// Index of page which is shown in  Editor
-  int get indexOfActivePage => _indexOfActivePage;
+  void changeActiveTo(EditorTabPage page) {
+    _activePage = page;
+    notifyListeners();
+  }
 
   /// Get the currently active page
   EditorTabPage get activePage {
     if (_tabs?.isEmpty ?? true) return null;
-    return _tabs[indexOfActivePage];
+    if (_activePage != null) return _activePage;
+    _activePage = _tabs.first;
+    return _activePage;
   }
 
   /// Should a start page be shown when no tabs are open
   bool get showStartPage => _tabs?.isEmpty ?? true;
 
+  final fileSaving = FileSaving();
+
   /// Open a page in tabs
-  void addPage(EditorTabPage page) {
-    page.open();
-    _addPage(page);
-    _indexOfActivePage = tabs.length - 1;
+  void addPage(EditorTabPage page) async {
+    for (var item in _tabs) {
+      if (item.absolutePath == page.absolutePath) {
+        return;
+      }
+    }
+    await _addPage(page);
+    _activePage = page;
     notifyListeners();
   }
 
-  void _addPage(EditorTabPage page) {
+  void _addPage(EditorTabPage page) async {
+    final _syntaxHighlighter = themeProvider.createSyntaxHighlighter(
+      page.basename,
+    );
+    await page.open(_syntaxHighlighter);
     _tabs.add(page);
+    fileSaving.add(page);
   }
 
-  void updateSettings(EditorSettings settings) {
+  void updateSettings(EditorSettings settings) async {
     assert(settings != null);
 
     _settings = settings;
     switch (settings.editorMode) {
       case EditorMode.SingleFile:
         final page = EditorTabPage(entity);
-        _addPage(page);
+        await _addPage(page);
         break;
       case EditorMode.NoDirectory:
         break;
       case EditorMode.NoFile:
         final page = EditorTabPage(null);
-        _addPage(page);
+        await _addPage(page);
         break;
       case EditorMode.Directory:
       default:
@@ -247,11 +283,16 @@ class EditorController with ChangeNotifier {
   }
 
   void removePage(EditorTabPage page) {
+    if (activePage == page) {
+      _activePage = null;
+    }
     _removePage(page);
     notifyListeners();
   }
 
   void _removePage(EditorTabPage page) {
     _tabs.remove(page);
+    fileSaving.remove(page);
+    page.close();
   }
 }

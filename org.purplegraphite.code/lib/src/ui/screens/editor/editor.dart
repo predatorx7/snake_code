@@ -1,14 +1,17 @@
 import 'dart:io';
 
 import 'package:code/src/common/routing_const.dart';
+import 'package:code/src/models/provider/theme.dart';
 import 'package:code/src/ui/components/acrylic.dart';
 import 'package:code/src/ui/components/buttons/action_tabs_button.dart';
 import 'package:code/src/ui/components/buttons/popup_menu.dart';
 import 'package:code/src/ui/components/drawer/editor_drawer.dart';
 import 'package:code/src/ui/components/popup_menu_tile.dart';
 import 'package:creamy_field/creamy_field.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 
 import '../../../models/plain_model/entity.dart';
 import 'controller.dart';
@@ -42,7 +45,19 @@ class _EditorScreenState extends State<EditorScreen> {
     super.didChangeDependencies();
   }
 
-  EditorTabPage get activePage => controller.activePage;
+  static void addAfterPosition(TextEditingController controller, String toAdd) {
+    final int oldOffset = controller.selection.baseOffset;
+    controller.text = controller.text.replaceRange(
+      oldOffset,
+      oldOffset,
+      toAdd,
+    );
+    controller.selection = TextSelection.fromPosition(
+      TextPosition(
+        offset: oldOffset + 1,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,42 +87,69 @@ class _EditorScreenState extends State<EditorScreen> {
           ),
         ),
         color: _isDarkMode ? Colors.grey[700] : null,
+        onSelected: (value) {
+          switch (value) {
+            case 'Change workspace':
+              Navigator.of(context).pushNamed(BrowserScreenRoute);
+              break;
+            case 'Save':
+              if (controller.activePage != null)
+                controller.fileSaving.save(controller.activePage);
+              break;
+            case 'Share':
+              if (controller.activePage != null)
+                Share.shareFiles(
+                  [
+                    controller.activePage.absolutePath,
+                  ],
+                );
+              break;
+            default:
+          }
+        },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<dynamic>>[
-          PopupMenuTile(
-            value: 'New file',
-            leading: EvaIcons.fileAddOutline,
-            title: Text('New file'),
-          ),
+          // PopupMenuTile(
+          //   value: 'New file',
+          //   leading: EvaIcons.fileAddOutline,
+          //   title: Text('New file'),
+          // ),
+          if (controller.activePage != null)
+            PopupMenuTile(
+              value: 'Save',
+              leading: EvaIcons.saveOutline,
+              title: Text('Save'),
+            ),
           PopupMenuTile(
             value: 'Change workspace',
             leading: EvaIcons.folder,
             title: Text('Change workspace'),
           ),
-          PopupMenuTile(
-            value: 'Goto line',
-            leading: EvaIcons.cornerDownRightOutline,
-            title: Text('Goto line'),
-          ),
-          PopupMenuTile(
-            value: 'Syntax',
-            leading: EvaIcons.colorPalette,
-            title: Text('Syntax'),
-          ),
-          PopupMenuTile(
-            value: 'Auto save',
-            leading: EvaIcons.cloudUploadOutline,
-            title: Text('Auto save'),
-          ),
-          PopupMenuTile(
-            value: 'Find or Replace',
-            leading: Icons.find_replace,
-            title: Text('Find or Replace'),
-          ),
-          PopupMenuTile(
-            value: 'Share',
-            leading: EvaIcons.shareOutline,
-            title: Text('Share'),
-          ),
+          // PopupMenuTile(
+          //   value: 'Goto line',
+          //   leading: EvaIcons.cornerDownRightOutline,
+          //   title: Text('Goto line'),
+          // ),
+          // PopupMenuTile(
+          //   value: 'Syntax',
+          //   leading: EvaIcons.colorPalette,
+          //   title: Text('Syntax'),
+          // ),
+          // PopupMenuTile(
+          //   value: 'Auto save',
+          //   leading: EvaIcons.cloudUploadOutline,
+          //   title: Text('Auto save'),
+          // ),
+          // PopupMenuTile(
+          //   value: 'Find or Replace',
+          //   leading: Icons.find_replace,
+          //   title: Text('Find or Replace'),
+          // ),
+          if (controller.activePage != null)
+            PopupMenuTile(
+              value: 'Share',
+              leading: EvaIcons.shareOutline,
+              title: Text('Share'),
+            ),
         ],
         iconColor: popupIconButtonColor,
         padding: const EdgeInsets.all(10),
@@ -133,42 +175,19 @@ class _EditorScreenState extends State<EditorScreen> {
           isDark: _isDarkMode,
           child: SafeArea(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(right: 30, left: 30),
-                      child: Text(
-                        'Tabs',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: foregroundInDark,
-                        ),
-                      ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                  child: Text(
+                    'Tabs',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: foregroundInDark,
                     ),
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.maybePop(context);
-                      },
-                      textColor: foregroundInDark,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Text('Add new'),
-                          SizedBox(width: 5),
-                          Icon(
-                            EvaIcons.plus,
-                            color: foregroundInDark,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(),
-                  ],
+                  ),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -187,12 +206,15 @@ class _EditorScreenState extends State<EditorScreen> {
                             color: foregroundInDark,
                           ),
                         ),
+                        onTap: () {
+                          controller.changeActiveTo(page);
+                          Navigator.maybePop(context);
+                        },
                         trailing: IconButton(
                           icon: Icon(EvaIcons.closeOutline),
                           splashColor: Colors.red,
                           onPressed: () {
                             controller.removePage(page);
-                            // TODO(predatorx7): Set last  edited as current else last else start page
                             setState(() {});
                             Navigator.maybePop(context);
                           },
@@ -211,7 +233,7 @@ class _EditorScreenState extends State<EditorScreen> {
     Widget body;
     String _title;
 
-    if (controller.showStartPage) {
+    if (controller.showStartPage || controller.activePage == null) {
       _title = 'Start';
       body = Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -250,19 +272,190 @@ class _EditorScreenState extends State<EditorScreen> {
         ],
       );
     } else {
-      _title = activePage?.basename ?? 'untitled';
+      final _activePage = controller.activePage;
+      _title = _activePage?.basename ?? 'untitled';
       final CreamyEditingController _textController =
-          activePage.textEditingController;
-      final ScrollController _scrollController = activePage.scrollController;
-      body = Scrollbar(
-        radius: Radius.circular(15),
-        child: CreamyField(
-          controller: _textController,
-          scrollController: _scrollController,
-          showLineIndicator: true,
-          showCursor: true,
-          keyboardType: TextInputType.multiline,
-        ),
+          _activePage.textEditingController;
+      final ScrollController _scrollController = _activePage.scrollController;
+
+      //   final ThemeData _theme = Theme.of(context);
+      // final bool _isDarkMode = _theme.brightness == Brightness.dark;
+      // final popupIconButtonColor = Color.lerp(_theme.accentColor,
+      //     _isDarkMode ? Colors.white : Colors.black, _isDarkMode ? 0.10 : 0.25);
+      // final backgroundInDark = _isDarkMode ? Colors.black : Colors.white;
+      // final foregroundInDark = _isDarkMode ? Colors.white : Colors.black;
+
+      final _monoTextStyle = ThemeProvider.monospaceTextStyle.copyWith(
+        color: _isDarkMode ? Colors.white : Colors.black,
+      );
+
+      final _indicatorAndBarColor = Colors.grey;
+
+      final actionAccentColor = Color.lerp(
+        _theme.accentColor,
+        _isDarkMode ? Colors.white : Colors.black,
+        0.30,
+      );
+
+      final buttonStyle = OutlinedButton.styleFrom(
+        primary: actionAccentColor,
+      );
+
+      body = Column(
+        children: [
+          Expanded(
+            child: Scrollbar(
+              key: _activePage.valueKey,
+              radius: Radius.circular(15),
+              child: LineCountIndicator(
+                textControllerOfTextField: _textController,
+                scrollControllerOfTextField: _scrollController,
+                decoration: LineCountIndicatorDecoration(
+                  backgroundColor: _indicatorAndBarColor,
+                  textStyle: _monoTextStyle.copyWith(
+                    color: _isDarkMode ? Colors.black : Colors.white,
+                  ),
+                ),
+                child: HorizontalScrollable(
+                  child: TextField(
+                    controller: _textController,
+                    scrollController: _scrollController,
+                    showCursor: true,
+                    decoration:
+                        InputDecoration.collapsed(hintText: 'Start writing'),
+                    textCapitalization: TextCapitalization.none,
+                    textInputAction: TextInputAction.newline,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    style: _monoTextStyle,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          new Container(
+            color: _isDarkMode ? Colors.black : Colors.white,
+            padding: new EdgeInsets.all(6.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 35,
+              ),
+              child: new ListView(
+                scrollDirection: Axis.horizontal,
+                physics: AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                children: [
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      controller.activePage.textEditingController.addTab();
+                      setState(() {});
+                    },
+                    style: buttonStyle,
+                    child: Text('TAB'),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      final int oldOffset = textController.selection.baseOffset;
+                      if (oldOffset - 1 < 0) {
+                        return;
+                      }
+                      textController.selection = TextSelection.fromPosition(
+                        TextPosition(
+                          offset: oldOffset - 1,
+                        ),
+                      );
+                      setState(() {});
+                    },
+                    child: Icon(
+                      EvaIcons.arrowLeft,
+                      color: actionAccentColor,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      final int oldOffset = textController.selection.baseOffset;
+                      if (oldOffset + 1 >= textController.text.length) {
+                        return;
+                      }
+                      textController.selection = TextSelection.fromPosition(
+                        TextPosition(
+                          offset: oldOffset + 1,
+                        ),
+                      );
+                      setState(() {});
+                    },
+                    child: Icon(
+                      EvaIcons.arrowRight,
+                      color: actionAccentColor,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      addAfterPosition(textController, '{}');
+                      setState(() {});
+                    },
+                    child: Text('{'),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      addAfterPosition(textController, '}');
+                      setState(() {});
+                    },
+                    child: Text('}'),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      addAfterPosition(textController, '()');
+                      setState(() {});
+                    },
+                    child: Text('('),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      final textController =
+                          controller.activePage.textEditingController;
+                      addAfterPosition(textController, ')');
+                      setState(() {});
+                    },
+                    child: Text(')'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       );
     }
 

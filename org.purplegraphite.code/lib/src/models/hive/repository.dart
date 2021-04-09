@@ -18,7 +18,7 @@ class Repository<M> {
   /// Creates a [Repository] to wrap an open [box] of [adapter] with name [boxName]
   Repository(this.boxName, this.adapter, this.box);
 
-  static bool _hadHiveInitialized = false;
+  static bool _isHiveInitialized = false;
 
   /// Initiates Hive for flutter and returns a Hive [Box] wrapped with [Repository].
   ///
@@ -27,9 +27,9 @@ class Repository<M> {
   /// Either register Type adapter with [register] or provide the TypeAdapter as the parameter in [adapter]
   static Future<Repository<M>> get<M>(String boxName,
       [TypeAdapter<M> adapter]) async {
-    if (!_hadHiveInitialized) {
+    if (!_isHiveInitialized) {
       await Hive.initFlutter();
-      _hadHiveInitialized = true;
+      _isHiveInitialized = true;
     }
 
     register<M>(adapter);
