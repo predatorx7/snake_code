@@ -51,6 +51,7 @@ class App extends StatelessWidget {
         builder: (context, th, child) {
           return MaterialApp(
             key: _appKey,
+
             /// Will be used to catch intents, and to hanle Routes
             /// without context
             navigatorKey: _navigatorKey,
