@@ -152,13 +152,16 @@ class _WorkspaceExplorerScreenState extends State<WorkspaceExplorerScreen> {
                   var x = Directory.fromUri(
                     Uri(path: object.absolutePath),
                   );
-                  Navigator.pushNamed(context, BrowserScreenRoute,
-                      arguments: x);
+                  await Navigator.of(context).pushNamed(
+                    WorkspaceExplorerScreenRoute,
+                    arguments: x,
+                  );
+                  await Navigator.of(context).pop();
                 } else if (object.entity is File) {
                   final page = EditorTabPage(object);
                   await controller.addPage(page);
                   _toggleSelection(object.id);
-                  Navigator.pop(context);
+                  Navigator.of(context).pop();
                 }
               },
               leading: getFileTypeIcon(object, isDark),
