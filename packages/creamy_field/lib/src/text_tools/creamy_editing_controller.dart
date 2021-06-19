@@ -206,7 +206,11 @@ class CreamyEditingController extends ValueNotifier<TextEditingValue>
   ///
   /// By default makes text in composing range appear as underlined.
   /// Descendants can override this method to customize appearance of text.
-  TextSpan buildTextSpan({TextStyle? style, required bool withComposing}) {
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
     assert(!value.composing.isValid ||
         !withComposing ||
         value.isComposingRangeValid);
