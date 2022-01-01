@@ -10,7 +10,6 @@ class RecentHistoryProvider extends ChangeNotifier {
   }
 
   Repository<History> _history;
-  Repository<FileModificationHistory> _fileModificationHistory;
 
   Box<History> get box => _history.box;
 

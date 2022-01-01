@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// A repository which holds a Hive [Box] with helper functions.
