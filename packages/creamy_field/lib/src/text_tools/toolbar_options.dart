@@ -113,12 +113,21 @@ class CreamyTextSelectionControlsProvider implements TextSelectionControls {
   }
 
   @override
-  Widget buildHandle(BuildContext context, TextSelectionHandleType type,
-          double textLineHeight) =>
+  Widget buildHandle(
+    BuildContext context,
+    TextSelectionHandleType type,
+    double textLineHeight, [
+    VoidCallback? onTap,
+    double? startGlyphHeight,
+    double? endGlyphHeight,
+  ]) =>
       controls.buildHandle(
         context,
         type,
         textLineHeight,
+        onTap,
+        startGlyphHeight,
+        endGlyphHeight,
       );
 
   @override
@@ -149,10 +158,17 @@ class CreamyTextSelectionControlsProvider implements TextSelectionControls {
   }
 
   @override
-  Offset getHandleAnchor(TextSelectionHandleType type, double textLineHeight) =>
+  Offset getHandleAnchor(
+    TextSelectionHandleType type,
+    double textLineHeight, [
+    double? startGlyphHeight,
+    double? endGlyphHeight,
+  ]) =>
       controls.getHandleAnchor(
         type,
         textLineHeight,
+        startGlyphHeight,
+        endGlyphHeight,
       );
 
   @override
