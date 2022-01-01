@@ -58,7 +58,7 @@ class StartScreen extends StatelessWidget {
               iconColor: popupIconButtonColor,
               padding: const EdgeInsets.all(10),
               icon: Icon(
-                EvaIcons.moreHorizotnalOutline,
+                EvaIcons.moreHorizontalOutline,
                 color: backgroundInDark,
               ),
               onSelected: (value) {

@@ -86,7 +86,7 @@ class StartTips extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8.0, vertical: 4),
-                        child: Icon(EvaIcons.moreHorizotnalOutline),
+                        child: Icon(EvaIcons.moreHorizontalOutline),
                       ),
                     ),
                   ),

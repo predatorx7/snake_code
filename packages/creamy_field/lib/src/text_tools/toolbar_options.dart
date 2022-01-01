@@ -37,7 +37,7 @@ mixin CreamyTextSelectionControls implements TextSelectionControls {
     ClipboardStatusNotifier clipboardStatus,
     Offset? lastSecondaryTapDownPosition,
   ) {
-    return this.buildToolbarWithActions(
+    return buildToolbarWithActions(
       context,
       globalEditableRegion,
       textLineHeight,
@@ -200,8 +200,9 @@ class CreamyTextSelectionControlsProvider implements TextSelectionControls {
       );
 
   @override
-  void handleCut(TextSelectionDelegate delegate) =>
-      controls.handleCut(delegate);
+  void handleCut(TextSelectionDelegate delegate,
+          ClipboardStatusNotifier? clipboardStatus) =>
+      controls.handleCut(delegate, clipboardStatus);
 
   @override
   Future<void> handlePaste(TextSelectionDelegate delegate) =>

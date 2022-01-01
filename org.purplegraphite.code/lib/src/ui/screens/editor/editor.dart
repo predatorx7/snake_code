@@ -154,7 +154,7 @@ class _EditorScreenState extends State<EditorScreen> {
         iconColor: popupIconButtonColor,
         padding: const EdgeInsets.all(10),
         icon: Icon(
-          EvaIcons.moreHorizotnalOutline,
+          EvaIcons.moreHorizontalOutline,
           color: backgroundInDark,
         ),
       ),
@@ -211,7 +211,7 @@ class _EditorScreenState extends State<EditorScreen> {
                           Navigator.maybePop(context);
                         },
                         trailing: IconButton(
-                          icon: Icon(EvaIcons.closeOutline),
+                          icon: Icon(EvaIcons.closeCircleOutline),
                           splashColor: Colors.red,
                           onPressed: () {
                             controller.removePage(page);
