@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Make compatible with flutter v2.8
+
 ## 0.4.0
 
 - Modified style-usage of public APIs
